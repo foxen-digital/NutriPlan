@@ -149,32 +149,64 @@ class ShoppingListController extends Controller
      * Display a listing of the user's shopping lists
      * GET /shopping-lists
      */
-    public function index(): ResourceCollection // e.g., ShoppingListResource::collection(...)
+    public function index(): Response // Using Inertia response
+    {
+        $shoppingLists = auth()->user()->shoppingLists;
+        
+        return Inertia::render('ShoppingLists/Index', [
+            'shoppingLists' => ShoppingListResource::collection($shoppingLists),
+        ]);
+    }
 
     /**
      * Display the specified shopping list
      * GET /shopping-lists/{shoppingList}
      * Route Model Binding: Requires authorization policy
      */
-    public function show(ShoppingList $shoppingList): ShoppingListResource
+    public function show(ShoppingList $shoppingList): Response // Using Inertia response
+    {
+        return Inertia::render('ShoppingLists/Show', [
+            'shoppingList' => new ShoppingListResource($shoppingList->load('items')),
+        ]);
+    }
 
     /**
      * Store a new empty shopping list
      * POST /shopping-lists
      */
-    public function store(StoreShoppingListRequest $request): JsonResponse // Returns ShoppingListResource
+    public function store(StoreShoppingListRequest $request): RedirectResponse
+    {
+        $shoppingList = new ShoppingList($request->validated());
+        $shoppingList->user_id = auth()->id();
+        $shoppingList->save();
+
+        return redirect()->route('shopping-lists.show', $shoppingList)
+            ->with('success', 'Shopping list created successfully.');
+    }
 
     /**
      * Update shopping list details (e.g., name)
      * PUT /shopping-lists/{shoppingList}
      */
-    public function update(UpdateShoppingListRequest $request, ShoppingList $shoppingList): ShoppingListResource
+    public function update(UpdateShoppingListRequest $request, ShoppingList $shoppingList): RedirectResponse
+    {
+        $shoppingList->update($request->validated());
+
+        return redirect()->route('shopping-lists.show', $shoppingList)
+            ->with('success', 'Shopping list updated successfully.');
+    }
 
     /**
      * Delete the shopping list and its items (handled by DB cascade)
      * DELETE /shopping-lists/{shoppingList}
      */
-    public function destroy(ShoppingList $shoppingList): JsonResponse // e.g., Response::HTTP_NO_CONTENT
+    public function destroy(ShoppingList $shoppingList): RedirectResponse
+    {
+        $shoppingList->delete();
+
+        return redirect()->route('shopping-lists.index')
+            ->with('success', 'Shopping list deleted successfully.');
+    }
 }
 ```
 
@@ -192,20 +224,41 @@ class ShoppingListItemController extends Controller
      * Add a custom item to the shopping list
      * POST /shopping-lists/{shoppingList}/items
      */
-    public function store(StoreShoppingListItemRequest $request, ShoppingList $shoppingList): ShoppingListItemResource
+    public function store(StoreShoppingListItemRequest $request, ShoppingList $shoppingList): RedirectResponse
+    {
+        $item = new ShoppingListItem($request->validated());
+        $item->shopping_list_id = $shoppingList->id;
+        $item->is_custom = true;
+        $item->save();
+
+        return redirect()->route('shopping-lists.show', $shoppingList)
+            ->with('success', 'Item added successfully.');
+    }
 
     /**
      * Update a custom shopping list item
      * PUT /shopping-lists/{shoppingList}/items/{item}
      * Route Model Binding: Ensure item belongs to list & user
      */
-    public function update(UpdateShoppingListItemRequest $request, ShoppingList $shoppingList, ShoppingListItem $item): ShoppingListItemResource
+    public function update(UpdateShoppingListItemRequest $request, ShoppingList $shoppingList, ShoppingListItem $item): RedirectResponse
+    {
+        $item->update($request->validated());
+
+        return redirect()->route('shopping-lists.show', $shoppingList)
+            ->with('success', 'Item updated successfully.');
+    }
 
     /**
      * Remove an item from the shopping list
      * DELETE /shopping-lists/{shoppingList}/items/{item}
      */
-    public function destroy(ShoppingList $shoppingList, ShoppingListItem $item): JsonResponse // e.g., Response::HTTP_NO_CONTENT
+    public function destroy(ShoppingList $shoppingList, ShoppingListItem $item): RedirectResponse
+    {
+        $item->delete();
+
+        return redirect()->route('shopping-lists.show', $shoppingList)
+            ->with('success', 'Item removed successfully.');
+    }
 }
 ```
 
@@ -224,7 +277,15 @@ class ShoppingListItemPurchaseController extends Controller
      * POST /shopping-lists/{shoppingList}/items/{item}/toggle-purchased
      * Route Model Binding: Ensure item belongs to list & user
      */
-    public function store(ShoppingList $shoppingList, ShoppingListItem $item): ShoppingListItemResource
+    public function store(ShoppingList $shoppingList, ShoppingListItem $item): RedirectResponse
+    {
+        $item->update([
+            'is_purchased' => !$item->is_purchased,
+        ]);
+
+        return redirect()->route('shopping-lists.show', $shoppingList)
+            ->with('success', 'Item ' . ($item->is_purchased ? 'marked as purchased' : 'marked as not purchased') . '.');
+    }
 
     // Bulk purchase update is deferred to Phase 7c
 }
@@ -313,13 +374,14 @@ class UpdateShoppingListItemRequest extends FormRequest
 
 #### Views/Components
 - Shopping Lists Index (`/shopping-lists`) - Displays list names, links to detail.
+    - Should match Meal Plans Index (`resources/js/pages/MealPlan/Index.vue`) in style & layout
 - Shopping List Detail (`/shopping-lists/{shoppingList}`) - Displays list name, items.
 - Shopping List Creation Modal (Triggered from Index) - Simple version for empty lists.
 - Shopping List Item Component (within Detail view) - Displays item details, edit/delete actions, purchase toggle.
 - Add/Edit Custom Item Form (Modal or inline within Detail view).
 
 #### Features
-- Basic table/list display on index.
+- Basic list display on index.
 - Detailed view showing items.
 - "Quick purchase toggle" button/checkbox per item.
 - Buttons/icons for adding, editing, deleting custom items.

@@ -85,10 +85,12 @@ ADD COLUMN `order` INT UNSIGNED NULL DEFAULT 0 AFTER category; -- Or appropriate
      * Regenerate/refresh an existing shopping list based on current meal plan state.
      * POST /shopping-lists/{shoppingList}/regenerate
      */
-    public function update(ShoppingList $shoppingList): JsonResponse // Returns ShoppingListResource
+    public function update(ShoppingList $shoppingList): RedirectResponse
     {
         $regeneratedList = $this->shoppingListService->regenerateList($shoppingList);
-        // Return resource...
+        
+        return redirect()->route('shopping-lists.show', $regeneratedList)
+            ->with('success', 'Shopping list regenerated successfully.');
     }
 ```
 
@@ -99,11 +101,18 @@ ADD COLUMN `order` INT UNSIGNED NULL DEFAULT 0 AFTER category; -- Or appropriate
      * Mark multiple items as purchased/unpurchased
      * POST /shopping-lists/{shoppingList}/items/bulk-purchase
      */
-    public function bulkUpdate(BulkPurchaseRequest $request, ShoppingList $shoppingList): JsonResponse
+    public function bulkUpdate(BulkPurchaseRequest $request, ShoppingList $shoppingList): RedirectResponse
     {
         $validated = $request->validated();
-        // Service logic to update purchase status for $validated['items']
-        // Return success response...
+        // Service logic to update purchase status for $validated['item_ids']
+        
+        // Example implementation:
+        $shoppingList->items()
+            ->whereIn('id', $validated['item_ids'])
+            ->update(['is_purchased' => $validated['purchased']]);
+            
+        return redirect()->route('shopping-lists.show', $shoppingList)
+            ->with('success', 'Items ' . ($validated['purchased'] ? 'marked as purchased' : 'marked as not purchased') . '.');
     }
 ```
 
@@ -112,6 +121,9 @@ ADD COLUMN `order` INT UNSIGNED NULL DEFAULT 0 AFTER category; -- Or appropriate
 ```php
 <?php
 // ... imports ...
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+
 class ShoppingListItemOrderController extends Controller
 {
     // Service injection
@@ -120,10 +132,17 @@ class ShoppingListItemOrderController extends Controller
      * Update the order of items in a shopping list.
      * PUT /shopping-lists/{shoppingList}/items/order
      */
-    public function update(UpdateItemOrderRequest $request, ShoppingList $shoppingList): JsonResponse
+    public function update(UpdateItemOrderRequest $request, ShoppingList $shoppingList): RedirectResponse
     {
-        // Logic to update the 'order' column based on request data
-        // (e.g., request contains an array of item IDs in the new order)
+        $itemIds = $request->validated()['item_ids'];
+        
+        // Update the order of each item
+        foreach ($itemIds as $index => $itemId) {
+            $shoppingList->items()->where('id', $itemId)->update(['order' => $index + 1]);
+        }
+        
+        return redirect()->route('shopping-lists.show', $shoppingList)
+            ->with('success', 'Items reordered successfully.');
     }
 }
 ```

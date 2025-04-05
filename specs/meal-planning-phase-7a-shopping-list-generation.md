@@ -102,6 +102,8 @@ Handles the generation requests.
 // ... imports ...
 use App\Services\ShoppingListService;
 use App\Models\MealPlan;
+use Inertia\Inertia;
+use Illuminate\Http\RedirectResponse;
 
 class ShoppingListGenerationController extends Controller
 {
@@ -115,7 +117,7 @@ class ShoppingListGenerationController extends Controller
      * POST /meal-plans/{mealPlan}/shopping-list
      * Route Model Binding: MealPlan
      */
-    public function store(GenerateShoppingListRequest $request, MealPlan $mealPlan): JsonResponse // Returns ShoppingListResource
+    public function store(GenerateShoppingListRequest $request, MealPlan $mealPlan): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -128,11 +130,12 @@ class ShoppingListGenerationController extends Controller
             $validated['period']
         );
 
-        // Return resource...
+        return redirect()->route('shopping-lists.show', $shoppingList)
+            ->with('success', 'Shopping list generated successfully.');
     }
 
     // Regenerate functionality deferred to Phase 7c
-    // public function update(ShoppingList $shoppingList): ShoppingListResource
+    // public function update(ShoppingList $shoppingList): RedirectResponse
 }
 ```
 
