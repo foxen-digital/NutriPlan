@@ -135,9 +135,7 @@ class RecipeController extends Controller
                 ->where('start_date', '>=', Carbon::now()->format('Y-m-d'))
                 ->select(['id', 'name', 'start_date', 'duration'])
                 ->get()
-                ->filter(function (MealPlan $mealPlan) {
-                    return $mealPlan->start_date->addDays($mealPlan->duration) >= Carbon::now()->format('Y-m-d');
-                }),
+                ->filter(fn (MealPlan $mealPlan): bool => $mealPlan->start_date->addDays($mealPlan->duration) >= Carbon::now()->format('Y-m-d')),
         ]);
     }
 

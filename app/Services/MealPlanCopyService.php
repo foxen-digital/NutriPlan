@@ -75,8 +75,10 @@ class MealPlanCopyService
                     foreach ($day->mealAssignments as $assignment) {
                         // Find the corresponding recipe in the new plan
                         $originalPlanRecipe = $assignment->mealPlanRecipe;
-
-                        if (!$originalPlanRecipe || !$originalPlanRecipe->recipe) {
+                        if (!$originalPlanRecipe) {
+                            continue;
+                        }
+                        if (!$originalPlanRecipe->recipe) {
                             continue;
                         }
 

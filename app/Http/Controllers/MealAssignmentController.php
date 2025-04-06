@@ -51,7 +51,7 @@ class MealAssignmentController extends Controller
             }
 
             // Find all existing assignments for this recipe in the meal plan
-            $existingAssignments = MealAssignment::whereHas('mealPlanDay', function (Builder $query) use ($mealPlanDay) {
+            $existingAssignments = MealAssignment::whereHas('mealPlanDay', function (Builder $query) use ($mealPlanDay): void {
                 $query->where('meal_plan_id', $mealPlanDay->meal_plan_id);
             })->where('meal_plan_recipe_id', $mealPlanRecipe->id)
               ->with('mealPlanDay')
@@ -61,26 +61,22 @@ class MealAssignmentController extends Controller
             if ($validated['to_cook']) {
                 // If explicitly set, use that value
                 $toCook = $validated['to_cook'];
-            } else {
+            } elseif ($existingAssignments->isEmpty()) {
                 // If not set, determine based on day numbers
-                if ($existingAssignments->isEmpty()) {
-                    // This is the first assignment of this recipe, mark it to cook
-                    $toCook = true;
-                } else {
-                    // Compare the day number of the new assignment with existing ones
-                    $newDayNumber = $mealPlanDay->day_number;
-                    $earliestExistingDayNumber = $existingAssignments->min(function (MealAssignment $assignment) {
-                        return $assignment->mealPlanDay->day_number;
-                    });
-                    // Set to_cook=true only if this is the earliest day
-                    $toCook = $newDayNumber < $earliestExistingDayNumber;
-                    // If this is the new earliest day, update other assignments
-                    if ($toCook) {
-                        foreach ($existingAssignments as $assignment) {
-                            if ($assignment->to_cook) {
-                                $assignment->to_cook = false;
-                                $assignment->save();
-                            }
+                // This is the first assignment of this recipe, mark it to cook
+                $toCook = true;
+            } else {
+                // Compare the day number of the new assignment with existing ones
+                $newDayNumber = $mealPlanDay->day_number;
+                $earliestExistingDayNumber = $existingAssignments->min(fn (MealAssignment $assignment) => $assignment->mealPlanDay->day_number);
+                // Set to_cook=true only if this is the earliest day
+                $toCook = $newDayNumber < $earliestExistingDayNumber;
+                // If this is the new earliest day, update other assignments
+                if ($toCook) {
+                    foreach ($existingAssignments as $assignment) {
+                        if ($assignment->to_cook) {
+                            $assignment->to_cook = false;
+                            $assignment->save();
                         }
                     }
                 }
@@ -208,15 +204,13 @@ class MealAssignmentController extends Controller
 
             // If this was marked as "to cook", find the next earliest assignment and mark it
             if ($wasToCook) {
-                $earliestAssignment = MealAssignment::whereHas('mealPlanDay', function (Builder $query) use ($mealPlanId) {
+                $earliestAssignment = MealAssignment::whereHas('mealPlanDay', function (Builder $query) use ($mealPlanId): void {
                     $query->where('meal_plan_id', $mealPlanId);
                 })
                 ->where('meal_plan_recipe_id', $recipeId)
                 ->with('mealPlanDay')
                 ->get()
-                ->sortBy(function (MealAssignment $assignment) {
-                    return $assignment->mealPlanDay->day_number;
-                })
+                ->sortBy(fn (MealAssignment $assignment) => $assignment->mealPlanDay->day_number)
                 ->first();
 
                 if ($earliestAssignment) {

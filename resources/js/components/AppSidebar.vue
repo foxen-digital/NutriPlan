@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookmarkIcon, BookOpen, CalendarIcon, Folder, HeartIcon, LayoutGrid, Tag } from 'lucide-vue-next';
+import { BookmarkIcon, BookOpen, CalendarIcon, Folder, HeartIcon, LayoutGrid, ShoppingBasketIcon, Tag } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -33,6 +33,11 @@ const mainNavItems: NavItem[] = [
         title: 'Meal Plans',
         href: '/meal-plans',
         icon: CalendarIcon,
+    },
+    {
+        title: 'Shopping Lists',
+        href: '/shopping-lists',
+        icon: ShoppingBasketIcon,
     },
 ];
 

@@ -27,7 +27,7 @@ class MealPlanController extends Controller
             ->get();
 
         // Calculate end dates and sort with current/future plans first
-        $sortedMealPlans = $mealPlans->sortBy(function (MealPlan $mealPlan) {
+        $sortedMealPlans = $mealPlans->sortBy(function (MealPlan $mealPlan): array {
             $endDate = date('Y-m-d', strtotime($mealPlan->start_date . ' + ' . $mealPlan->duration . ' days'));
             $isPast = $endDate < date('Y-m-d');
 

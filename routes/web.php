@@ -13,6 +13,9 @@ use App\Http\Controllers\UserRecipeController;
 use App\Http\Controllers\MealPlanRecipeController;
 use App\Http\Controllers\MealAssignmentController;
 use App\Http\Controllers\MealPlanCopyController;
+use App\Http\Controllers\ShoppingListController;
+use App\Http\Controllers\ShoppingListItemController;
+use App\Http\Controllers\ShoppingListItemPurchaseController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -50,6 +53,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Fix the parameter names to match the controller expectations
     Route::delete('meal-plans/{id}/recipes/{recipeId}', [MealPlanRecipeController::class, 'destroy'])
          ->name('meal-plans.remove-recipe');
+
+    // Shopping list routes
+    Route::resource('shopping-lists', ShoppingListController::class);
+    Route::post('shopping-lists/{shoppingList}/items', [ShoppingListItemController::class, 'store'])->name('shopping-lists.items.store');
+    Route::put('shopping-lists/{shoppingList}/items/{item}', [ShoppingListItemController::class, 'update'])->name('shopping-lists.items.update');
+    Route::delete('shopping-lists/{shoppingList}/items/{item}', [ShoppingListItemController::class, 'destroy'])->name('shopping-lists.items.destroy');
+    Route::post('shopping-lists/{shoppingList}/items/{item}/toggle-purchased', [ShoppingListItemPurchaseController::class, 'store'])->name('shopping-lists.items.toggle-purchased');
 });
 
 Route::middleware(['auth'])->group(function () {
