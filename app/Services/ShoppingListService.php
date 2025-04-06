@@ -70,10 +70,9 @@ class ShoppingListService
             foreach ($day->mealAssignments as $assignment) {
                 $recipe = $assignment->mealPlanRecipe->recipe;
                 $scale = $assignment->mealPlanRecipe->scale_factor;
-                $servingsRatio = $assignment->servings / $recipe->servings;
 
                 foreach ($recipe->ingredients as $ingredient) {
-                    $amount = $ingredient->pivot->amount * $scale * $servingsRatio;
+                    $amount = $ingredient->pivot->amount * $scale;
                     $unit = $ingredient->pivot->unit;
                     $unitValue = $unit ? ($unit instanceof MeasurementUnit ? $unit->value : $unit) : null;
 
