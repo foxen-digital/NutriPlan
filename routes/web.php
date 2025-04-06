@@ -16,6 +16,7 @@ use App\Http\Controllers\MealPlanCopyController;
 use App\Http\Controllers\ShoppingListController;
 use App\Http\Controllers\ShoppingListItemController;
 use App\Http\Controllers\ShoppingListItemPurchaseController;
+use App\Http\Controllers\ShoppingListGenerationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -49,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     ]);
     Route::post('meal-plans/add-recipe', [MealPlanRecipeController::class, 'store'])->name('meal-plans.add-recipe');
     Route::post('meal-plans/{mealPlan}/copy', MealPlanCopyController::class)->name('meal-plans.copy');
+    Route::post('meal-plans/{mealPlan}/shopping-list', [ShoppingListGenerationController::class, 'store'])->name('meal-plans.generate-shopping-list');
 
     // Fix the parameter names to match the controller expectations
     Route::delete('meal-plans/{id}/recipes/{recipeId}', [MealPlanRecipeController::class, 'destroy'])

@@ -18,9 +18,13 @@
                         <TrashIcon class="mr-2 h-4 w-4" />
                         Delete
                     </Button>
-                    <Button variant="outline" size="sm" @click="() => showCopyModal()">
+                    <Button variant="outline" size="sm" @click="showCopyModal">
                         <CopyIcon class="mr-2 h-4 w-4" />
                         Copy Plan
+                    </Button>
+                    <Button variant="outline" size="sm" @click="showGenerateShoppingListModal">
+                        <ShoppingCartIcon class="mr-2 h-4 w-4" />
+                        Generate Shopping List
                     </Button>
                 </div>
             </div>
@@ -147,7 +151,7 @@
                         <div>
                             <Label for="name">New Plan Name (Optional)</Label>
                             <Input id="name" v-model="copyForm.name" placeholder="e.g., Copy of Weekly Plan" />
-                            <p class="mt-1 text-xs text-gray-500">Leave blank to use "Copy of {{ mealPlan.name || 'Meal Plan' }}"</p>
+                            <p class="mt-1 text-xs text-gray-500">Leave blank to use "Copy of {{ props.mealPlan.name || 'Meal Plan' }}"</p>
                         </div>
                         <div>
                             <Label for="start_date">Start Date</Label>
@@ -179,6 +183,44 @@
                     <DialogFooter>
                         <Button type="button" variant="outline" @click="isCopyModalOpen = false">Cancel</Button>
                         <Button type="submit" :disabled="copyForm.processing">Copy Plan</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Generate Shopping List Modal -->
+        <Dialog :open="isGenerateShoppingListModalOpen" @update:open="isGenerateShoppingListModalOpen = $event">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Generate Shopping List</DialogTitle>
+                    <DialogDescription>Create a shopping list from this meal plan.</DialogDescription>
+                </DialogHeader>
+                <form @submit.prevent="generateShoppingList">
+                    <div class="space-y-4 py-4">
+                        <div>
+                            <Label for="list-name">Shopping List Name (Optional)</Label>
+                            <Input id="list-name" v-model="shoppingListForm.name" placeholder="e.g., Groceries for the week" />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Leave blank to use "Shopping List for {{ props.mealPlan.name || 'Meal Plan' }} - {{ selectedPeriodLabel }}"
+                            </p>
+                        </div>
+                        <div>
+                            <Label for="period">Period</Label>
+                            <select
+                                id="period"
+                                v-model="shoppingListForm.period"
+                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:ring-gray-800 sm:text-sm sm:leading-6"
+                            >
+                                <option value="full">Full Plan ({{ formatPeriod('full') }})</option>
+                                <option v-if="props.mealPlan.duration === 14" value="week1">Week 1 ({{ formatPeriod('week1') }})</option>
+                                <option v-if="props.mealPlan.duration === 14" value="week2">Week 2 ({{ formatPeriod('week2') }})</option>
+                            </select>
+                            <InputError :message="shoppingListForm.errors.period" />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button type="button" variant="outline" @click="isGenerateShoppingListModalOpen = false">Cancel</Button>
+                        <Button type="submit" :disabled="shoppingListForm.processing">Generate List</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -353,7 +395,7 @@ import type { Recipe } from '@/types/recipe';
 import { formatEndDate, formatStartDate } from '@/utils/date';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
-import { CopyIcon, MinusIcon, PlusIcon, TrashIcon } from 'lucide-vue-next';
+import { CopyIcon, MinusIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface RecipeWithPivot extends Recipe {
@@ -412,6 +454,7 @@ const showAssignMealModal = ref(false);
 const selectedDay = ref<MealPlanDay | null>(null);
 const selectedAssignment = ref<MealAssignment | null>(null);
 const isCopyModalOpen = ref(false);
+const isGenerateShoppingListModalOpen = ref(false);
 
 const copyForm = useForm({
     name: '',
@@ -428,6 +471,11 @@ const assignmentForm = useForm<AssignmentFormData>({
 
 const editAssignmentForm = useForm<EditAssignmentFormData>({
     servings: 1,
+});
+
+const shoppingListForm = useForm({
+    name: '',
+    period: 'full',
 });
 
 const daysWithDates = computed(() => {
@@ -690,6 +738,55 @@ const copyMealPlan = () => {
     copyForm.post(route('meal-plans.copy', props.mealPlan.id), {
         onSuccess: () => {
             isCopyModalOpen.value = false;
+        },
+    });
+};
+
+const showGenerateShoppingListModal = () => {
+    // Reset the form and show the modal
+    shoppingListForm.reset();
+    shoppingListForm.period = 'full';
+    isGenerateShoppingListModalOpen.value = true;
+};
+
+const selectedPeriodLabel = computed(() => {
+    const period = shoppingListForm.period;
+    if (period === 'week1') return 'Week 1';
+    if (period === 'week2') return 'Week 2';
+    return 'Full Plan';
+});
+
+const formatPeriod = (period: 'full' | 'week1' | 'week2'): string => {
+    const startDate = new Date(props.mealPlan.start_date);
+    let endDate;
+
+    if (period === 'full') {
+        endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + props.mealPlan.duration - 1);
+    } else if (period === 'week1') {
+        endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 6);
+    } else {
+        // week2
+        const week2Start = new Date(startDate);
+        week2Start.setDate(week2Start.getDate() + 7);
+        endDate = new Date(week2Start);
+        endDate.setDate(endDate.getDate() + 6);
+        return `${formatShortDate(week2Start)} - ${formatShortDate(endDate)}`;
+    }
+
+    return `${formatShortDate(startDate)} - ${formatShortDate(endDate)}`;
+};
+
+const formatShortDate = (date: Date): string => {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const generateShoppingList = () => {
+    shoppingListForm.post(route('meal-plans.generate-shopping-list', props.mealPlan.id), {
+        onSuccess: () => {
+            isGenerateShoppingListModalOpen.value = false;
+            shoppingListForm.reset();
         },
     });
 };
