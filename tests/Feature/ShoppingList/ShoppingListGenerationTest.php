@@ -86,7 +86,7 @@ class ShoppingListGenerationTest extends TestCase
             'shopping_list_id' => 1,
             'ingredient_id' => $flour->id,
             'name' => 'Flour',
-            'quantity' => 1.0,
+            'quantity' => 2.0,
             'unit' => 'cup',
             'is_custom' => false,
         ]);
@@ -95,7 +95,7 @@ class ShoppingListGenerationTest extends TestCase
             'shopping_list_id' => 1,
             'ingredient_id' => $sugar->id,
             'name' => 'Sugar',
-            'quantity' => 0.5,
+            'quantity' => 1.0,
             'unit' => 'cup',
             'is_custom' => false,
         ]);

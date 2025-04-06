@@ -11,7 +11,7 @@
                     </h1>
                     <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">
                         {{ formatStartDate(mealPlan.start_date) }} to {{ formatEndDate(mealPlan.start_date,
-                        mealPlan.duration) }} •
+                            mealPlan.duration) }} •
                         {{ mealPlan.people_count }} people
                     </p>
                 </div>
@@ -185,13 +185,25 @@
                 </DialogHeader>
                 <form @submit.prevent="generateShoppingList">
                     <div class="space-y-4 py-4">
+                        <!-- Add warning message if no meals are flagged to cook -->
+                        <div v-if="!hasMealsToCook" class="rounded-md bg-amber-50 p-4 dark:bg-amber-900/20">
+                            <div class="flex">
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-amber-800 dark:text-amber-200">
+                                        No meals marked "to cook" in this meal plan. Please mark at least one meal as
+                                        "to cook" before generating a shopping list.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
                             <Label for="list-name">Shopping List Name (Optional)</Label>
                             <Input id="list-name" v-model="shoppingListForm.name"
                                 placeholder="e.g., Groceries for the week" />
                             <p class="mt-1 text-xs text-gray-500">
                                 Leave blank to use "Shopping List for {{ props.mealPlan.name || 'Meal Plan' }} - {{
-                                selectedPeriodLabel }}"
+                                    selectedPeriodLabel }}"
                             </p>
                         </div>
                         <div>
@@ -210,7 +222,8 @@
                     <DialogFooter>
                         <Button type="button" variant="outline"
                             @click="isGenerateShoppingListModalOpen = false">Cancel</Button>
-                        <Button type="submit" :disabled="shoppingListForm.processing">Generate List</Button>
+                        <Button type="submit" :disabled="!hasMealsToCook || shoppingListForm.processing">Generate
+                            List</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -267,7 +280,7 @@
                                     step="0.5" />
                                 <p class="mt-1 text-xs text-gray-500">
                                     This will make approximately {{ calculateServings(selectedRecipe.servings,
-                                    scaleFactor) }} servings
+                                        scaleFactor) }} servings
                                 </p>
                             </div>
                         </div>
@@ -294,7 +307,7 @@
                             step="0.5" />
                         <p class="mt-1 text-xs text-gray-500">
                             This will make approximately {{ recipeToEdit ? calculateServings(recipeToEdit.servings,
-                            editScaleFactor) : 0 }} servings
+                                editScaleFactor) : 0 }} servings
                         </p>
                     </div>
                 </div>
@@ -782,4 +795,14 @@ const generateShoppingList = () => {
         },
     });
 };
+
+// Add a computed property to check if there are any meals to cook
+const hasMealsToCook = computed(() => {
+    if (!props.mealPlan.days) return false;
+
+    // Check if any day has at least one meal assignment marked as "to cook"
+    return props.mealPlan.days.some(day =>
+        day.meal_assignments && day.meal_assignments.some(assignment => assignment.to_cook)
+    );
+});
 </script>
