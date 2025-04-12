@@ -142,7 +142,7 @@ class ShoppingListService
     public function prepareForDisplay(ShoppingList $shoppingList): array
     {
         // Load items ordered by the order column, then by name as a fallback
-        $shoppingList->load(['items' => function (HasMany $query) {
+        $shoppingList->load(['items' => function (HasMany $query): void {
             $query->orderBy('order')->orderBy('name');
         }]);
 

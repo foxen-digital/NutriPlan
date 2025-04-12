@@ -10,7 +10,7 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('shopping_list_items', function (Blueprint $table) {
+        Schema::table('shopping_list_items', function (Blueprint $table): void {
             $table->unsignedInteger('order')->default(0)->after('category');
         });
     }
@@ -20,7 +20,7 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('shopping_list_items', function (Blueprint $table) {
+        Schema::table('shopping_list_items', function (Blueprint $table): void {
             $table->dropColumn('order');
         });
     }

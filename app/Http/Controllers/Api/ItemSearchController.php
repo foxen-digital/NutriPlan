@@ -12,15 +12,12 @@ class ItemSearchController extends Controller
 {
     /**
      * Handle the incoming request.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function __invoke(Request $request): JsonResponse
     {
         $query = $request->input('query');
 
-        if (empty($query) || strlen($query) < 2) {
+        if (empty($query) || strlen((string) $query) < 2) {
             return response()->json([]);
         }
 

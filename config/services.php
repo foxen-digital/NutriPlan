@@ -46,4 +46,10 @@ return [
         'api_url' => env('BARCODE_API_URL', 'https://freewebapi.com/api/v1/barcode'),
     ],
 
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_INGREDIENT_MODEL', 'gpt-4o-mini'),
+        // 'organization' => env('OPENAI_ORGANIZATION'), // Optional
+    ],
+
 ];
