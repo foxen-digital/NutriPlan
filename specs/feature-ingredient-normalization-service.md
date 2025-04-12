@@ -22,6 +22,35 @@ This specification details the creation of the `IngredientNormalizationService`,
 
 ## Implementation Details
 
+### API Client Definition
+
+#### OpenAiClient (`App\Services\Clients\OpenAiClient`)
+- **Purpose:** Encapsulates direct HTTP communication with the OpenAI API, specifically the Chat Completions endpoint.
+- **Registration:** This class should be registered as a singleton in a service provider (e.g., `AppServiceProvider` or a dedicated one) to reuse the HTTP client instance and configuration.
+    ```php
+    // In a Service Provider's register() method:
+    $this->app->singleton(OpenAiClient::class, function ($app) {
+        return new OpenAiClient(
+            $app->make(\Illuminate\Contracts\Http\Factory::class),
+            config('services.openai.api_key'),
+            config('services.openai.model', 'gpt-4o-mini') // Pass default model
+        );
+    });
+    ```
+- **Methods:**
+    - `public function setModel(string $model_name): self`
+        - Sets the model to be used
+    - `public function getChatCompletion(array $messages, array $options = []): \Illuminate\Http\Client\Response`
+        - Takes an array of messages conforming to the OpenAI API format.
+        - Takes an optional array of parameters (e.g., `temperature`, `max_tokens`, `response_format`).
+        - Constructs the full request payload including the configured model.
+        - Uses Laravel's `Http` client (injected) to make the POST request to the OpenAI Chat Completions endpoint (`https://api.openai.com/v1/chat/completions`).
+        - Includes necessary headers (Authorization: Bearer YOUR_API_KEY, Content-Type: application/json).
+        - Returns the raw `Illuminate\Http\Client\Response` object. Error handling (like checking status codes, throwing exceptions on client/server errors) should ideally happen within this client or be handled by the caller (`IngredientNormalizationService`).
+- **Dependencies:**
+    - `Illuminate\Contracts\Http\Factory` (or `Illuminate\Support\Facades\Http` if preferred, though injection is better for testing)
+    - Configuration values (API Key, Model)
+
 ### Service Definition
 
 #### IngredientNormalizationService (`App\Services\IngredientNormalizationService`)
@@ -42,36 +71,44 @@ This specification details the creation of the `IngredientNormalizationService`,
             - Collects the structured data for each ingredient string.
         - Returns an array of structured ingredient data objects/arrays, maintaining the order corresponding to the input strings.
 - **Dependencies:**
-    - `Illuminate\Support\Facades\Http`
+    - `App\Services\Clients\OpenAiClient` (Injected)
     - `Illuminate\Support\Facades\Log`
     - `Illuminate\Support\Facades\Config`
     - `App\Services\IngredientParser`
 
 ### Configuration
-- Add necessary configuration for the chosen LLM API key and endpoint URL in `.env` and `config/services.php`.
+- Add necessary configuration for the **OpenAI API key** in `.env` and `config/services.php`.
     - Example `config/services.php` entry:
     ```php
-    'llm' => [
-        'ingredient_parser' => [
-            'endpoint' => env('LLM_INGREDIENT_ENDPOINT'),
-            'key' => env('LLM_API_KEY'),
-            // Add other necessary parameters like model name if needed
-        ],
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_INGREDIENT_MODEL', 'gpt-4o-mini'), // Specify model, default to gpt-4o-mini
+        // 'organization' => env('OPENAI_ORGANIZATION'), // Optional
     ],
     ```
-- Define corresponding `LLM_INGREDIENT_ENDPOINT` and `LLM_API_KEY` in `.env`.
+- Define `OPENAI_API_KEY` in `.env`. `OPENAI_INGREDIENT_MODEL` can optionally be set in `.env` to override the default.
+- **Implementation Note:** The service will need to format requests according to the OpenAI Chat Completions API endpoint, likely using the official `openai-php/client` library or direct HTTP calls.
 
 ## LLM Prompt Structure (Example)
 
 ```json
 {
-  "prompt": "Given the following list of ingredient strings from a recipe:\n[\n  \"2 red onions, peeled and quartered\",\n  \"1 tbsp olive oil\",\n  \"salt and pepper to taste\"\n]\n\nPlease return a JSON array where each object represents an ingredient and has the following keys:\n- \"base_name\": The common name of the ingredient (e.g., \"red onion\", \"olive oil\", \"salt\").\n- \"quantity\": The numeric quantity (e.g., 2, 1). Use 0 or null if not applicable (like \"to taste\").\n- \"unit\": The unit of measurement (e.g., \"piece\", \"tbsp\", \"pinch\"). Use standard abbreviations or full names. Use null or \"unit\" if not applicable.\n- \"preparation_notes\": Any preparation instructions or extra details present in the original string (e.g., \"peeled and quartered\", \"to taste\"). Use null if none.\n- \"description\": The base_name & preparation_notes combined.\n- \"original_string\": The full original ingredient string.\n\nEnsure the output is valid JSON.",
-  "parameters": {
-     // LLM specific parameters like temperature, max_tokens etc.
-  }
+  "model": "gpt-4o-mini", // Specify the chosen model
+  "response_format": { "type": "json_object" }, // Request JSON output
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an expert recipe ingredient parser. You will be given a list of ingredient strings. Your task is to return a single JSON object containing a key 'ingredients', whose value is an array. Each object in the array should represent one ingredient from the input list and have the following keys:\n- 'base_name': The common name of the ingredient (e.g., \"red onion\", \"olive oil\", \"salt\"). Normalize the name.\n- 'quantity': The numeric quantity (e.g., 2, 1). Use 0 or null if not applicable (like \"to taste\").\n- 'unit': The unit of measurement (e.g., \"piece\", \"tbsp\", \"pinch\"). Use standard abbreviations or full names. Use null or \"unit\" if not applicable.\n- 'preparation_notes': Any preparation instructions or extra details present in the original string (e.g., \"peeled and quartered\", \"to taste\"). Use null if none.\n- 'description': Combine the 'base_name' and 'preparation_notes' into a descriptive string.\n- 'original_string': The full, unmodified original ingredient string.\n\nFollow the structure precisely. Ensure quantity is a number or null. Ensure unit is a string or null. Ensure preparation_notes is a string or null."
+    },
+    {
+      "role": "user",
+      "content": "Parse the following ingredient strings:\n[\n  \"2 red onions, peeled and quartered\",\n  \"1 tbsp olive oil\",\n  \"salt and pepper to taste\"\n]"
+    }
+  ],
+  "temperature": 0.2 // Example parameter for more deterministic output
 }
 ```
-*Note: The exact prompt structure might need adjustment based on the specific LLM API requirements.* 
+*Note: This structure reflects the OpenAI Chat Completions API format. The actual prompt within the 'user' content may be dynamically generated based on the input strings.* 
 
 ## Testing Strategy
 
