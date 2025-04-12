@@ -3,9 +3,9 @@
         <Head :title="`${mealPlan.name || 'Meal Plan'} | NutriPlan`" />
 
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
-            <div class="mb-8 flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+            <div class="sm:flex sm:items-center">
+                <div class="sm:flex-auto">
+                    <h1 class="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">
                         {{ mealPlan.name || `Meal Plan (${formatStartDate(mealPlan.start_date)})` }}
                     </h1>
                     <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">
@@ -13,23 +13,50 @@
                         {{ mealPlan.people_count }} people
                     </p>
                 </div>
-                <div class="flex items-center gap-4">
-                    <Button variant="destructive" size="sm" @click="confirmDeleteMealPlan">
-                        <TrashIcon class="mr-2 h-4 w-4" />
-                        Delete
-                    </Button>
-                    <Button variant="outline" size="sm" @click="showCopyModal">
-                        <CopyIcon class="mr-2 h-4 w-4" />
-                        Copy Plan
-                    </Button>
-                    <Button variant="outline" size="sm" @click="showGenerateShoppingListModal">
-                        <ShoppingCartIcon class="mr-2 h-4 w-4" />
-                        Generate Shopping List
-                    </Button>
+                <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+                    <div class="hidden items-center gap-2 sm:flex">
+                        <Button variant="destructive" @click="confirmDeleteMealPlan">
+                            <TrashIcon class="mr-2 h-4 w-4" />
+                            Delete
+                        </Button>
+                        <Button variant="outline" @click="showCopyModal">
+                            <CopyIcon class="mr-2 h-4 w-4" />
+                            Copy Plan
+                        </Button>
+                        <Button variant="outline" @click="showGenerateShoppingListModal">
+                            <ShoppingCartIcon class="mr-2 h-4 w-4" />
+                            Generate Shopping List
+                        </Button>
+                    </div>
                 </div>
             </div>
 
-            <div class="rounded-lg border dark:border-gray-800">
+            <!-- Floating Action Button for mobile -->
+            <div class="fixed right-4 top-4 z-10 flex flex-col-reverse gap-2 sm:hidden">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button size="icon" class="h-12 w-12 rounded-full">
+                            <MenuIcon class="h-6 w-6" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem @click="showGenerateShoppingListModal">
+                            <ShoppingCartIcon class="mr-2 h-4 w-4" />
+                            Generate Shopping List
+                        </DropdownMenuItem>
+                        <DropdownMenuItem @click="showCopyModal">
+                            <CopyIcon class="mr-2 h-4 w-4" />
+                            Copy Plan
+                        </DropdownMenuItem>
+                        <DropdownMenuItem @click="confirmDeleteMealPlan" class="text-destructive">
+                            <TrashIcon class="mr-2 h-4 w-4" />
+                            Delete
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+
+            <div class="mt-8 rounded-lg border dark:border-gray-800">
                 <div class="p-6">
                     <div class="mb-6 flex justify-between">
                         <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Recipes</h2>
@@ -396,6 +423,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
@@ -407,7 +435,7 @@ import type { Recipe } from '@/types/recipe';
 import { formatEndDate, formatStartDate } from '@/utils/date';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
-import { CopyIcon, MinusIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
+import { CopyIcon, MenuIcon, MinusIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface RecipeWithPivot extends Recipe {

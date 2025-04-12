@@ -1,14 +1,12 @@
 <template>
     <AppLayout>
-
         <Head title="Shopping Lists | NutriPlan" />
 
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
             <div class="sm:flex sm:items-center">
                 <div class="sm:flex-auto">
                     <h1 class="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">Shopping Lists</h1>
-                    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Create and manage your shopping lists for
-                        easy grocery shopping.</p>
+                    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Create and manage your shopping lists for easy grocery shopping.</p>
                 </div>
                 <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                     <Button @click="isCreateModalOpen = true">
@@ -23,8 +21,7 @@
                     <ShoppingCartIcon class="h-12 w-12" />
                 </div>
                 <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">No shopping lists</h3>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new shopping list.
-                </p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new shopping list.</p>
                 <div class="mt-6">
                     <Button @click="isCreateModalOpen = true">
                         <PlusIcon class="mr-2 h-4 w-4" />
@@ -38,18 +35,16 @@
                     <li v-for="shoppingList in shoppingLists" :key="shoppingList.id" class="py-4">
                         <div class="flex items-center space-x-4">
                             <div class="flex-shrink-0">
-                                <div
-                                    class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
                                     <ShoppingBasketIcon class="h-6 w-6 text-blue-600 dark:text-blue-300" />
                                 </div>
                             </div>
                             <div class="min-w-0 flex-1">
                                 <Link :href="route('shopping-lists.show', shoppingList.id)" class="focus:outline-none">
-                                <p class="text-sm font-medium text-gray-900 dark:text-white">
-                                    {{ shoppingList.name }}
-                                </p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Created {{
-                                    formatDate(shoppingList.created_at) }}</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ shoppingList.name }}
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Created {{ formatDate(shoppingList.created_at) }}</p>
                                 </Link>
                             </div>
                             <div class="flex-shrink-0">
@@ -65,8 +60,8 @@
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem asChild>
                                             <Link :href="route('shopping-lists.show', shoppingList.id)">
-                                            <EyeIcon class="mr-2 h-4 w-4" />
-                                            View
+                                                <EyeIcon class="mr-2 h-4 w-4" />
+                                                View
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem @click="showRenameModal(shoppingList)">
@@ -120,8 +115,7 @@
                     <div class="space-y-4 py-4">
                         <div>
                             <Label for="rename-name">List Name</Label>
-                            <Input id="rename-name" v-model="renameForm.name" placeholder="e.g., Weekly Groceries"
-                                required />
+                            <Input id="rename-name" v-model="renameForm.name" placeholder="e.g., Weekly Groceries" required />
                             <InputError :message="renameForm.errors.name" />
                         </div>
                     </div>
@@ -138,8 +132,7 @@
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Delete Shopping List</DialogTitle>
-                    <DialogDescription>Are you sure you want to delete this shopping list? This action cannot be undone.
-                    </DialogDescription>
+                    <DialogDescription>Are you sure you want to delete this shopping list? This action cannot be undone. </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
                     <Button type="button" variant="outline" @click="isDeleteModalOpen = false">Cancel</Button>
@@ -160,7 +153,7 @@ import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { EllipsisVerticalIcon, EyeIcon, PlusIcon, ShoppingBasketIcon, ShoppingCartIcon, TrashIcon, PencilIcon } from 'lucide-vue-next';
+import { EllipsisVerticalIcon, EyeIcon, PencilIcon, PlusIcon, ShoppingBasketIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface ShoppingList {

@@ -162,7 +162,7 @@ export function useBarcodeScanner(): UseBarcodeScanner {
 
         // Release any existing media streams
         if (currentStream) {
-            currentStream.getTracks().forEach(track => track.stop());
+            currentStream.getTracks().forEach((track) => track.stop());
             currentStream = null;
         }
 

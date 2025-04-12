@@ -1,32 +1,46 @@
 <template>
     <AppLayout>
-
         <Head :title="`${shoppingList.name} | Shopping Lists`" />
 
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <div class="flex items-center gap-4">
-                        <Button variant="outline" size="icon" asChild>
-                            <Link :href="route('shopping-lists.index')">
-                            <ArrowLeftIcon class="h-4 w-4" />
-                            </Link>
+            <div class="sm:flex sm:items-center">
+                <div class="sm:flex-auto">
+                    <h1 class="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">{{ shoppingList.name }}</h1>
+                    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Created {{ formatDate(shoppingList.created_at) }}</p>
+                </div>
+                <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+                    <div class="hidden items-center gap-2 sm:flex">
+                        <Button @click="showAddItemModal = true">
+                            <PlusIcon class="mr-2 h-4 w-4" />
+                            Add Item
                         </Button>
-                        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ shoppingList.name }}</h1>
+                        <Button @click="showScannerModal = true" variant="outline">
+                            <BarcodeIcon class="mr-2 h-4 w-4" />
+                            Scan Item
+                        </Button>
                     </div>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Created {{
-                        formatDate(shoppingList.created_at) }}</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <Button @click="showAddItemModal = true">
-                        <PlusIcon class="mr-2 h-4 w-4" />
-                        Add Item
-                    </Button>
-                    <Button @click="showScannerModal = true" variant="outline">
-                        <BarcodeIcon class="mr-2 h-4 w-4" />
-                        Scan Item
-                    </Button>
-                </div>
+            </div>
+
+            <!-- Floating Action Button for mobile -->
+            <div class="fixed right-4 top-4 z-10 flex flex-col-reverse gap-2 sm:hidden">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button size="icon" class="h-12 w-12 rounded-full">
+                            <MenuIcon class="h-6 w-6" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem @click="showAddItemModal = true">
+                            <PlusIcon class="mr-2 h-4 w-4" />
+                            Add Item
+                        </DropdownMenuItem>
+                        <DropdownMenuItem @click="showScannerModal = true">
+                            <BarcodeIcon class="mr-2 h-4 w-4" />
+                            Scan Item
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             <div v-if="!shoppingList.items || shoppingList.items.length === 0" class="mt-8 text-center">
@@ -52,14 +66,16 @@
                 </div>
 
                 <div class="divide-y divide-gray-200 rounded-md border dark:divide-gray-800">
-                    <div v-for="item in sortedItems" :key="item.id" class="flex items-center justify-between p-4"
-                        :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }">
+                    <div
+                        v-for="item in sortedItems"
+                        :key="item.id"
+                        class="flex items-center justify-between p-4"
+                        :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }"
+                    >
                         <div class="flex items-center gap-3">
-                            <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased"
-                                @update:checked="toggleItemPurchased(item)" />
+                            <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased" @update:checked="toggleItemPurchased(item)" />
                             <div>
-                                <div class="font-medium text-gray-900 dark:text-white"
-                                    :class="{ 'line-through': item.is_purchased }">
+                                <div class="font-medium text-gray-900 dark:text-white" :class="{ 'line-through': item.is_purchased }">
                                     {{ item.name }}
                                 </div>
                                 <div v-if="item.quantity || item.unit" class="text-sm text-gray-500 dark:text-gray-400">
@@ -94,8 +110,6 @@
             </div>
         </div>
 
-
-
         <!-- Add Item Modal -->
         <Dialog :open="showAddItemModal" @update:open="showAddItemModal = $event">
             <DialogContent>
@@ -113,8 +127,7 @@
                         <div class="flex gap-4">
                             <div class="w-1/2">
                                 <Label for="item-quantity">Quantity</Label>
-                                <Input id="item-quantity" type="number" step="0.5" min="0" v-model="itemForm.quantity"
-                                    placeholder="e.g., 2" />
+                                <Input id="item-quantity" type="number" step="0.5" min="0" v-model="itemForm.quantity" placeholder="e.g., 2" />
                                 <InputError :message="itemForm.errors.quantity" />
                             </div>
                             <div class="w-1/2">
@@ -154,8 +167,7 @@
                         <div class="flex gap-4">
                             <div class="w-1/2">
                                 <Label for="edit-item-quantity">Quantity</Label>
-                                <Input id="edit-item-quantity" type="number" step="0.5" min="0"
-                                    v-model="itemForm.quantity" placeholder="e.g., 2" />
+                                <Input id="edit-item-quantity" type="number" step="0.5" min="0" v-model="itemForm.quantity" placeholder="e.g., 2" />
                                 <InputError :message="itemForm.errors.quantity" />
                             </div>
                             <div class="w-1/2">
@@ -183,8 +195,7 @@
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Delete Item</DialogTitle>
-                    <DialogDescription>Are you sure you want to delete this item? This action cannot be undone.
-                    </DialogDescription>
+                    <DialogDescription>Are you sure you want to delete this item? This action cannot be undone. </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
                     <Button type="button" variant="outline" @click="showDeleteItemModal = false">Cancel</Button>
@@ -205,17 +216,14 @@
 
                 <div class="relative">
                     <!-- Camera Viewfinder -->
-                    <div v-show="!isLoading && !scanError"
-                        class="relative aspect-video overflow-hidden rounded bg-black">
+                    <div v-show="!isLoading && !scanError" class="relative aspect-video overflow-hidden rounded bg-black">
                         <video ref="videoElement" class="h-full w-full object-cover"></video>
                         <div class="absolute inset-0 m-8 rounded border-2 border-dashed border-white/50"></div>
                     </div>
 
                     <!-- Loading State -->
                     <div v-if="isLoading" class="flex flex-col items-center justify-center py-8">
-                        <div
-                            class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent">
-                        </div>
+                        <div class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                         <p>{{ loadingMessage }}</p>
                     </div>
 
@@ -234,8 +242,7 @@
                 <DialogFooter>
                     <div class="flex w-full flex-col justify-between gap-2 sm:flex-row sm:justify-end">
                         <!-- Standard Controls -->
-                        <Button v-if="!barcodeNotFound && !scanError" variant="outline" @click="closeScannerModal">
-                            Cancel </Button>
+                        <Button v-if="!barcodeNotFound && !scanError" variant="outline" @click="closeScannerModal"> Cancel </Button>
 
                         <!-- Error Controls -->
                         <Button v-if="scanError" variant="outline" @click="retryScanner"> Retry </Button>
@@ -263,8 +270,8 @@ import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import useBarcodeScanner from '@/composables/useBarcodeScanner';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ArrowLeftIcon, BarcodeIcon, EllipsisVerticalIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
+import { Head, useForm } from '@inertiajs/vue3';
+import { BarcodeIcon, EllipsisVerticalIcon, MenuIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 
 interface ShoppingListItem {
@@ -300,7 +307,6 @@ const showDeleteItemModal = ref(false);
 const showScannerModal = ref(false);
 const currentItem = ref<ShoppingListItem | null>(null);
 
-
 const itemForm = useForm({
     name: '',
     quantity: '' as string | number,
@@ -326,8 +332,6 @@ const sortedItems = computed(() => {
 const purchasedCount = computed(() => {
     return props.shoppingList.items.filter((item) => item.is_purchased).length;
 });
-
-
 
 const addItem = () => {
     itemForm.post(route('shopping-lists.items.store', props.shoppingList.id), {
@@ -473,7 +477,7 @@ watch(showScannerModal, async (isOpen) => {
                     // Ensure video srcObject is null before reinitializing
                     if (videoElement.value.srcObject) {
                         const stream = videoElement.value.srcObject as MediaStream;
-                        stream.getTracks().forEach(track => track.stop());
+                        stream.getTracks().forEach((track) => track.stop());
                         videoElement.value.srcObject = null;
                     }
 
@@ -501,7 +505,7 @@ watch(showScannerModal, async (isOpen) => {
             const mediaStream = videoElement.value.srcObject as MediaStream;
             const tracks = mediaStream.getTracks();
 
-            tracks.forEach(track => track.stop());
+            tracks.forEach((track) => track.stop());
             videoElement.value.srcObject = null;
         }
     }
@@ -524,7 +528,7 @@ const resetScannerState = () => {
     // If video element still has a stream, clean it up
     if (videoElement.value && videoElement.value.srcObject) {
         const stream = videoElement.value.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
         videoElement.value.srcObject = null;
     }
 };
@@ -539,7 +543,7 @@ const closeScannerModal = () => {
         const mediaStream = videoElement.value.srcObject as MediaStream;
         const tracks = mediaStream.getTracks();
 
-        tracks.forEach(track => track.stop());
+        tracks.forEach((track) => track.stop());
         videoElement.value.srcObject = null;
     }
 
