@@ -17,12 +17,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(OpenAiClient::class, fn(Container $app): \App\Services\Clients\OpenAiClient => new OpenAiClient(
+        $this->app->singleton(OpenAiClient::class, fn (Container $app): \App\Services\Clients\OpenAiClient => new OpenAiClient(
             config('services.openai.api_key'),
             config('services.openai.model', 'gpt-4o-mini')
         ));
 
-        $this->app->singleton(IngredientNormalizationService::class, fn(Container $app): \App\Services\IngredientNormalizationService => new IngredientNormalizationService(
+        $this->app->singleton(IngredientNormalizationService::class, fn (Container $app): \App\Services\IngredientNormalizationService => new IngredientNormalizationService(
             $app->make(OpenAiClient::class),
             $app->make(IngredientParser::class)
         ));
