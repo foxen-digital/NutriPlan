@@ -67,7 +67,7 @@ class ShoppingListController extends Controller
 
         $shoppingList->update($request->validated());
 
-        return redirect()->route('shopping-lists.show', $shoppingList)
+        return redirect()->route('shopping-lists.index', $shoppingList)
             ->with('success', 'Shopping list updated successfully.');
     }
 

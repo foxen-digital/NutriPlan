@@ -18,10 +18,6 @@
                         formatDate(shoppingList.created_at) }}</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <Button @click="showRenameModal = true" variant="outline">
-                        <PencilIcon class="mr-2 h-4 w-4" />
-                        Rename
-                    </Button>
                     <Button @click="showAddItemModal = true">
                         <PlusIcon class="mr-2 h-4 w-4" />
                         Add Item
@@ -98,29 +94,7 @@
             </div>
         </div>
 
-        <!-- Rename List Modal -->
-        <Dialog :open="showRenameModal" @update:open="showRenameModal = $event">
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Rename Shopping List</DialogTitle>
-                    <DialogDescription>Change the name of your shopping list.</DialogDescription>
-                </DialogHeader>
-                <form @submit.prevent="renameList">
-                    <div class="space-y-4 py-4">
-                        <div>
-                            <Label for="list-name">List Name</Label>
-                            <Input id="list-name" v-model="renameForm.name" placeholder="e.g., Weekly Groceries"
-                                required />
-                            <InputError :message="renameForm.errors.name" />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button type="button" variant="outline" @click="showRenameModal = false">Cancel</Button>
-                        <Button type="submit" :disabled="renameForm.processing">Save</Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+
 
         <!-- Add Item Modal -->
         <Dialog :open="showAddItemModal" @update:open="showAddItemModal = $event">
@@ -320,16 +294,12 @@ const props = defineProps<{
     shoppingList: ShoppingList;
 }>();
 
-const showRenameModal = ref(false);
 const showAddItemModal = ref(false);
 const showEditItemModal = ref(false);
 const showDeleteItemModal = ref(false);
 const showScannerModal = ref(false);
 const currentItem = ref<ShoppingListItem | null>(null);
 
-const renameForm = useForm({
-    name: props.shoppingList.name,
-});
 
 const itemForm = useForm({
     name: '',
@@ -357,13 +327,7 @@ const purchasedCount = computed(() => {
     return props.shoppingList.items.filter((item) => item.is_purchased).length;
 });
 
-const renameList = () => {
-    renameForm.put(route('shopping-lists.update', props.shoppingList.id), {
-        onSuccess: () => {
-            showRenameModal.value = false;
-        },
-    });
-};
+
 
 const addItem = () => {
     itemForm.post(route('shopping-lists.items.store', props.shoppingList.id), {
