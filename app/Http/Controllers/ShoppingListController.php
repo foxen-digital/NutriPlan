@@ -38,8 +38,40 @@ class ShoppingListController extends Controller
     {
         $this->authorize('view', $shoppingList);
 
+        $shoppingList->load('items');
+        
+        // Group items by category
+        $itemsByCategory = $shoppingList->items->groupBy(function ($item) {
+            return $item->category ?? 'Uncategorized';
+        });
+        
+        // Check if all items are uncategorized
+        $allUncategorized = $itemsByCategory->keys()->count() === 1 && $itemsByCategory->has('Uncategorized');
+        
+        // Prepare shopping list data
+        $shoppingListData = (new ShoppingListResource($shoppingList))->toArray(request());
+        
+        if ($allUncategorized) {
+            // If all items are uncategorized, don't use categories
+            $shoppingListData['use_categories'] = false;
+        } else {
+            // Use categories but ensure Uncategorized is always last
+            $shoppingListData['use_categories'] = true;
+            
+            // Sort categories alphabetically
+            $sorted = $itemsByCategory->sortKeys();
+            
+            // If 'Uncategorized' exists, move it to the end
+            if ($sorted->has('Uncategorized')) {
+                $uncategorized = $sorted->pull('Uncategorized');
+                $sorted->put('Uncategorized', $uncategorized);
+            }
+            
+            $shoppingListData['items_by_category'] = $sorted;
+        }
+        
         return Inertia::render('ShoppingLists/Show', [
-            'shoppingList' => new ShoppingListResource($shoppingList->load('items')),
+            'shoppingList' => $shoppingListData,
         ]);
     }
 
