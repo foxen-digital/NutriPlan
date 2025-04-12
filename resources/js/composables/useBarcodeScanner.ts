@@ -29,6 +29,7 @@ interface UseBarcodeScanner {
     initializeScanner: (videoElement: HTMLVideoElement) => Promise<void>;
     startScanning: () => void;
     stopScanning: () => void;
+    cleanupResources: () => void;
     lookupBarcode: (barcode: string) => Promise<ScanResult>;
 }
 
@@ -42,6 +43,7 @@ export function useBarcodeScanner(): UseBarcodeScanner {
     const lastError = ref<string | null>(null);
     const hasNativeBarcodeDetection = ref(false);
     let quagga: any = null;
+    let currentStream: MediaStream | null = null;
 
     // Check if the browser supports the Barcode Detection API
     onMounted(async () => {
@@ -57,8 +59,10 @@ export function useBarcodeScanner(): UseBarcodeScanner {
         try {
             lastError.value = null;
 
+            // Force cleanup if already initialized to ensure fresh start
             if (isInitialized.value) {
-                return;
+                await cleanupResources();
+                isInitialized.value = false;
             }
 
             // If we have native support, use it
@@ -119,6 +123,9 @@ export function useBarcodeScanner(): UseBarcodeScanner {
                 }
             });
 
+            // Store the stream reference for later cleanup
+            currentStream = stream;
+
             isInitialized.value = true;
         } catch (error) {
             lastError.value = 'Failed to initialize camera: ' + (error instanceof Error ? error.message : String(error));
@@ -144,6 +151,25 @@ export function useBarcodeScanner(): UseBarcodeScanner {
             }
             isScanning.value = false;
         }
+    };
+
+    // Add a new method to do complete cleanup
+    const cleanupResources = async (): Promise<void> => {
+        // Stop Quagga if running
+        if (isScanning.value) {
+            stopScanning();
+        }
+
+        // Release any existing media streams
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+        }
+
+        // Reset state
+        isInitialized.value = false;
+        isScanning.value = false;
+        lastDetectedCode.value = null;
     };
 
     const lookupBarcode = async (barcode: string): Promise<ScanResult> => {
@@ -183,7 +209,7 @@ export function useBarcodeScanner(): UseBarcodeScanner {
 
     // Clean up when the component using this composable is unmounted
     onUnmounted(() => {
-        stopScanning();
+        cleanupResources();
         if (quagga) {
             quagga.offDetected();
         }
@@ -198,6 +224,7 @@ export function useBarcodeScanner(): UseBarcodeScanner {
         initializeScanner,
         startScanning,
         stopScanning,
+        cleanupResources,
         lookupBarcode,
     };
 }

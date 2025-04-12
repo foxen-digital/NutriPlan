@@ -456,7 +456,7 @@ const scannerStatusMessage = computed(() => {
     return 'Position the barcode in the center of the screen';
 });
 
-const { lastDetectedCode, lastError, initializeScanner, startScanning, stopScanning, lookupBarcode } = useBarcodeScanner();
+const { lastDetectedCode, lastError, initializeScanner, startScanning, stopScanning, cleanupResources, lookupBarcode } = useBarcodeScanner();
 
 // Watch for detected barcodes
 watch(lastDetectedCode, async (code) => {
@@ -503,6 +503,9 @@ watch(showScannerModal, async (isOpen) => {
         setTimeout(async () => {
             if (videoElement.value) {
                 try {
+                    // Perform a complete cleanup first
+                    await cleanupResources();
+
                     // Ensure video srcObject is null before reinitializing
                     if (videoElement.value.srcObject) {
                         const stream = videoElement.value.srcObject as MediaStream;
@@ -517,6 +520,7 @@ watch(showScannerModal, async (isOpen) => {
                 } catch (error) {
                     isLoading.value = false;
                     scanError.value = `Failed to initialize scanner: ${error instanceof Error ? error.message : 'Unknown error'}`;
+                    console.error('Scanner initialization error:', error);
                 }
             } else {
                 isLoading.value = false;
@@ -526,6 +530,7 @@ watch(showScannerModal, async (isOpen) => {
     } else {
         // Stop scanning when modal closes
         stopScanning();
+        cleanupResources();
 
         // Manually stop all media tracks
         if (videoElement.value && videoElement.value.srcObject) {
@@ -563,6 +568,7 @@ const resetScannerState = () => {
 const closeScannerModal = () => {
     // Stop scanning and release camera resources
     stopScanning();
+    cleanupResources();
 
     // Manually stop all media tracks
     if (videoElement.value && videoElement.value.srcObject) {
