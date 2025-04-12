@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => env('GITHUB_REDIRECT_URI')
+    ],
+
+    'barcode' => [
+        'api_key' => env('BARCODE_API_KEY'),
+        'api_url' => env('BARCODE_API_URL', 'https://freewebapi.com/api/v1/barcode'),
+    ],
+
 ];

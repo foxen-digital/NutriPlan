@@ -26,6 +26,10 @@
                         <PlusIcon class="mr-2 h-4 w-4" />
                         Add Item
                     </Button>
+                    <Button @click="showScannerModal = true" variant="outline">
+                        <BarcodeIcon class="mr-2 h-4 w-4" />
+                        Scan Item
+                    </Button>
                 </div>
             </div>
 
@@ -214,6 +218,62 @@
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+
+        <!-- Barcode Scanner Modal -->
+        <Dialog :open="showScannerModal" @update:open="showScannerModal = $event">
+            <DialogContent class="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Scan Barcode</DialogTitle>
+                    <DialogDescription>
+                        {{ scannerStatusMessage }}
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div class="relative">
+                    <!-- Camera Viewfinder -->
+                    <div v-if="!isLoading && !scanError" class="relative aspect-video overflow-hidden rounded bg-black">
+                        <video ref="videoElement" class="h-full w-full object-cover"></video>
+                        <div class="absolute inset-0 m-8 rounded border-2 border-dashed border-white/50"></div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div v-if="isLoading" class="flex flex-col items-center justify-center py-8">
+                        <div
+                            class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent">
+                        </div>
+                        <p>{{ loadingMessage }}</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div v-if="scanError" class="rounded-md bg-destructive/10 p-4 text-destructive">
+                        <p class="font-medium">{{ scanError }}</p>
+                    </div>
+
+                    <!-- Product Not Found State -->
+                    <div v-if="barcodeNotFound" class="p-4">
+                        <p class="mb-2 font-medium">Product not found for barcode: {{ lastScannedBarcode }}</p>
+                        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Would you like to add it manually?</p>
+                    </div>
+                </div>
+
+                <DialogFooter>
+                    <div class="flex w-full flex-col justify-between gap-2 sm:flex-row sm:justify-end">
+                        <!-- Standard Controls -->
+                        <Button v-if="!barcodeNotFound && !scanError" variant="outline" @click="closeScannerModal">
+                            Cancel </Button>
+
+                        <!-- Error Controls -->
+                        <Button v-if="scanError" variant="outline" @click="retryScanner"> Retry </Button>
+
+                        <!-- Product Not Found Controls -->
+                        <div v-if="barcodeNotFound" class="flex gap-2">
+                            <Button variant="outline" @click="resumeScanning"> Scan Again </Button>
+                            <Button @click="addManually"> Add Manually </Button>
+                        </div>
+                    </div>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>
 
@@ -226,10 +286,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from '@/components/ui/input';
 import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
+import useBarcodeScanner from '@/composables/useBarcodeScanner';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ArrowLeftIcon, EllipsisVerticalIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { ArrowLeftIcon, BarcodeIcon, EllipsisVerticalIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
+import { computed, nextTick, ref, watch } from 'vue';
 
 interface ShoppingListItem {
     id: number;
@@ -262,6 +323,7 @@ const showRenameModal = ref(false);
 const showAddItemModal = ref(false);
 const showEditItemModal = ref(false);
 const showDeleteItemModal = ref(false);
+const showScannerModal = ref(false);
 const currentItem = ref<ShoppingListItem | null>(null);
 
 const renameForm = useForm({
@@ -377,5 +439,139 @@ const formatAmount = (amount: number | string | null): string => {
 
     // For whole numbers, show no decimal places
     return amount.toFixed(0);
+};
+
+// Barcode scanner functionality
+const videoElement = ref<HTMLVideoElement | null>(null);
+const isLoading = ref(false);
+const loadingMessage = ref('Initializing camera...');
+const scanError = ref<string | null>(null);
+const barcodeNotFound = ref(false);
+const lastScannedBarcode = ref<string | null>(null);
+const scannerStatusMessage = computed(() => {
+    if (scanError.value) return 'Scanner Error';
+    if (barcodeNotFound.value) return 'Product Not Found';
+    if (isLoading.value) return 'Loading...';
+    return 'Position the barcode in the center of the screen';
+});
+
+const {
+    lastDetectedCode,
+    lastError,
+    initializeScanner,
+    startScanning,
+    stopScanning,
+    lookupBarcode
+} = useBarcodeScanner();
+
+// Watch for detected barcodes
+watch(lastDetectedCode, async (code) => {
+    if (code) {
+        isLoading.value = true;
+        loadingMessage.value = 'Looking up product...';
+        lastScannedBarcode.value = code;
+
+        try {
+            const result = await lookupBarcode(code);
+
+            if (result.success && result.data) {
+                // Product found, open add item modal with pre-filled data
+                itemForm.name = result.data.name;
+                itemForm.category = result.data.category || '';
+
+                // Close scanner modal and open add item modal
+                showScannerModal.value = false;
+                showAddItemModal.value = true;
+            } else {
+                // Product not found
+                barcodeNotFound.value = true;
+                scanError.value = null;
+                isLoading.value = false;
+            }
+        } catch (error) {
+            scanError.value = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+            isLoading.value = false;
+        }
+    }
+});
+
+// Initialize scanner when modal opens
+watch(showScannerModal, async (isOpen) => {
+    if (isOpen) {
+        resetScannerState();
+        isLoading.value = true;
+
+        // Wait for video element to be available in the DOM
+        await nextTick();
+
+        if (videoElement.value) {
+            try {
+                await initializeScanner(videoElement.value);
+                isLoading.value = false;
+                startScanning();
+            } catch (error) {
+                isLoading.value = false;
+                scanError.value = `Failed to initialize scanner: ${error instanceof Error ? error.message : 'Unknown error'}`;
+            }
+        } else {
+            isLoading.value = false;
+            scanError.value = 'Video element not found';
+        }
+    } else {
+        // Stop scanning when modal closes
+        stopScanning();
+    }
+});
+
+// Watch for scanner initialization errors
+watch(lastError, (error) => {
+    if (error) {
+        scanError.value = error;
+        isLoading.value = false;
+    }
+});
+
+const resetScannerState = () => {
+    scanError.value = null;
+    barcodeNotFound.value = false;
+    lastScannedBarcode.value = null;
+    isLoading.value = false;
+};
+
+const closeScannerModal = () => {
+    showScannerModal.value = false;
+};
+
+const retryScanner = async () => {
+    resetScannerState();
+    isLoading.value = true;
+
+    if (videoElement.value) {
+        try {
+            await initializeScanner(videoElement.value);
+            isLoading.value = false;
+            startScanning();
+        } catch (error) {
+            isLoading.value = false;
+            scanError.value = `Failed to initialize scanner: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        }
+    }
+};
+
+const resumeScanning = () => {
+    barcodeNotFound.value = false;
+    lastScannedBarcode.value = null;
+    startScanning();
+};
+
+const addManually = () => {
+    // If we have a barcode but no product name, we can still pre-fill the name with the barcode
+    if (lastScannedBarcode.value && !itemForm.name) {
+        itemForm.name = `Unknown item (${lastScannedBarcode.value})`;
+    }
+
+    // Close scanner modal and open add item modal
+    closeScannerModal();
+    showAddItemModal.value = true;
 };
 </script>
