@@ -336,7 +336,6 @@
 </template>
 
 <script setup lang="ts">
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -347,10 +346,10 @@ import { Label } from '@/components/ui/label';
 import useBarcodeScanner from '@/composables/useBarcodeScanner';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { BarcodeIcon, EllipsisVerticalIcon, MenuIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
-import { computed, nextTick, ref, watch, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 import { debounce } from 'lodash';
+import { BarcodeIcon, EllipsisVerticalIcon, MenuIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 interface ShoppingListItem {
     id: number;
@@ -687,7 +686,7 @@ const debouncedSearch = debounce(async (query: string) => {
 
     try {
         const response = await axios.get(route('api.item-search'), {
-            params: { query }
+            params: { query },
         });
         suggestions.value = response.data;
     } catch (error) {
@@ -710,7 +709,7 @@ const selectSuggestion = (suggestion: string) => {
 };
 
 // Clear suggestions when clicking outside
-const handleClickOutside = (event: MouseEvent) => {
+const handleClickOutside = () => {
     if (suggestions.value.length > 0) {
         suggestions.value = [];
     }

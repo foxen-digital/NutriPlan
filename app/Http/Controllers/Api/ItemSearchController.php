@@ -19,29 +19,29 @@ class ItemSearchController extends Controller
     public function __invoke(Request $request): JsonResponse
     {
         $query = $request->input('query');
-        
+
         if (empty($query) || strlen($query) < 2) {
             return response()->json([]);
         }
-        
+
         // Search in ShoppingListItem names
         $shoppingItems = ShoppingListItem::where('name', 'like', "%{$query}%")
             ->distinct()
             ->limit(5)
             ->pluck('name');
-            
+
         // Search in Ingredient names
         $ingredients = Ingredient::where('name', 'like', "%{$query}%")
             ->distinct()
             ->limit(5)
             ->pluck('name');
-            
+
         // Combine and ensure uniqueness
         $results = $shoppingItems->merge($ingredients)
             ->unique()
             ->values()
             ->toArray();
-            
+
         return response()->json($results);
     }
 }
