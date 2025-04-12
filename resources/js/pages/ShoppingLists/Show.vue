@@ -489,31 +489,52 @@ watch(lastDetectedCode, async (code) => {
     }
 });
 
-// Initialize scanner when modal opens
+// Watch for scanner modal changes
 watch(showScannerModal, async (isOpen) => {
     if (isOpen) {
+        // Complete reset of scanner state
         resetScannerState();
         isLoading.value = true;
 
-        // Wait for video element to be available in the DOM
+        // Make sure video element is ready
         await nextTick();
 
-        if (videoElement.value) {
-            try {
-                await initializeScanner(videoElement.value);
+        // Delay slightly to ensure previous camera session is fully closed
+        setTimeout(async () => {
+            if (videoElement.value) {
+                try {
+                    // Ensure video srcObject is null before reinitializing
+                    if (videoElement.value.srcObject) {
+                        const stream = videoElement.value.srcObject as MediaStream;
+                        stream.getTracks().forEach(track => track.stop());
+                        videoElement.value.srcObject = null;
+                    }
+
+                    // Initialize scanner with fresh state
+                    await initializeScanner(videoElement.value);
+                    isLoading.value = false;
+                    startScanning();
+                } catch (error) {
+                    isLoading.value = false;
+                    scanError.value = `Failed to initialize scanner: ${error instanceof Error ? error.message : 'Unknown error'}`;
+                }
+            } else {
                 isLoading.value = false;
-                startScanning();
-            } catch (error) {
-                isLoading.value = false;
-                scanError.value = `Failed to initialize scanner: ${error instanceof Error ? error.message : 'Unknown error'}`;
+                scanError.value = 'Video element not found';
             }
-        } else {
-            isLoading.value = false;
-            scanError.value = 'Video element not found';
-        }
+        }, 300); // Small delay to ensure cleanup
     } else {
         // Stop scanning when modal closes
         stopScanning();
+
+        // Manually stop all media tracks
+        if (videoElement.value && videoElement.value.srcObject) {
+            const mediaStream = videoElement.value.srcObject as MediaStream;
+            const tracks = mediaStream.getTracks();
+
+            tracks.forEach(track => track.stop());
+            videoElement.value.srcObject = null;
+        }
     }
 });
 
@@ -530,9 +551,28 @@ const resetScannerState = () => {
     barcodeNotFound.value = false;
     lastScannedBarcode.value = null;
     isLoading.value = false;
+
+    // If video element still has a stream, clean it up
+    if (videoElement.value && videoElement.value.srcObject) {
+        const stream = videoElement.value.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+        videoElement.value.srcObject = null;
+    }
 };
 
 const closeScannerModal = () => {
+    // Stop scanning and release camera resources
+    stopScanning();
+
+    // Manually stop all media tracks
+    if (videoElement.value && videoElement.value.srcObject) {
+        const mediaStream = videoElement.value.srcObject as MediaStream;
+        const tracks = mediaStream.getTracks();
+
+        tracks.forEach(track => track.stop());
+        videoElement.value.srcObject = null;
+    }
+
     showScannerModal.value = false;
 };
 
