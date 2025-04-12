@@ -38,12 +38,22 @@ class ShoppingListController extends Controller
     {
         $this->authorize('view', $shoppingList);
 
-        $shoppingList->load('items');
+        // Load items ordered by the order column, then by name as a fallback
+        $shoppingList->load(['items' => function ($query) {
+            $query->orderBy('order')->orderBy('name');
+        }]);
 
-        // Group items by category
-        $itemsByCategory = $shoppingList->items->groupBy(function ($item) {
-            return $item->category ?? 'Uncategorized';
-        });
+        // Group items by category while preserving their order
+        $itemsByCategory = collect();
+        $categories = $shoppingList->items->pluck('category')->unique();
+        
+        foreach ($categories as $category) {
+            $categoryName = $category ?? 'Uncategorized';
+            $itemsByCategory[$categoryName] = $shoppingList->items
+                ->where('category', $category)
+                ->values()
+                ->all();
+        }
 
         // Check if all items are uncategorized
         $allUncategorized = $itemsByCategory->keys()->count() === 1 && $itemsByCategory->has('Uncategorized');
@@ -69,7 +79,6 @@ class ShoppingListController extends Controller
 
             $shoppingListData['items_by_category'] = $sorted;
         }
-
         return Inertia::render('ShoppingLists/Show', [
             'shoppingList' => $shoppingListData,
         ]);

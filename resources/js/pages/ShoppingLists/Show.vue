@@ -374,11 +374,9 @@ import useBarcodeScanner from '@/composables/useBarcodeScanner';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
-// @ts-expect-error - lodash doesn't have type definitions in this project
 import { debounce } from 'lodash';
 import { BarcodeIcon, EllipsisVerticalIcon, GripVertical, MenuIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
-// @ts-expect-error - vuedraggable doesn't have type definitions in this project
 import draggable from 'vuedraggable';
 
 interface ShoppingListItem {
@@ -391,6 +389,7 @@ interface ShoppingListItem {
     category: string | null;
     is_custom: boolean;
     is_purchased: boolean;
+    order: number | null;
     created_at: string;
     updated_at: string;
 }
@@ -432,21 +431,41 @@ const formatDate = (dateString: string) => {
 };
 
 const sortedItems = computed(() => {
-    // Sort items by purchased status (not purchased first), then by name
+    // Sort items by purchased status (not purchased first), then by order, and finally by name
     return [...props.shoppingList.items].sort((a, b) => {
+        // First, sort by purchased status
         if (a.is_purchased !== b.is_purchased) {
             return a.is_purchased ? 1 : -1;
         }
+
+        // Then, sort by order if available
+        const aOrder = typeof a.order === 'number' ? a.order : 0;
+        const bOrder = typeof b.order === 'number' ? b.order : 0;
+        if (aOrder !== bOrder) {
+            return aOrder - bOrder;
+        }
+
+        // Finally, sort by name as a fallback
         return a.name.localeCompare(b.name);
     });
 });
 
 const sortItemsInCategory = (items: ShoppingListItem[]) => {
-    // Sort items by purchased status (not purchased first), then by name
+    // Sort items by purchased status (not purchased first), then by order, and finally by name
     return [...items].sort((a, b) => {
+        // First, sort by purchased status
         if (a.is_purchased !== b.is_purchased) {
             return a.is_purchased ? 1 : -1;
         }
+
+        // Then, sort by order if available
+        const aOrder = typeof a.order === 'number' ? a.order : 0;
+        const bOrder = typeof b.order === 'number' ? b.order : 0;
+        if (aOrder !== bOrder) {
+            return aOrder - bOrder;
+        }
+
+        // Finally, sort by name as a fallback
         return a.name.localeCompare(b.name);
     });
 };
