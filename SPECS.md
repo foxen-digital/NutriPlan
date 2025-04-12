@@ -29,7 +29,7 @@ This document provides an overview of all feature specifications for the NutriPl
 | Phase 4: "To Cook" Flags | Implement cooking flags for meal assignments | ✅ | [View Spec](specs/meal-planning-phase-4b-to-cook-flags.md) |
 | Phase 5: Plan Copying | Enable copying existing plans to create new ones | ✅ | [View Spec](specs/meal-planning-phase-5-plan-copying.md) |
 | Phase 6: Core Shopping List | Create/manage empty lists, add custom items, track purchase status | ✅ | [View Spec](specs/meal-planning-phase-7-core-shopping-list.md) |
-| Phase 7: Shopping List Generation | Generate shopping lists automatically from meal plans | ⏳ | [View Spec](specs/meal-planning-phase-7a-shopping-list-generation.md) |
+| Phase 7: Shopping List Generation | Generate shopping lists automatically from meal plans | ✅ | [View Spec](specs/meal-planning-phase-7a-shopping-list-generation.md) |
 | Phase 8: Shopping List Sync | Automatically update lists when meal plans change | ⏳ | [View Spec](specs/meal-planning-phase-7b-automatic-synchronization.md) |
 | Phase 9: Shopping List Enhancements | Add unit conversion, categories, drag & drop, regeneration | ⏳ | [View Spec](specs/meal-planning-phase-7c-enhancements.md) |
 | Phase 10: Barcode Scanning | Add items to shopping list via barcode scanning (Mobile) | 🔮 | [View Spec](specs/meal-planning-phase-7x-barcode-scanning.md) |

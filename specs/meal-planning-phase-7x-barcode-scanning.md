@@ -11,11 +11,12 @@ This feature is considered an enhancement to the core shopping list functionalit
 - Utilize the mobile device's camera to scan standard product barcodes (e.g., UPC, EAN).
 - Leverage the browser's built-in Barcode Detection API where available.
     - _Note:_ Check current browser compatibility: [MDN Barcode Detection API](https://developer.mozilla.org/en-US/docs/Web/API/Barcode_Detection_API#browser_compatibility)
+- Use the @ericblade/quagga2 library as a fallback for browsers lacking native API support.
 
 ### Barcode Lookup
 - Integrate with a barcode lookup service to retrieve product information (name, potentially category) from a scanned barcode.
-    - _Example Free API:_ [FreeWebAPI Barcode Lookup](https://freewebapi.com/data-apis/barcode-lookup-api/)
-    - _Consideration:_ Reliability and rate limits of free APIs. May need a paid service for production.
+    - start with [FreeWebAPI Barcode Lookup](https://freewebapi.com/data-apis/barcode-lookup-api/)
+    - store the API key in Laravel config, via an env var
 
 ### Shopping List Integration
 - Provide an interface to add the identified product to the current or a selected shopping list.
