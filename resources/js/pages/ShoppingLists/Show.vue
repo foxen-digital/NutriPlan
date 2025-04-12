@@ -166,10 +166,21 @@
                 </DialogHeader>
                 <form @submit.prevent="addItem">
                     <div class="space-y-4 py-4">
-                        <div>
+                        <div class="relative">
                             <Label for="item-name">Item Name</Label>
-                            <Input id="item-name" v-model="itemForm.name" placeholder="e.g., Milk" required />
+                            <Input id="item-name" v-model="itemForm.name" placeholder="e.g., Milk" required
+                                @input="searchItems" autocomplete="off" />
                             <InputError :message="itemForm.errors.name" />
+
+                            <!-- Autocomplete Suggestions -->
+                            <div v-if="suggestions.length > 0"
+                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg dark:bg-gray-800">
+                                <div v-for="(suggestion, index) in suggestions" :key="index"
+                                    class="cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    @click="selectSuggestion(suggestion)">
+                                    {{ suggestion }}
+                                </div>
+                            </div>
                         </div>
                         <div class="flex gap-4">
                             <div class="w-1/2">
@@ -207,10 +218,21 @@
                 </DialogHeader>
                 <form @submit.prevent="updateItem">
                     <div class="space-y-4 py-4">
-                        <div>
+                        <div class="relative">
                             <Label for="edit-item-name">Item Name</Label>
-                            <Input id="edit-item-name" v-model="itemForm.name" placeholder="e.g., Milk" required />
+                            <Input id="edit-item-name" v-model="itemForm.name" placeholder="e.g., Milk" required
+                                @input="searchItems" autocomplete="off" />
                             <InputError :message="itemForm.errors.name" />
+
+                            <!-- Autocomplete Suggestions -->
+                            <div v-if="suggestions.length > 0"
+                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg dark:bg-gray-800">
+                                <div v-for="(suggestion, index) in suggestions" :key="index"
+                                    class="cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    @click="selectSuggestion(suggestion)">
+                                    {{ suggestion }}
+                                </div>
+                            </div>
                         </div>
                         <div class="flex gap-4">
                             <div class="w-1/2">
@@ -326,7 +348,9 @@ import useBarcodeScanner from '@/composables/useBarcodeScanner';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { BarcodeIcon, EllipsisVerticalIcon, MenuIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch, onMounted, onUnmounted } from 'vue';
+import axios from 'axios';
+import { debounce } from 'lodash';
 
 interface ShoppingListItem {
     id: number;
@@ -369,6 +393,9 @@ const itemForm = useForm({
     unit: '',
     category: '',
 });
+
+const suggestions = ref<string[]>([]);
+const isSearching = ref(false);
 
 const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -648,4 +675,68 @@ const addManually = () => {
     closeScannerModal();
     showAddItemModal.value = true;
 };
+
+// Debounced search function
+const debouncedSearch = debounce(async (query: string) => {
+    if (!query || query.length < 2) {
+        suggestions.value = [];
+        return;
+    }
+
+    isSearching.value = true;
+
+    try {
+        const response = await axios.get(route('api.item-search'), {
+            params: { query }
+        });
+        suggestions.value = response.data;
+    } catch (error) {
+        console.error('Error searching items:', error);
+        suggestions.value = [];
+    } finally {
+        isSearching.value = false;
+    }
+}, 300);
+
+// Function to trigger the search
+const searchItems = () => {
+    debouncedSearch(itemForm.name as string);
+};
+
+// Function to handle selecting a suggestion
+const selectSuggestion = (suggestion: string) => {
+    itemForm.name = suggestion;
+    suggestions.value = [];
+};
+
+// Clear suggestions when clicking outside
+const handleClickOutside = (event: MouseEvent) => {
+    if (suggestions.value.length > 0) {
+        suggestions.value = [];
+    }
+};
+
+// Add event listener when component is mounted
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+// Remove event listener when component is unmounted
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
+
+// Close suggestions when add item modal is closed
+watch(showAddItemModal, (isOpen) => {
+    if (!isOpen) {
+        suggestions.value = [];
+    }
+});
+
+// Close suggestions when edit item modal is closed
+watch(showEditItemModal, (isOpen) => {
+    if (!isOpen) {
+        suggestions.value = [];
+    }
+});
 </script>
