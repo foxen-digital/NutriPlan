@@ -1,6 +1,5 @@
 <template>
     <AppLayout>
-
         <Head :title="`${shoppingList.name} | Shopping Lists`" />
 
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
@@ -9,13 +8,12 @@
                     <div class="flex items-center gap-4">
                         <Button variant="outline" size="icon" asChild>
                             <Link :href="route('shopping-lists.index')">
-                            <ArrowLeftIcon class="h-4 w-4" />
+                                <ArrowLeftIcon class="h-4 w-4" />
                             </Link>
                         </Button>
                         <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ shoppingList.name }}</h1>
                     </div>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Created {{
-                        formatDate(shoppingList.created_at) }}</p>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Created {{ formatDate(shoppingList.created_at) }}</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <Button @click="showRenameModal = true" variant="outline">
@@ -56,14 +54,16 @@
                 </div>
 
                 <div class="divide-y divide-gray-200 rounded-md border dark:divide-gray-800">
-                    <div v-for="item in sortedItems" :key="item.id" class="flex items-center justify-between p-4"
-                        :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }">
+                    <div
+                        v-for="item in sortedItems"
+                        :key="item.id"
+                        class="flex items-center justify-between p-4"
+                        :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }"
+                    >
                         <div class="flex items-center gap-3">
-                            <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased"
-                                @update:checked="toggleItemPurchased(item)" />
+                            <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased" @update:checked="toggleItemPurchased(item)" />
                             <div>
-                                <div class="font-medium text-gray-900 dark:text-white"
-                                    :class="{ 'line-through': item.is_purchased }">
+                                <div class="font-medium text-gray-900 dark:text-white" :class="{ 'line-through': item.is_purchased }">
                                     {{ item.name }}
                                 </div>
                                 <div v-if="item.quantity || item.unit" class="text-sm text-gray-500 dark:text-gray-400">
@@ -109,8 +109,7 @@
                     <div class="space-y-4 py-4">
                         <div>
                             <Label for="list-name">List Name</Label>
-                            <Input id="list-name" v-model="renameForm.name" placeholder="e.g., Weekly Groceries"
-                                required />
+                            <Input id="list-name" v-model="renameForm.name" placeholder="e.g., Weekly Groceries" required />
                             <InputError :message="renameForm.errors.name" />
                         </div>
                     </div>
@@ -139,8 +138,7 @@
                         <div class="flex gap-4">
                             <div class="w-1/2">
                                 <Label for="item-quantity">Quantity</Label>
-                                <Input id="item-quantity" type="number" step="0.5" min="0" v-model="itemForm.quantity"
-                                    placeholder="e.g., 2" />
+                                <Input id="item-quantity" type="number" step="0.5" min="0" v-model="itemForm.quantity" placeholder="e.g., 2" />
                                 <InputError :message="itemForm.errors.quantity" />
                             </div>
                             <div class="w-1/2">
@@ -180,8 +178,7 @@
                         <div class="flex gap-4">
                             <div class="w-1/2">
                                 <Label for="edit-item-quantity">Quantity</Label>
-                                <Input id="edit-item-quantity" type="number" step="0.5" min="0"
-                                    v-model="itemForm.quantity" placeholder="e.g., 2" />
+                                <Input id="edit-item-quantity" type="number" step="0.5" min="0" v-model="itemForm.quantity" placeholder="e.g., 2" />
                                 <InputError :message="itemForm.errors.quantity" />
                             </div>
                             <div class="w-1/2">
@@ -209,8 +206,7 @@
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Delete Item</DialogTitle>
-                    <DialogDescription>Are you sure you want to delete this item? This action cannot be undone.
-                    </DialogDescription>
+                    <DialogDescription>Are you sure you want to delete this item? This action cannot be undone. </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
                     <Button type="button" variant="outline" @click="showDeleteItemModal = false">Cancel</Button>
@@ -238,9 +234,7 @@
 
                     <!-- Loading State -->
                     <div v-if="isLoading" class="flex flex-col items-center justify-center py-8">
-                        <div
-                            class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent">
-                        </div>
+                        <div class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                         <p>{{ loadingMessage }}</p>
                     </div>
 
@@ -259,8 +253,7 @@
                 <DialogFooter>
                     <div class="flex w-full flex-col justify-between gap-2 sm:flex-row sm:justify-end">
                         <!-- Standard Controls -->
-                        <Button v-if="!barcodeNotFound && !scanError" variant="outline" @click="closeScannerModal">
-                            Cancel </Button>
+                        <Button v-if="!barcodeNotFound && !scanError" variant="outline" @click="closeScannerModal"> Cancel </Button>
 
                         <!-- Error Controls -->
                         <Button v-if="scanError" variant="outline" @click="retryScanner"> Retry </Button>
@@ -455,14 +448,7 @@ const scannerStatusMessage = computed(() => {
     return 'Position the barcode in the center of the screen';
 });
 
-const {
-    lastDetectedCode,
-    lastError,
-    initializeScanner,
-    startScanning,
-    stopScanning,
-    lookupBarcode
-} = useBarcodeScanner();
+const { lastDetectedCode, lastError, initializeScanner, startScanning, stopScanning, lookupBarcode } = useBarcodeScanner();
 
 // Watch for detected barcodes
 watch(lastDetectedCode, async (code) => {

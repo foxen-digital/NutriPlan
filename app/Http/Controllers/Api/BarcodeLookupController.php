@@ -20,9 +20,6 @@ class BarcodeLookupController extends Controller
 
     /**
      * Look up a product by barcode
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function lookup(Request $request): JsonResponse
     {
@@ -32,6 +29,7 @@ class BarcodeLookupController extends Controller
             ]);
 
             $barcode = $request->input('barcode');
+            Log::info('Looking up barcode: ' . $barcode);
             $result = $this->barcodeService->lookupBarcode($barcode);
 
             if ($result === null) {

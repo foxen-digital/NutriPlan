@@ -29,7 +29,7 @@ class BarcodeService
 
             $response = Http::withHeaders([
                 'X-Api-Key' => $apiKey,
-            ])->get("{$apiUrl}/{$barcode}");
+            ])->get("{$apiUrl}/?query={$barcode}");
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -37,7 +37,7 @@ class BarcodeService
                 // Check if product was found
                 if (!empty($data['product'])) {
                     return [
-                        'name' => $data['product']['name'] ?? 'Unknown Product',
+                        'name' => $data['product']['name'] ?? $data['product']['title'] ?? 'Unknown Product',
                         'category' => $data['product']['category'] ?? null,
                         'barcode' => $barcode,
                     ];
@@ -59,7 +59,7 @@ class BarcodeService
                 'barcode' => $barcode,
                 'error' => $e->getMessage(),
             ]);
-            throw new \Exception("Error connecting to barcode service: " . $e->getMessage());
+            throw new \Exception("Error connecting to barcode service: " . $e->getMessage(), $e->getCode(), $e);
         } catch (\Exception $e) {
             Log::error('Barcode lookup error', [
                 'barcode' => $barcode,

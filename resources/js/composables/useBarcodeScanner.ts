@@ -47,7 +47,8 @@ export function useBarcodeScanner(): UseBarcodeScanner {
     onMounted(async () => {
         try {
             hasNativeBarcodeDetection.value = 'BarcodeDetector' in window;
-        } catch (_) {
+        } catch (error) {
+            console.error('Failed to check for native barcode detection:', error);
             hasNativeBarcodeDetection.value = false;
         }
     });
@@ -79,7 +80,7 @@ export function useBarcodeScanner(): UseBarcodeScanner {
 
             // Request camera access
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
+                video: { facingMode: 'environment' },
             });
 
             videoElement.srcObject = stream;
