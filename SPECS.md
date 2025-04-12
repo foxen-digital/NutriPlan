@@ -32,7 +32,7 @@ This document provides an overview of all feature specifications for the NutriPl
 | Phase 7: Shopping List Generation | Generate shopping lists automatically from meal plans | ✅ | [View Spec](specs/meal-planning-phase-7a-shopping-list-generation.md) |
 | Phase 8: Shopping List Sync | Automatically update lists when meal plans change | ⏳ | [View Spec](specs/meal-planning-phase-7b-automatic-synchronization.md) |
 | Phase 9: Shopping List Enhancements | Add unit conversion, categories, drag & drop, regeneration | ⏳ | [View Spec](specs/meal-planning-phase-7c-enhancements.md) |
-| Phase 10: Barcode Scanning | Add items to shopping list via barcode scanning (Mobile) | 🔮 | [View Spec](specs/meal-planning-phase-7x-barcode-scanning.md) |
+| Phase 10: Barcode Scanning | Add items to shopping list via barcode scanning (Mobile) | ✅ | [View Spec](specs/meal-planning-phase-7x-barcode-scanning.md) |
 | Phase 11: Nutritional Summaries | Show nutritional totals per day or week | 🔮 | [View Spec](specs/meal-planning-phase-8-nutritional-summaries.md) |
 | Phase 12: Cooking Notifications | Reminders for meals flagged "to cook" | 🔮 | [View Spec](specs/meal-planning-phase-9-cooking-notifications.md) |
 | Phase 13: Drag and Drop Interface | Implement drag-and-drop interface for meal assignments | 🔮 | [View Spec](specs/meal-planning-phase-4a-drag-and-drop.md) |

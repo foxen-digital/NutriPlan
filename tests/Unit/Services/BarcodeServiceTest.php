@@ -38,7 +38,7 @@ test('returns product info when barcode is found', function () {
 
     Http::assertSent(function ($request) use ($barcode) {
         return $request->url() === "https://test-api.com/barcode/?query={$barcode}" &&
-            $request->hasHeader('X-Api-Key', 'test-api-key');
+            $request->hasHeader('x-rapidapi-key', 'test-api-key');
     });
 });
 
@@ -95,5 +95,3 @@ test('throws exception when API key is not configured', function () {
     expect(fn () => $this->barcodeService->lookupBarcode($barcode))
         ->toThrow(\Exception::class, 'Barcode API key is not configured.');
 });
-
-test('throws exception on request exception')->skip();
