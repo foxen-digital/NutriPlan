@@ -12,6 +12,7 @@ defineProps<{
 </script>
 
 <template>
+
     <Head title="Welcome to NutriPlan">
         <meta name="description" content="NutriPlan - Modern recipe management and meal planning for home cooks" />
     </Head>
