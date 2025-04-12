@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateItemOrderRequest;
 use App\Models\ShoppingList;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class ShoppingListItemOrderController extends Controller
@@ -16,7 +16,7 @@ class ShoppingListItemOrderController extends Controller
      *
      * PUT /shopping-lists/{shoppingList}/order-items
      */
-    public function __invoke(UpdateItemOrderRequest $request, ShoppingList $shoppingList): RedirectResponse
+    public function __invoke(UpdateItemOrderRequest $request, ShoppingList $shoppingList): JsonResponse
     {
         // Check if user owns this shopping list
         if ($shoppingList->user_id !== $request->user()->id) {
@@ -30,7 +30,9 @@ class ShoppingListItemOrderController extends Controller
             $shoppingList->items()->where('id', $itemId)->update(['order' => $index + 1]);
         }
 
-        return redirect()->route('shopping-lists.show', ['shopping_list' => $shoppingList])
-            ->with('success', 'Items reordered successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Items reordered successfully'
+        ]);
     }
 }

@@ -31,8 +31,11 @@ test('can update item order', function () {
     ]);
 
     // Assert
-    $response->assertRedirect(route('shopping-lists.show', ['shopping_list' => $this->shoppingList]));
-    $response->assertSessionHas('success', 'Items reordered successfully.');
+    $response->assertOk();
+    $response->assertJson([
+        'success' => true,
+        'message' => 'Items reordered successfully'
+    ]);
 
     // Check that the order was actually updated in the database
     foreach ($itemIds as $index => $id) {
