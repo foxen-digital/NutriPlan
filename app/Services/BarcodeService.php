@@ -19,6 +19,8 @@ class BarcodeService
      */
     public function lookupBarcode(string $barcode): ?array
     {
+
+
         try {
             $apiKey = config('services.barcode.api_key');
             $apiUrl = config('services.barcode.api_url');
@@ -28,8 +30,11 @@ class BarcodeService
             }
 
             $response = Http::withHeaders([
-                'X-Api-Key' => $apiKey,
-            ])->get("{$apiUrl}/?query={$barcode}");
+                'x-rapidapi-key' => $apiKey,
+                'x-rapidapi-host' => 'barcodes1.p.rapidapi.com',
+            ])
+            ->get("{$apiUrl}/?query={$barcode}");
+
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -45,8 +50,8 @@ class BarcodeService
 
                 // Return null if product not found
                 return null;
-            }
 
+            }
             if ($response->status() === 404) {
                 // Barcode not found in the database
                 return null;

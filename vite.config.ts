@@ -33,4 +33,16 @@ export default defineConfig({
             plugins: [tailwindcss, autoprefixer],
         },
     },
+    server: {
+        cors: {
+            origin: '*',
+            methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+            credentials: true,
+            preflightContinue: false,
+            optionsSuccessStatus: 204
+        },
+        hmr: {
+            host: 'localhost'
+        }
+    },
 });
