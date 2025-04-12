@@ -15,6 +15,7 @@ enum MeasurementUnit: string
     case CUP = 'cup';
     case PIECE = 'pc';
     case PINCH = 'pinch';
+    case CLOVE = 'clove';
 
     public function label(): string
     {
@@ -28,6 +29,7 @@ enum MeasurementUnit: string
             self::CUP => 'Cup',
             self::PIECE => 'Piece',
             self::PINCH => 'Pinch',
+            self::CLOVE => 'Clove',
         };
     }
 
@@ -55,6 +57,7 @@ enum MeasurementUnit: string
         return in_array($this, [
             self::PIECE,
             self::PINCH,
+            self::CLOVE,
         ]);
     }
 }

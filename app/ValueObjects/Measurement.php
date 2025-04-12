@@ -10,17 +10,19 @@ use JsonSerializable;
 class Measurement implements JsonSerializable, \Stringable
 {
     public function __construct(
-        public readonly float $amount,
+        public readonly ?float $amount = null,
         public readonly ?MeasurementUnit $unit = null,
     ) {
     }
 
-    public static function from(float $amount, ?string $unit = null): self
+    public static function from(?float $amount, ?string $unit = null): self
     {
-        return new self(
-            $amount,
-            $unit !== null && $unit !== '' && $unit !== '0' ? MeasurementUnit::from($unit) : null
-        );
+        if ($unit !== null && $unit !== '' && $unit !== '0') {
+            $unitEnum = MeasurementUnit::tryFrom($unit);
+            return new self($amount, $unitEnum);
+        }
+
+        return new self($amount, null);
     }
 
     /**
@@ -31,6 +33,10 @@ class Measurement implements JsonSerializable, \Stringable
      */
     public function scale(float $factor): self
     {
+        if ($this->amount === null) {
+            return new self(null, $this->unit);
+        }
+        
         $scaledAmount = $this->amount * $factor;
 
         // Apply smart rounding based on the unit type and quantity
@@ -108,6 +114,10 @@ class Measurement implements JsonSerializable, \Stringable
 
     public function __toString(): string
     {
+        if ($this->amount === null) {
+            return $this->unit?->value ?? '';
+        }
+        
         if (!$this->unit instanceof \App\Enums\MeasurementUnit) {
             return (string) $this->amount;
         }
@@ -117,6 +127,10 @@ class Measurement implements JsonSerializable, \Stringable
 
     public function format(): string
     {
+        if ($this->amount === null) {
+            return $this->unit?->value ?? '';
+        }
+        
         $amount = number_format($this->amount, 2);
         // Remove trailing zeros after decimal point
         $amount = rtrim(rtrim($amount, '0'), '.');

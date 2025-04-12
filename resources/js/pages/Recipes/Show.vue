@@ -136,7 +136,7 @@
                                             {{ formatScaledAmount(ingredient.pivot.amount) }}
                                             <template v-if="ingredient.pivot.unit">{{ ingredient.pivot.unit }}</template>
                                         </span>
-                                        <span class="ml-1">{{ ingredient.name }}</span>
+                                        <span class="ml-1">{{ ingredient.pivot.description || ingredient.name }}</span>
                                     </li>
                                 </ul>
                             </div>

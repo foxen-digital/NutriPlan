@@ -67,7 +67,7 @@ This specification details the integration of the `IngredientNormalizationServic
         $table->dropColumn('description');
     });
     ```
-    *Note: Run `php artisan migrate` after creating these migrations. As the database will be cleared during development, no data backfill is needed.*
+    *Note: Run `php artisan migrate:fresh` after creating these migrations. As the database will be cleared during development, no data backfill is needed.*
 
 ### Models
 

@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Models\Category;
+use App\Models\Ingredient;
 use App\Models\NutritionInformation;
 use App\Models\Recipe;
+use App\Services\IngredientNormalizationService;
 use App\Services\NutritionParser;
 use App\Services\RecipeParser;
 use Brick\StructuredData\Item;
@@ -12,7 +14,15 @@ use Illuminate\Support\Facades\Auth;
 
 beforeEach(function () {
     $nutritionParser = new NutritionParser();
-    $this->parser = new RecipeParser(nutrition_parser: $nutritionParser);
+
+    // Mock the IngredientNormalizationService
+    $normalizationService = mock(IngredientNormalizationService::class);
+    $normalizationService->shouldReceive('normalize')->andReturn([]);
+
+    $this->parser = new RecipeParser(
+        nutrition_parser: $nutritionParser,
+        normalizationService: $normalizationService
+    );
 });
 
 it('parses a single category from keywords', function () {
@@ -278,4 +288,193 @@ it('handles missing nutrition information', function () {
     $recipe = $this->parser->parse($item);
 
     expect($recipe->nutritionInformation)->toBeNull();
+});
+
+it('parses ingredients using the normalization service', function () {
+    $user = createUser();
+    Auth::login($user);
+
+    // Normalized ingredient data that would be returned by the normalization service
+    $normalizedIngredients = [
+        [
+            'base_name' => 'olive oil',
+            'quantity' => 2,
+            'unit' => 'tbsp',
+            'preparation_notes' => 'extra virgin',
+            'description' => 'extra virgin olive oil',
+            'original_string' => '2 tbsp extra virgin olive oil'
+        ],
+        [
+            'base_name' => 'garlic',
+            'quantity' => 3,
+            'unit' => 'clove',
+            'preparation_notes' => 'minced',
+            'description' => 'garlic, minced',
+            'original_string' => '3 cloves garlic, minced'
+        ]
+    ];
+
+    // Mock the normalization service
+    $normalizationService = mock(IngredientNormalizationService::class);
+    $normalizationService->shouldReceive('normalize')
+        ->with(['2 tbsp extra virgin olive oil', '3 cloves garlic, minced'])
+        ->andReturn($normalizedIngredients);
+
+    $parser = new RecipeParser(normalizationService: $normalizationService);
+
+    // Create ingredients in the database
+    $oliveOil = Ingredient::factory()->create(['name' => 'olive oil']);
+    $garlic = Ingredient::factory()->create(['name' => 'garlic']);
+
+    $item = mock(Item::class);
+    $item->shouldReceive('getProperties')
+        ->andReturn([
+            'name' => ['Test Recipe'],
+            'recipeIngredient' => [
+                '2 tbsp extra virgin olive oil',
+                '3 cloves garlic, minced'
+            ],
+        ]);
+
+    $recipe = $parser->parse($item);
+
+    // Verify ingredients were attached with correct pivot data
+    expect($recipe->ingredients)->toHaveCount(2);
+
+    // Find olive oil ingredient and check its pivot data
+    $recipeOliveOil = $recipe->ingredients->firstWhere('name', 'olive oil');
+    expect($recipeOliveOil)->not->toBeNull()
+        ->and($recipeOliveOil->pivot->amount)->toEqual(2.0)
+        ->and($recipeOliveOil->pivot->unit)->toBe('tbsp')
+        ->and($recipeOliveOil->pivot->description)->toBe('extra virgin olive oil');
+
+    // Find garlic ingredient and check its pivot data
+    $recipeGarlic = $recipe->ingredients->firstWhere('name', 'garlic');
+    expect($recipeGarlic)->not->toBeNull()
+        ->and($recipeGarlic->pivot->amount)->toEqual(3.0)
+        ->and($recipeGarlic->pivot->unit)->toBe('clove')
+        ->and($recipeGarlic->pivot->description)->toBe('garlic, minced');
+});
+
+it('skips ingredients with empty base names', function () {
+    $user = createUser();
+    Auth::login($user);
+
+    // Normalized ingredient data with one valid ingredient and one with empty base_name
+    $normalizedIngredients = [
+        [
+            'base_name' => 'salt',
+            'quantity' => 0,
+            'unit' => 'pinch',
+            'preparation_notes' => 'to taste',
+            'description' => 'salt, to taste',
+            'original_string' => 'salt to taste'
+        ],
+        [
+            'base_name' => '', // Empty base name
+            'quantity' => 0,
+            'unit' => null,
+            'preparation_notes' => null,
+            'description' => 'to serve',
+            'original_string' => 'to serve'
+        ]
+    ];
+
+    // Mock the normalization service
+    $normalizationService = mock(IngredientNormalizationService::class);
+    $normalizationService->shouldReceive('normalize')
+        ->with(['salt to taste', 'to serve'])
+        ->andReturn($normalizedIngredients);
+
+    $parser = new RecipeParser(normalizationService: $normalizationService);
+
+    // Create salt ingredient in the database
+    $salt = Ingredient::factory()->create(['name' => 'salt']);
+
+    $item = mock(Item::class);
+    $item->shouldReceive('getProperties')
+        ->andReturn([
+            'name' => ['Test Recipe'],
+            'recipeIngredient' => [
+                'salt to taste',
+                'to serve'
+            ],
+        ]);
+
+    $recipe = $parser->parse($item);
+
+    // Verify only the valid ingredient was attached
+    expect($recipe->ingredients)->toHaveCount(1);
+
+    // Check salt was properly attached with description
+    $recipeSalt = $recipe->ingredients->first();
+    expect($recipeSalt->name)->toBe('salt')
+        ->and($recipeSalt->pivot->unit)->toBe('pinch')
+        ->and($recipeSalt->pivot->description)->toBe('salt, to taste');
+});
+
+it('uses fallback values for missing fields in normalized data', function () {
+    $user = createUser();
+    Auth::login($user);
+
+    // Normalized ingredient data with some missing fields
+    $normalizedIngredients = [
+        [
+            'base_name' => 'sugar',
+            'quantity' => 0,
+            // Missing unit
+            // Missing preparation_notes
+            // Missing description
+            'original_string' => 'sugar'
+        ],
+        [
+            'base_name' => 'water',
+            'quantity' => 1,
+            // Missing unit
+            // Missing preparation_notes
+            'description' => 'water', // Has description
+            'original_string' => '1 cup water'
+        ]
+    ];
+
+    // Mock the normalization service
+    $normalizationService = mock(IngredientNormalizationService::class);
+    $normalizationService->shouldReceive('normalize')
+        ->with(['sugar', '1 cup water'])
+        ->andReturn($normalizedIngredients);
+
+    $parser = new RecipeParser(normalizationService: $normalizationService);
+
+    // Create ingredients in the database
+    $sugar = Ingredient::factory()->create(['name' => 'sugar']);
+    $water = Ingredient::factory()->create(['name' => 'water']);
+
+    $item = mock(Item::class);
+    $item->shouldReceive('getProperties')
+        ->andReturn([
+            'name' => ['Test Recipe'],
+            'recipeIngredient' => [
+                'sugar',
+                '1 cup water'
+            ],
+        ]);
+
+    $recipe = $parser->parse($item);
+
+    // Verify ingredients were attached
+    expect($recipe->ingredients)->toHaveCount(2);
+
+    // Check sugar has fallback values
+    $recipeSugar = $recipe->ingredients->firstWhere('name', 'sugar');
+    expect($recipeSugar)->not->toBeNull()
+        ->and($recipeSugar->pivot->amount)->toEqual(0.0)
+        ->and($recipeSugar->pivot->unit)->toBeNull()
+        ->and($recipeSugar->pivot->description)->toBe('sugar'); // Falls back to original_string or base_name
+
+    // Check water has the correct values
+    $recipeWater = $recipe->ingredients->firstWhere('name', 'water');
+    expect($recipeWater)->not->toBeNull()
+        ->and($recipeWater->pivot->amount)->toEqual(1.0)
+        ->and($recipeWater->pivot->unit)->toBeNull()
+        ->and($recipeWater->pivot->description)->toBe('water');
 });

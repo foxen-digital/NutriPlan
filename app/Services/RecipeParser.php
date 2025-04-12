@@ -5,6 +5,7 @@ namespace App\Services;
 use Exception;
 use App\Models\Recipe;
 use App\Models\Category;
+use App\Models\Ingredient;
 use Illuminate\Support\Str;
 use Brick\StructuredData\Item;
 use Illuminate\Support\Facades\Auth;
@@ -31,9 +32,12 @@ class RecipeParser
         private array $images = [],
         /** @var array<int, string> */
         private array $categories = [],
-        private readonly IngredientParser $ingredient_parser = new IngredientParser(),
+        private ?IngredientNormalizationService $normalizationService = null,
         private readonly NutritionParser $nutrition_parser = new NutritionParser()
     ) {
+        if (!$this->normalizationService instanceof \App\Services\IngredientNormalizationService) {
+            $this->normalizationService = app(IngredientNormalizationService::class);
+        }
     }
 
     /**
@@ -113,16 +117,28 @@ class RecipeParser
         $recipe->categories()->sync($categories->pluck('id'));
 
         // Parse and attach ingredients
-        $ingredients_data = [];
-        foreach ($this->ingredients as $ingredient_string) {
-            $parsed = $this->ingredient_parser->parse($ingredient_string);
-            $ingredients_data[$parsed['ingredient']->id] = [
-                'amount' => $parsed['amount'],
-                'unit' => $parsed['unit'],
+        $rawIngredientStrings = array_filter($this->ingredients);
+        $normalizedIngredients = $this->normalizationService->normalize($rawIngredientStrings);
+
+        $pivotData = [];
+        foreach ($normalizedIngredients as $normalizedData) {
+            // Skip if base_name is missing or empty
+            if (!isset($normalizedData['base_name'])) {
+                continue;
+            }
+            if (empty($normalizedData['base_name'])) {
+                continue;
+            }
+            $ingredient = Ingredient::firstOrCreate(['name' => $normalizedData['base_name']]);
+
+            $pivotData[$ingredient->id] = [
+                'amount' => $normalizedData['quantity'] ?? null, // Allow null values
+                'unit' => $normalizedData['unit'] ?? null,
+                'description' => $normalizedData['description'] ?? $normalizedData['original_string'] ?? $normalizedData['base_name'],
             ];
         }
 
-        $recipe->ingredients()->sync($ingredients_data);
+        $recipe->ingredients()->sync($pivotData);
 
         // Handle nutrition information if available
         if ($this->nutrition !== null && $this->nutrition !== []) {

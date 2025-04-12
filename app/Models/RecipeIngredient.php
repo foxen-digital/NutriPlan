@@ -15,22 +15,6 @@ class RecipeIngredient extends Pivot
         'amount' => 'float',
     ];
 
-    /**
-     * Get the unit attribute.
-     */
-    public function getUnitAttribute(string|MeasurementUnit|null $value): ?MeasurementUnit
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if ($value instanceof MeasurementUnit) {
-            return $value;
-        }
-
-        return MeasurementUnit::tryFrom($value);
-    }
-
     public function recipe(): BelongsTo
     {
         return $this->belongsTo(Recipe::class);
@@ -43,9 +27,16 @@ class RecipeIngredient extends Pivot
 
     public function measurement(): Measurement
     {
+        $unit = $this->unit;
+
+        // Convert string unit to enum for ValueObject if possible
+        if (is_string($unit)) {
+            $unit = MeasurementUnit::tryFrom($unit) ?? MeasurementUnit::PIECE;
+        }
+
         return new Measurement(
             amount: $this->amount,
-            unit: $this->unit,
+            unit: $unit,
         );
     }
 }

@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
+use App\Models\Recipe;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Ingredient;
-use App\Models\NutritionInformation;
-use App\Models\Recipe;
-use App\Models\User;
+use App\Enums\MeasurementUnit;
 use App\ValueObjects\Measurement;
+use Spatie\Sluggable\SlugOptions;
+use App\Models\NutritionInformation;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Sluggable\SlugOptions;
 
 test('recipe has correct relationships', function () {
     $recipe = new Recipe();
@@ -55,7 +56,7 @@ test('recipe can have multiple ingredients with pivot data', function () {
     expect($recipe->ingredients)->toHaveCount(1)
         ->and($recipe->ingredients->first())->toBeInstanceOf(Ingredient::class)
         ->and($recipe->ingredients->first()->pivot->amount)->toBe(2.5)
-        ->and($recipe->ingredients->first()->pivot->unit->value)->toBe('tbsp');
+        ->and($recipe->ingredients->first()->pivot->unit)->toBe('tbsp');
 });
 
 test('recipe can belong to multiple collections', function () {
@@ -152,7 +153,7 @@ test('getMeasurementForIngredient returns Measurement object with correct values
 
     expect($measurement)->toBeInstanceOf(Measurement::class)
         ->and($measurement->amount)->toBe(2.5)
-        ->and($measurement->unit->value)->toBe('tbsp');
+        ->and($measurement->unit)->toBe(MeasurementUnit::TABLESPOON);
 });
 
 test('recipe can be favorited by users', function () {

@@ -37,7 +37,9 @@ EOT;
         }
 
         try {
-            return $this->normalizeWithLlm($ingredientStrings);
+            $data = $this->normalizeWithLlm($ingredientStrings);
+            Log::info('Normalized ingredients', ['data' => $data]);
+            return $data;
         } catch (\Throwable $e) {
             Log::error('Failed to normalize ingredients with LLM', [
                 'error' => $e->getMessage(),

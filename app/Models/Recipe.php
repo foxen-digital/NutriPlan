@@ -61,7 +61,7 @@ class Recipe extends Model
     public function ingredients(): BelongsToMany
     {
         return $this->belongsToMany(Ingredient::class)
-            ->withPivot(['amount', 'unit'])
+            ->withPivot(['amount', 'unit', 'description'])
             ->using(RecipeIngredient::class);
     }
 
@@ -89,9 +89,12 @@ class Recipe extends Model
             return null;
         }
 
+        $unit = $pivot->unit;
+        $unitValue = is_string($unit) ? $unit : ($unit?->value ?? null);
+
         return Measurement::from(
-            amount: (float) $pivot->amount,
-            unit: $pivot->unit->value,
+            amount: $pivot->amount,
+            unit: $unitValue,
         );
     }
 }

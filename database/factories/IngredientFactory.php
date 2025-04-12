@@ -30,7 +30,6 @@ class IngredientFactory extends Factory
     {
         return [
             'name' => fake()->unique()->word(),
-            'description' => fake()->optional()->sentence(),
             'is_common' => false,
         ];
     }
@@ -52,11 +51,15 @@ class IngredientFactory extends Factory
     {
         return $this->state(fn (array $attributes): array => [])
             ->afterCreating(function (Ingredient $ingredient): void {
+                // Occasionally use null amount for ingredients like 'to taste' items
+                $useNullAmount = fake()->boolean(20); // 20% chance of null amount
+                
                 $ingredient->recipes()->attach(
                     Recipe::factory()->create(),
                     [
-                        'amount' => fake()->randomFloat(2, 0.25, 10),
+                        'amount' => $useNullAmount ? null : fake()->randomFloat(2, 0.25, 10),
                         'unit' => fake()->randomElement(array_column(MeasurementUnit::cases(), 'value')),
+                        'description' => fake()->optional()->sentence(),
                     ]
                 );
             });
