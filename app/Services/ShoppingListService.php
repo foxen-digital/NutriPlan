@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection as SupportCollection;
 
 class ShoppingListService
 {
@@ -150,7 +149,7 @@ class ShoppingListService
         // Group items by category while preserving their order
         $itemsByCategory = collect();
         $categories = $shoppingList->items->pluck('category')->unique();
-        
+
         foreach ($categories as $category) {
             $categoryName = $category ?? 'Uncategorized';
             $itemsByCategory[$categoryName] = $shoppingList->items

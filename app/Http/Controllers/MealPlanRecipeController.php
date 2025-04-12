@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MealPlan;
 use App\Models\Recipe;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -15,7 +16,7 @@ class MealPlanRecipeController extends Controller
     /**
      * Add a recipe to a meal plan.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'meal_plan_id' => 'required|exists:meal_plans,id',
@@ -45,7 +46,10 @@ class MealPlanRecipeController extends Controller
             }
         }
 
-        return back()->with('success', 'Recipe added to meal plan successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Recipe added to meal plan successfully.'
+        ]);
     }
 
     /**

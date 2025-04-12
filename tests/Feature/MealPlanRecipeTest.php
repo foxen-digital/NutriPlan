@@ -17,7 +17,12 @@ test('user can add recipe to meal plan', function () {
         'scale_factor' => 1.5,
     ]);
 
-    $response->assertRedirect();
+    $response->assertStatus(200)
+        ->assertJson([
+            'success' => true,
+            'message' => 'Recipe added to meal plan successfully.'
+        ]);
+
     expect(
         $meal_plan->recipes()
             ->where('recipe_id', $recipe->id)
@@ -176,7 +181,11 @@ test('available servings are calculated when adding recipe', function () {
         'scale_factor' => 1.0,
     ]);
 
-    $response->assertRedirect();
+    $response->assertStatus(200)
+        ->assertJson([
+            'success' => true
+        ]);
+
     expect(
         $meal_plan->recipes()
             ->where('recipe_id', $recipe->id)
@@ -202,7 +211,11 @@ test('available servings are zero when plan has no people', function () {
         'scale_factor' => 1.0,
     ]);
 
-    $response->assertRedirect();
+    $response->assertStatus(200)
+        ->assertJson([
+            'success' => true
+        ]);
+
     expect(
         $meal_plan->recipes()
             ->where('recipe_id', $recipe->id)

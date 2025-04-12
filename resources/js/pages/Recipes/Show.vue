@@ -198,7 +198,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Recipe } from '@/types/recipe';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ExternalLinkIcon, HeartIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -266,17 +266,19 @@ const toggleFavorite = () => {
 };
 
 const addToMealPlan = (mealPlanId: number) => {
-    router.post(
-        route('meal-plans.add-recipe'),
-        {
+    axios
+        .post(route('meal-plans.add-recipe'), {
             meal_plan_id: mealPlanId,
             recipe_id: props.recipe.id,
             scale_factor: 1.0,
-        },
-        {
-            preserveScroll: true,
-        },
-    );
+        })
+        .then((response) => {
+            // Optional success notification
+            console.log('Recipe added successfully:', response.data.message);
+        })
+        .catch((error) => {
+            console.error('Error adding recipe to meal plan:', error);
+        });
 };
 
 // Format date to readable string

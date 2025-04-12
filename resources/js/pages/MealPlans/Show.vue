@@ -596,22 +596,23 @@ const calculateServings = (originalServings: number, scaleFactor: number): numbe
 const addRecipeToMealPlan = () => {
     if (!selectedRecipe.value) return;
 
-    router.post(
-        route('meal-plans.add-recipe'),
-        {
+    axios
+        .post(route('meal-plans.add-recipe'), {
             meal_plan_id: props.mealPlan.id,
             recipe_id: selectedRecipe.value.id,
             scale_factor: scaleFactor.value,
-        },
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                showAddRecipeModal.value = false;
-                selectedRecipe.value = null;
-                scaleFactor.value = 1.0;
-            },
-        },
-    );
+        })
+        .then(() => {
+            showAddRecipeModal.value = false;
+            selectedRecipe.value = null;
+            scaleFactor.value = 1.0;
+
+            // Refresh the meal plan data
+            router.reload({ only: ['mealPlan'] });
+        })
+        .catch((error) => {
+            console.error('Error adding recipe to meal plan:', error);
+        });
 };
 
 const confirmRemoveRecipe = (recipe: RecipeWithPivot) => {
@@ -650,7 +651,7 @@ const updateRecipeScaleFactor = () => {
     showEditRecipeModal.value = false;
     if (!recipeToEdit.value) return;
 
-    // First remove the recipe
+    // First remove the recipe (leave this part unchanged)
     router.delete(
         route('meal-plans.remove-recipe', {
             id: props.mealPlan.id,
@@ -659,22 +660,22 @@ const updateRecipeScaleFactor = () => {
         {
             preserveScroll: true,
             onSuccess: () => {
-                // Then add it back with the new scale factor
-                router.post(
-                    route('meal-plans.add-recipe'),
-                    {
+                // Then add it back with the new scale factor (update this part)
+                axios
+                    .post(route('meal-plans.add-recipe'), {
                         meal_plan_id: props.mealPlan.id,
                         recipe_id: recipeToEdit.value!.id,
                         scale_factor: editScaleFactor.value,
-                    },
-                    {
-                        preserveScroll: true,
-                        onSuccess: () => {
-                            showEditRecipeModal.value = false;
-                            recipeToEdit.value = null;
-                        },
-                    },
-                );
+                    })
+                    .then(() => {
+                        showEditRecipeModal.value = false;
+                        recipeToEdit.value = null;
+                        // Refresh the meal plan data
+                        router.reload({ only: ['mealPlan'] });
+                    })
+                    .catch((error) => {
+                        console.error('Error updating recipe scale factor:', error);
+                    });
             },
         },
     );

@@ -20,7 +20,8 @@ class ShoppingListController extends Controller
 
     public function __construct(
         private readonly ShoppingListService $shoppingListService
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the user's shopping lists
