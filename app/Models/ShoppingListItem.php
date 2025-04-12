@@ -12,10 +12,21 @@ class ShoppingListItem extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'quantity',
+        'unit',
+        'category',
+        'is_custom',
+        'is_purchased',
+        'order',
+    ];
+
     protected $casts = [
         'quantity' => 'decimal:2',
         'is_custom' => 'boolean',
         'is_purchased' => 'boolean',
+        'order' => 'integer',
     ];
 
     public function shoppingList(): BelongsTo

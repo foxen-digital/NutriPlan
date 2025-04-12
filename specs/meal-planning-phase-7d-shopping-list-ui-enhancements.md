@@ -1,7 +1,7 @@
 # Meal Planning - Phase 7d: Shopping List UI Enhancements
 
 ## Overview
-This phase introduces UI enhancements for the shopping list, focusing on reordering and filtering/sorting capabilities.
+This phase introduces UI enhancements for the shopping list, focusing on reordering and filtering capabilities.
 
 ## Depends On
 - Phase 7a: Shopping List Generation (for base shopping list structure)
@@ -15,7 +15,7 @@ This phase introduces UI enhancements for the shopping list, focusing on reorder
 ### UI Enhancements
 - **Drag & Drop Reordering:** Allow users to manually reorder items within the shopping list view.
     - Requires storing an `order` column on `shopping_list_items`.
-- **Filtering/Sorting:** Add UI controls to filter the list (e.g., show only purchased/unpurchased) and sort (by name, category, order).
+- **Filtering/Sorting:** Add UI controls to filter the list (e.g., show only purchased/unpurchased).
 
 ## Implementation Details
 
@@ -102,7 +102,7 @@ class UpdateItemOrderRequest extends FormRequest
 #### Views/Components
 - Shopping List Detail View enhancements:
     - Drag & Drop handles for items.
-    - Sorting/Filtering controls.
+    - Filtering controls.
 
 ## Testing Strategy
 
@@ -110,7 +110,7 @@ class UpdateItemOrderRequest extends FormRequest
 - Test `PUT /shopping-lists/{shoppingList}/items/order` endpoint.
 - Test UI interactions:
     - Drag & drop persists order correctly.
-    - Filtering/Sorting updates the view.
+    - Filtering updates the view.
 
 ## Future Considerations
-- Persisting filter/sort preferences. 
+- Persisting filter preferences. 

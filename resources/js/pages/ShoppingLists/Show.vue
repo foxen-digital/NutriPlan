@@ -63,61 +63,33 @@
             <div v-else class="mt-6">
                 <div class="mb-2 flex justify-between">
                     <h2 class="text-lg font-medium text-gray-900 dark:text-white">Shopping List Items</h2>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ purchasedCount }} of {{ shoppingList.items.length }} items purchased
+                    <div class="flex items-center space-x-4">
+                        <div>
+                            <select v-model="filterOption"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white sm:text-sm">
+                                <option value="all">All Items</option>
+                                <option value="purchased">Purchased Only</option>
+                                <option value="unpurchased">Unpurchased Only</option>
+                            </select>
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ purchasedCount }} of {{ shoppingList.items.length }} items purchased
+                        </div>
                     </div>
                 </div>
 
                 <!-- If we're not using categories (all items are uncategorized) -->
                 <div v-if="!shoppingList.use_categories"
                     class="divide-y divide-gray-200 rounded-md border dark:divide-gray-800">
-                    <div v-for="item in sortedItems" :key="item.id" class="flex items-center justify-between p-4"
-                        :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }">
-                        <div class="flex items-center gap-3">
-                            <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased"
-                                @update:checked="toggleItemPurchased(item)" />
-                            <div>
-                                <div class="font-medium text-gray-900 dark:text-white"
-                                    :class="{ 'line-through': item.is_purchased }">
-                                    {{ item.name }}
-                                </div>
-                                <div v-if="item.quantity || item.unit" class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ formatAmount(item.quantity) }} {{ item.unit }}
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger as="div">
-                                    <Button variant="ghost" size="icon">
-                                        <EllipsisVerticalIcon class="h-5 w-5" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem @click="editItem(item)">
-                                        <PencilIcon class="mr-2 h-4 w-4" />
-                                        Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem @click="confirmDeleteItem(item)">
-                                        <TrashIcon class="mr-2 h-4 w-4" />
-                                        Delete
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- If we're using categories -->
-                <div v-else class="space-y-4">
-                    <div v-for="(items, category) in shoppingList.items_by_category" :key="category">
-                        <h3 class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{{ category }}</h3>
-
-                        <div class="divide-y divide-gray-200 rounded-md border dark:divide-gray-800">
-                            <div v-for="item in sortItemsInCategory(items)" :key="item.id"
-                                class="flex items-center justify-between p-4"
+                    <draggable v-model="dragItems" item-key="id" handle=".drag-handle" @end="saveItemOrder"
+                        :disabled="isDraggingDisabled">
+                        <template #item="{ element: item }">
+                            <div v-if="shouldShowItem(item)" class="flex items-center justify-between p-4"
                                 :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }">
                                 <div class="flex items-center gap-3">
+                                    <div class="drag-handle mr-1 cursor-move text-gray-400">
+                                        <GripVertical class="h-5 w-5" />
+                                    </div>
                                     <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased"
                                         @update:checked="toggleItemPurchased(item)" />
                                     <div>
@@ -151,6 +123,60 @@
                                     </DropdownMenu>
                                 </div>
                             </div>
+                        </template>
+                    </draggable>
+                </div>
+
+                <!-- If we're using categories -->
+                <div v-else class="space-y-4">
+                    <div v-for="(items, category) in itemsByCategory" :key="category">
+                        <h3 class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{{ category }}</h3>
+
+                        <div class="divide-y divide-gray-200 rounded-md border dark:divide-gray-800">
+                            <draggable v-model="categoryDragItems[category]" item-key="id" handle=".drag-handle"
+                                @end="saveItemOrder" :disabled="isDraggingDisabled">
+                                <template #item="{ element: item }">
+                                    <div v-if="shouldShowItem(item)" class="flex items-center justify-between p-4"
+                                        :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }">
+                                        <div class="flex items-center gap-3">
+                                            <div class="drag-handle mr-1 cursor-move text-gray-400">
+                                                <GripVertical class="h-5 w-5" />
+                                            </div>
+                                            <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased"
+                                                @update:checked="toggleItemPurchased(item)" />
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white"
+                                                    :class="{ 'line-through': item.is_purchased }">
+                                                    {{ item.name }}
+                                                </div>
+                                                <div v-if="item.quantity || item.unit"
+                                                    class="text-sm text-gray-500 dark:text-gray-400">
+                                                    {{ formatAmount(item.quantity) }} {{ item.unit }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger as="div">
+                                                    <Button variant="ghost" size="icon">
+                                                        <EllipsisVerticalIcon class="h-5 w-5" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem @click="editItem(item)">
+                                                        <PencilIcon class="mr-2 h-4 w-4" />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem @click="confirmDeleteItem(item)">
+                                                        <TrashIcon class="mr-2 h-4 w-4" />
+                                                        Delete
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </div>
+                                </template>
+                            </draggable>
                         </div>
                     </div>
                 </div>
@@ -318,7 +344,8 @@
                     <div class="flex w-full flex-col justify-between gap-2 sm:flex-row sm:justify-end">
                         <!-- Standard Controls -->
                         <Button v-if="!barcodeNotFound && !scanError" variant="outline" @click="closeScannerModal">
-                            Cancel </Button>
+                            Cancel
+                        </Button>
 
                         <!-- Error Controls -->
                         <Button v-if="scanError" variant="outline" @click="retryScanner"> Retry </Button>
@@ -347,9 +374,12 @@ import useBarcodeScanner from '@/composables/useBarcodeScanner';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
+// @ts-expect-error - lodash doesn't have type definitions in this project
 import { debounce } from 'lodash';
-import { BarcodeIcon, EllipsisVerticalIcon, MenuIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
+import { BarcodeIcon, EllipsisVerticalIcon, GripVertical, MenuIcon, PencilIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+// @ts-expect-error - vuedraggable doesn't have type definitions in this project
+import draggable from 'vuedraggable';
 
 interface ShoppingListItem {
     id: number;
@@ -718,6 +748,7 @@ const handleClickOutside = () => {
 // Add event listener when component is mounted
 onMounted(() => {
     document.addEventListener('click', handleClickOutside);
+    initializeDragItems();
 });
 
 // Remove event listener when component is unmounted
@@ -738,4 +769,82 @@ watch(showEditItemModal, (isOpen) => {
         suggestions.value = [];
     }
 });
+
+const filterOption = ref('all');
+const dragItems = ref<ShoppingListItem[]>([]);
+const categoryDragItems = ref<Record<string, ShoppingListItem[]>>({});
+const isDraggingDisabled = ref(false);
+
+// Initialize dragItems with sorted items when component is mounted
+onMounted(() => {
+    initializeDragItems();
+});
+
+// Watch for changes in props.shoppingList.items
+watch(
+    () => props.shoppingList.items,
+    () => {
+        initializeDragItems();
+    },
+    { deep: true },
+);
+
+const initializeDragItems = () => {
+    // For non-categorized items, initialize dragItems
+    if (!props.shoppingList.use_categories) {
+        dragItems.value = [...sortedItems.value];
+    } else {
+        // For categorized items, initialize categoryDragItems
+        const categories = Object.keys(props.shoppingList.items_by_category || {});
+        categories.forEach((category) => {
+            categoryDragItems.value[category] = sortItemsInCategory(props.shoppingList.items_by_category?.[category] || []);
+        });
+    }
+};
+
+// Filter items based on the selected filter option
+const shouldShowItem = (item: ShoppingListItem) => {
+    if (filterOption.value === 'all') return true;
+    if (filterOption.value === 'purchased' && item.is_purchased) return true;
+    if (filterOption.value === 'unpurchased' && !item.is_purchased) return true;
+    return false;
+};
+
+// Filter and sort items by category
+const itemsByCategory = computed(() => {
+    if (!props.shoppingList.items_by_category) return {};
+
+    const result: Record<string, ShoppingListItem[]> = {};
+
+    Object.keys(props.shoppingList.items_by_category).forEach((category) => {
+        // Only include categories with visible items
+        const filteredItems = (props.shoppingList.items_by_category?.[category] || []).filter((item) => shouldShowItem(item));
+
+        if (filteredItems.length > 0) {
+            result[category] = filteredItems;
+        }
+    });
+
+    return result;
+});
+
+// Save the new order of items
+const saveItemOrder = () => {
+    const allItems = props.shoppingList.use_categories ? Object.values(categoryDragItems.value).flat() : dragItems.value;
+
+    // Get all item IDs in their new order
+    const itemIds = allItems.map((item) => item.id);
+
+    // Send the new order to the server
+    axios
+        .put(route('shopping-lists.items.order', props.shoppingList.id), {
+            item_ids: itemIds,
+        })
+        .then(() => {
+            // Success notification could be added here
+        })
+        .catch((error) => {
+            console.error('Error saving item order:', error);
+        });
+};
 </script>

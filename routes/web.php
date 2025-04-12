@@ -17,6 +17,7 @@ use App\Http\Controllers\ShoppingListController;
 use App\Http\Controllers\ShoppingListItemController;
 use App\Http\Controllers\ShoppingListItemPurchaseController;
 use App\Http\Controllers\ShoppingListGenerationController;
+use App\Http\Controllers\ShoppingListItemOrderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -62,6 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('shopping-lists/{shoppingList}/items/{item}', [ShoppingListItemController::class, 'update'])->name('shopping-lists.items.update');
     Route::delete('shopping-lists/{shoppingList}/items/{item}', [ShoppingListItemController::class, 'destroy'])->name('shopping-lists.items.destroy');
     Route::post('shopping-lists/{shoppingList}/items/{item}/toggle-purchased', [ShoppingListItemPurchaseController::class, 'store'])->name('shopping-lists.items.toggle-purchased');
+    Route::put('shopping-lists/{shoppingList}/order-items', ShoppingListItemOrderController::class)->name('shopping-lists.items.order');
 });
 
 Route::middleware(['auth'])->group(function () {
