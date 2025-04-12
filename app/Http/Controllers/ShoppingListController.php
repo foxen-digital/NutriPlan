@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreShoppingListRequest;
-use App\Http\Requests\UpdateShoppingListRequest;
-use App\Http\Resources\ShoppingListResource;
-use App\Models\ShoppingList;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\ShoppingList;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Resources\ShoppingListResource;
+use App\Http\Requests\StoreShoppingListRequest;
+use App\Http\Requests\UpdateShoppingListRequest;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ShoppingListController extends Controller
 {
@@ -39,14 +40,14 @@ class ShoppingListController extends Controller
         $this->authorize('view', $shoppingList);
 
         // Load items ordered by the order column, then by name as a fallback
-        $shoppingList->load(['items' => function ($query) {
+        $shoppingList->load(['items' => function (Builder $query) {
             $query->orderBy('order')->orderBy('name');
         }]);
 
         // Group items by category while preserving their order
         $itemsByCategory = collect();
         $categories = $shoppingList->items->pluck('category')->unique();
-        
+
         foreach ($categories as $category) {
             $categoryName = $category ?? 'Uncategorized';
             $itemsByCategory[$categoryName] = $shoppingList->items
