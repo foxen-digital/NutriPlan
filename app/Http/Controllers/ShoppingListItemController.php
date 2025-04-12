@@ -23,10 +23,10 @@ class ShoppingListItemController extends Controller
     {
         $this->authorize('update', $shoppingList);
 
-        $item = new ShoppingListItem($request->validated());
-        $item->shopping_list_id = $shoppingList->id;
-        $item->is_custom = true;
-        $item->save();
+        $shoppingList->items()->create([
+            ...$request->validated(),
+            'is_custom' => true,
+        ]);
 
         return redirect()->route('shopping-lists.show', $shoppingList)
             ->with('success', 'Item added successfully.');
