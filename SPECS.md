@@ -15,6 +15,8 @@ This document provides an overview of all feature specifications for the NutriPl
 | My Recipes | Toggle to filter between all recipes and user's own recipes | ✅ | [View Spec](specs/my-recipes.md) |
 | Recipe Visibility | Control recipe privacy and visibility with special handling for imported recipes | ✅ | [View Spec](specs/recipe-visibility.md) |
 | User Recipe Filtering | Filter recipes by specific user, showing user profiles and replacing My Recipes toggle | ✅ | [View Spec](specs/user-recipe-filtering.md) |
+| Ingredient Normalization Service | Create service to parse/normalize ingredients via LLM | ⏳ | [View Spec](specs/feature-ingredient-normalization-service.md) |
+| Integrate Ingredient Normalization | Integrate service, update schema & UI for normalized ingredients | ⏳ | [View Spec](specs/feature-integrate-ingredient-normalization.md) |
 | Meal Planning | Create and manage meal plans with recipes | 🚧 | [View Spec](specs/meal-planning.md) |
 
 ### Meal Planning Phases
@@ -36,7 +38,7 @@ This document provides an overview of all feature specifications for the NutriPl
 | Phase 11: Barcode Scanning | Add items to shopping list via barcode scanning (Mobile) | ✅ | [View Spec](specs/meal-planning-phase-7x-barcode-scanning.md) |
 | Phase 12: Nutritional Summaries | Show nutritional totals per day or week | 🔮 | [View Spec](specs/meal-planning-phase-8-nutritional-summaries.md) |
 | Phase 13: Cooking Notifications | Reminders for meals flagged "to cook" | 🔮 | [View Spec](specs/meal-planning-phase-9-cooking-notifications.md) |
-| Phase 14: Drag and Drop Interface | Implement drag-and-drop interface for meal assignments | 🔮 | [View Spec](specs/meal-planning-phase-4a-drag-and-drop.md) |
+| Phase 14: Drag and Drop Interface | Implement drag-and-drop interface for meal assignments | ✅ | [View Spec](specs/meal-planning-phase-4a-drag-and-drop.md) |
 | Phase 15: Mobile Optimization | Fully optimize the experience for mobile devices | 🔮 | [View Spec](specs/meal-planning-phase-6-mobile-optimization.md) |
 
 ## Status Legend
