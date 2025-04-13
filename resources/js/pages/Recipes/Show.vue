@@ -81,12 +81,6 @@
                             </div>
                         </div>
 
-                        <!-- Nutrition Information -->
-                        <div v-if="recipe.nutrition_information" class="mt-8">
-                            <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Nutrition</h2>
-                            <NutritionInformation :nutrition="recipe.nutrition_information" />
-                        </div>
-
                         <!-- Categories -->
                         <div v-if="recipe.categories.length > 0" class="mt-6">
                             <div class="flex flex-wrap gap-2">
@@ -96,6 +90,12 @@
                                     </Badge>
                                 </Link>
                             </div>
+                        </div>
+
+                        <!-- Nutrition Information -->
+                        <div v-if="recipe.nutrition_information" class="mt-8">
+                            <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Nutrition</h2>
+                            <NutritionInformation :nutrition="recipe.nutrition_information" />
                         </div>
 
                         <!-- Source Attribution -->
