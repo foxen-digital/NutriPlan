@@ -11,13 +11,16 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('ingredient_recipe', function (Blueprint $table): void {
+            $table->id(); // Auto-incrementing primary key
             $table->foreignId('ingredient_id')->constrained()->cascadeOnDelete();
             $table->foreignId('recipe_id')->constrained()->cascadeOnDelete();
-            $table->decimal('amount', 8, 2);
-            $table->string('unit');
+            $table->decimal('amount', 8, 2)->nullable();
+            $table->string('unit')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
 
-            $table->primary(['ingredient_id', 'recipe_id']);
+            // Create an index for faster lookups, but allow duplicates
+            $table->index(['ingredient_id', 'recipe_id']);
         });
     }
 

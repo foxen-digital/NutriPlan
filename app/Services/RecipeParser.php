@@ -120,25 +120,24 @@ class RecipeParser
         $rawIngredientStrings = array_filter($this->ingredients);
         $normalizedIngredients = $this->normalizationService->normalize($rawIngredientStrings);
 
-        $pivotData = [];
+        // First detach all existing ingredients
+        $recipe->ingredients()->detach();
+        
+        // Then attach each ingredient individually to allow duplicates
         foreach ($normalizedIngredients as $normalizedData) {
             // Skip if base_name is missing or empty
-            if (!isset($normalizedData['base_name'])) {
+            if (!isset($normalizedData['base_name']) || empty($normalizedData['base_name'])) {
                 continue;
             }
-            if (empty($normalizedData['base_name'])) {
-                continue;
-            }
+            
             $ingredient = Ingredient::firstOrCreate(['name' => $normalizedData['base_name']]);
 
-            $pivotData[$ingredient->id] = [
-                'amount' => $normalizedData['quantity'] ?? null, // Allow null values
+            $recipe->ingredients()->attach($ingredient->id, [
+                'amount' => $normalizedData['quantity'] ?? null,
                 'unit' => $normalizedData['unit'] ?? null,
                 'description' => $normalizedData['description'] ?? $normalizedData['original_string'] ?? $normalizedData['base_name'],
-            ];
+            ]);
         }
-
-        $recipe->ingredients()->sync($pivotData);
 
         // Handle nutrition information if available
         if ($this->nutrition !== null && $this->nutrition !== []) {
