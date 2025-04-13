@@ -1,6 +1,6 @@
 # Feature: Real-time Frontend Notifications for Recipe Import
 
-**Version:** 1.0
+**Version:** 1.1
 **Status:** Planned
 **Date:** {{ CURRENT_DATE }}
 
@@ -10,19 +10,23 @@
 
 ## 1. Overview
 
-This document details the implementation of real-time frontend notifications for the asynchronous recipe import process. Using Laravel Reverb and Echo, the user will be notified via a toast message when their queued recipe import completes, whether successfully or with an error.
+This document details the implementation of real-time frontend notifications for the asynchronous recipe import process. Using Laravel's broadcasting capabilities with Pusher Channels, the user will be notified via a toast message when their queued recipe import completes, whether successfully or with an error.
 
 ## 2. Goals
 
 -   Provide immediate, real-time feedback to the user on the outcome of their recipe import.
--   Utilize Laravel's broadcasting capabilities (Reverb, Echo).
+-   Utilize Laravel's broadcasting capabilities with Pusher Channels.
 -   Integrate seamlessly with the existing frontend notification/toast system.
 
 ## 3. Requirements
 
-### 3.1. Backend (Reverb & Events)
+### 3.1. Backend (Pusher & Events)
 
--   Laravel Reverb must be installed, configured (`php artisan reverb:install`, `.env` variables), migrated (`php artisan migrate`), and running (`php artisan reverb:start`).
+-   Pusher Channels must be set up:
+    -   Create an account on [pusher.com](https://pusher.com)
+    -   Create a new Channels app in the Pusher dashboard
+    -   Install the Pusher PHP SDK: `composer require pusher/pusher-php-server`
+    -   Configure the `.env` variables (`BROADCAST_DRIVER=pusher`, `PUSHER_APP_ID`, `PUSHER_APP_KEY`, `PUSHER_APP_SECRET`, `PUSHER_APP_CLUSTER`)
 -   Broadcasting routes must be enabled in `routes/channels.php` for private channels (e.g., `Broadcast::channel('user.{id}', function ($user, $id) { return (int) $user->id === (int) $id; });`).
 -   A new broadcast event `App\Events\RecipeImportCompleted` must be created.
     -   It must implement `Illuminate\Contracts\Broadcasting\ShouldBroadcast`.
@@ -41,7 +45,23 @@ This document details the implementation of real-time frontend notifications for
 
 ### 3.2. Frontend (Echo & Notifications)
 
--   Laravel Echo must be installed and configured (`resources/js/bootstrap.js`) to use the appropriate broadcaster (Reverb).
+-   Laravel Echo and Pusher JS must be installed and configured:
+    -   Install with npm: `npm install --save laravel-echo pusher-js`
+    -   Configure in `resources/js/bootstrap.js`:
+      ```javascript
+      import Echo from 'laravel-echo';
+      import Pusher from 'pusher-js';
+      
+      window.Pusher = Pusher;
+      
+      window.Echo = new Echo({
+          broadcaster: 'pusher',
+          key: import.meta.env.VITE_PUSHER_APP_KEY,
+          cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+          forceTLS: true
+      });
+      ```
+    -   Add required environment variables to `.env` and expose them via Vite config
 -   The frontend JavaScript (e.g., in `resources/js/app.js` or a root layout component) must listen for the broadcast event on the authenticated user's private channel.
 -   The listener callback must trigger the existing frontend notification/toast component.
 -   The notification component should display the `message` received from the event.
@@ -74,18 +94,24 @@ This document details the implementation of real-time frontend notifications for
 
 ## 5. Implementation Plan
 
-1.  Ensure Reverb is installed, configured, migrated, and running.
+1.  Set up Pusher Channels:
+    - Create a Pusher account and app
+    - Install the PHP SDK (`composer require pusher/pusher-php-server`)
+    - Configure `.env` with Pusher credentials
 2.  Ensure `routes/channels.php` authorizes the private user channel.
 3.  Create the `App\Events\RecipeImportCompleted` event class with the required properties and methods (`broadcastOn`, `broadcastAs`, `broadcastWith`).
 4.  Modify `App\Jobs\ImportRecipeJob` to dispatch the event on success and failure.
-5.  Ensure Echo is configured in `resources/js/bootstrap.js`.
-6.  Implement the Echo listener in the appropriate frontend JavaScript file.
-7.  Connect the Echo listener callback to the existing notification component, passing the status, message, and optional link.
-8.  Test the end-to-end flow: trigger an import, verify the job runs, verify the event is broadcast (check Reverb debug logs or browser network tools), verify the frontend receives the event and displays the correct notification.
-9.  Write feature tests simulating the event broadcast and potentially frontend tests (if using tools like Laravel Dusk) to verify the notification appears.
+5.  Install the required frontend packages (`npm install --save laravel-echo pusher-js`).
+6.  Configure Echo in `resources/js/bootstrap.js` to use Pusher.
+7.  Add the required environment variables to the frontend Vite configuration.
+8.  Implement the Echo listener in the appropriate frontend JavaScript file.
+9.  Connect the Echo listener callback to the existing notification component, passing the status, message, and optional link.
+10. Test the end-to-end flow: trigger an import, verify the job runs, verify the event is broadcast (check Pusher debug console), verify the frontend receives the event and displays the correct notification.
+11. Write feature tests simulating the event broadcast and potentially frontend tests (if using tools like Laravel Dusk) to verify the notification appears.
 
 ## 6. Future Considerations
 
 -   Providing more detailed error messages from the job.
 -   Adding progress updates for potentially very long imports (more complex, might involve multiple events).
--   Handling authorization failures in the channel definition more gracefully. 
+-   Handling authorization failures in the channel definition more gracefully.
+-   If hosting environment changes, consider revisiting Laravel Reverb as a self-hosted alternative to Pusher. 
