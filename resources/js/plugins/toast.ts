@@ -1,5 +1,11 @@
 import { router } from '@inertiajs/vue3';
 import { useToast } from '@/components/ui/toast';
+import {
+    CheckCircle,
+    AlertTriangle,
+    Info,
+    AlertOctagon
+} from 'lucide-vue-next';
 
 interface Flash {
     success?: string;
@@ -24,6 +30,7 @@ export default {
                     title: 'Success',
                     description: flash.success,
                     variant: 'success',
+                    icon: CheckCircle,
                 });
             }
 
@@ -32,6 +39,7 @@ export default {
                     title: 'Error',
                     description: flash.error,
                     variant: 'destructive',
+                    icon: AlertOctagon,
                 });
             }
 
@@ -40,6 +48,7 @@ export default {
                     title: 'Information',
                     description: flash.info,
                     variant: 'info',
+                    icon: Info,
                 });
             }
 
@@ -48,6 +57,7 @@ export default {
                     title: 'Warning',
                     description: flash.warning,
                     variant: 'warning',
+                    icon: AlertTriangle,
                 });
             }
         });
