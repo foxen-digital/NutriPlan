@@ -1,6 +1,6 @@
 # NutriPlan
 
-NutriPlan is a modern recipe management and meal planning application built with Laravel, Vue.js, and Inertia.js. It allows users to collect, organize, and plan their recipes efficiently.
+NutriPlan is a modern recipe management and meal planning application built with Laravel, Vue.js, and Inertia.js. It allows users to create, import, and organize recipes in custom collections, plan their meals with an intuitive calendar system, and generate smart shopping lists to streamline grocery shopping. With AI-powered ingredient parsing and community recipe sharing, NutriPlan makes meal planning effortless.
 
 ## IMPORTANT
 
