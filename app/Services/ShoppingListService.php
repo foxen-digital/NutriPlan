@@ -58,6 +58,7 @@ class ShoppingListService
         // 4. Extract all ingredients from assignments
         /** @var array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}> $ingredients */
         $ingredients = [];
+        $ingredientsWithQuantity = [];
         foreach ($days as $day) {
             // Skip days outside our date range
             $dayDate = Carbon::parse($day->date);
@@ -72,23 +73,50 @@ class ShoppingListService
                 $recipe = $assignment->mealPlanRecipe->recipe;
                 $scale = $assignment->mealPlanRecipe->scale_factor;
 
+                // First pass: collect all ingredients with quantities
                 foreach ($recipe->ingredients as $ingredient) {
-                    $amount = $ingredient->pivot->amount * $scale;
-                    $unit = $ingredient->pivot->unit;
-                    $unitValue = $unit ? ($unit instanceof MeasurementUnit ? $unit->value : $unit) : null;
+                    if ($ingredient->pivot->amount !== null) {
+                        $amount = $ingredient->pivot->amount * $scale;
+                        $unit = $ingredient->pivot->unit;
+                        $unitValue = $unit ? ($unit instanceof MeasurementUnit ? $unit->value : $unit) : null;
 
-                    // Use ingredient ID and unit as key for consolidation
-                    $key = $ingredient->id . '|' . ($unitValue ?? 'null');
+                        // Use ingredient ID and unit as key for consolidation
+                        $key = $ingredient->id . '|' . ($unitValue ?? 'null');
 
-                    if (!isset($ingredients[$key])) {
-                        $ingredients[$key] = [
-                            'ingredient_id' => $ingredient->id,
-                            'name' => $ingredient->name,
-                            'quantity' => $amount,
-                            'unit' => $unitValue,
-                        ];
-                    } else {
-                        $ingredients[$key]['quantity'] += $amount;
+                        if (!isset($ingredients[$key])) {
+                            $ingredients[$key] = [
+                                'ingredient_id' => $ingredient->id,
+                                'name' => $ingredient->name,
+                                'quantity' => $amount,
+                                'unit' => $unitValue,
+                            ];
+                        } else {
+                            $ingredients[$key]['quantity'] += $amount;
+                        }
+                        
+                        // Track that this ingredient has a quantity version
+                        $ingredientsWithQuantity[$ingredient->id] = true;
+                    }
+                }
+                
+                // Second pass: collect ingredients without quantities, but only if no quantity version exists
+                foreach ($recipe->ingredients as $ingredient) {
+                    if ($ingredient->pivot->amount === null && !isset($ingredientsWithQuantity[$ingredient->id])) {
+                        $unit = $ingredient->pivot->unit;
+                        $unitValue = $unit ? ($unit instanceof MeasurementUnit ? $unit->value : $unit) : null;
+                        
+                        // Use ingredient ID and unit as key
+                        $key = $ingredient->id . '|' . ($unitValue ?? 'null');
+                        
+                        // Only add if we don't already have this item
+                        if (!isset($ingredients[$key])) {
+                            $ingredients[$key] = [
+                                'ingredient_id' => $ingredient->id,
+                                'name' => $ingredient->name,
+                                'quantity' => null,
+                                'unit' => $unitValue,
+                            ];
+                        }
                     }
                 }
             }

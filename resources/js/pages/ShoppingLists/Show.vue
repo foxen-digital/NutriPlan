@@ -1,12 +1,15 @@
 <template>
     <AppLayout>
+
         <Head :title="`${shoppingList.name} | Shopping Lists`" />
 
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
             <div class="sm:flex sm:items-center">
                 <div class="sm:flex-auto">
-                    <h1 class="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">{{ shoppingList.name }}</h1>
-                    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Created {{ formatDate(shoppingList.created_at) }}</p>
+                    <h1 class="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">{{ shoppingList.name }}
+                    </h1>
+                    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Created {{
+                        formatDate(shoppingList.created_at) }}</p>
                 </div>
                 <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                     <div class="hidden items-center gap-2 sm:flex">
@@ -78,24 +81,26 @@
                 </div>
 
                 <!-- If we're not using categories (all items are uncategorized) -->
-                <div v-if="!shoppingList.use_categories" class="divide-y divide-gray-200 rounded-md border dark:divide-gray-800">
-                    <draggable v-model="dragItems" item-key="id" handle=".drag-handle" @end="saveItemOrder" :disabled="isDraggingDisabled">
+                <div v-if="!shoppingList.use_categories"
+                    class="divide-y divide-gray-200 rounded-md border dark:divide-gray-800">
+                    <draggable v-model="dragItems" item-key="id" handle=".drag-handle" @end="saveItemOrder"
+                        :disabled="isDraggingDisabled">
                         <template #item="{ element: item }">
-                            <div
-                                v-if="shouldShowItem(item)"
-                                class="flex items-center justify-between p-4"
-                                :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }"
-                            >
+                            <div v-if="shouldShowItem(item)" class="flex items-center justify-between p-4"
+                                :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }">
                                 <div class="flex items-center gap-3">
                                     <div class="drag-handle mr-1 cursor-move text-gray-400">
                                         <GripVertical class="h-5 w-5" />
                                     </div>
-                                    <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased" @update:checked="toggleItemPurchased(item)" />
+                                    <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased"
+                                        @update:checked="toggleItemPurchased(item)" />
                                     <div>
-                                        <div class="font-medium text-gray-900 dark:text-white" :class="{ 'line-through': item.is_purchased }">
+                                        <div class="font-medium text-gray-900 dark:text-white"
+                                            :class="{ 'line-through': item.is_purchased }">
                                             {{ item.name }}
                                         </div>
-                                        <div v-if="item.quantity || item.unit" class="text-sm text-gray-500 dark:text-gray-400">
+                                        <div v-if="item.quantity || item.unit"
+                                            class="text-sm text-gray-500 dark:text-gray-400">
                                             {{ formatAmount(item.quantity) }} {{ item.unit }}
                                         </div>
                                     </div>
@@ -130,33 +135,24 @@
                         <h3 class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{{ category }}</h3>
 
                         <div class="divide-y divide-gray-200 rounded-md border dark:divide-gray-800">
-                            <draggable
-                                v-model="categoryDragItems[category]"
-                                item-key="id"
-                                handle=".drag-handle"
-                                @end="saveItemOrder"
-                                :disabled="isDraggingDisabled"
-                            >
+                            <draggable v-model="categoryDragItems[category]" item-key="id" handle=".drag-handle"
+                                @end="saveItemOrder" :disabled="isDraggingDisabled">
                                 <template #item="{ element: item }">
-                                    <div
-                                        v-if="shouldShowItem(item)"
-                                        class="flex items-center justify-between p-4"
-                                        :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }"
-                                    >
+                                    <div v-if="shouldShowItem(item)" class="flex items-center justify-between p-4"
+                                        :class="{ 'opacity-60': item.is_purchased, 'bg-gray-50 dark:bg-gray-900': item.is_purchased }">
                                         <div class="flex items-center gap-3">
                                             <div class="drag-handle mr-1 cursor-move text-gray-400">
                                                 <GripVertical class="h-5 w-5" />
                                             </div>
-                                            <Checkbox
-                                                :id="`item-${item.id}`"
-                                                :checked="item.is_purchased"
-                                                @update:checked="toggleItemPurchased(item)"
-                                            />
+                                            <Checkbox :id="`item-${item.id}`" :checked="item.is_purchased"
+                                                @update:checked="toggleItemPurchased(item)" />
                                             <div>
-                                                <div class="font-medium text-gray-900 dark:text-white" :class="{ 'line-through': item.is_purchased }">
+                                                <div class="font-medium text-gray-900 dark:text-white"
+                                                    :class="{ 'line-through': item.is_purchased }">
                                                     {{ item.name }}
                                                 </div>
-                                                <div v-if="item.quantity || item.unit" class="text-sm text-gray-500 dark:text-gray-400">
+                                                <div v-if="item.quantity || item.unit"
+                                                    class="text-sm text-gray-500 dark:text-gray-400">
                                                     {{ formatAmount(item.quantity) }} {{ item.unit }}
                                                 </div>
                                             </div>
@@ -200,20 +196,16 @@
                     <div class="space-y-4 py-4">
                         <div class="relative">
                             <Label for="item-name">Item Name</Label>
-                            <Input id="item-name" v-model="itemForm.name" placeholder="e.g., Milk" required @input="searchItems" autocomplete="off" />
+                            <Input id="item-name" v-model="itemForm.name" placeholder="e.g., Milk" required
+                                @input="searchItems" autocomplete="off" />
                             <InputError :message="itemForm.errors.name" />
 
                             <!-- Autocomplete Suggestions -->
-                            <div
-                                v-if="suggestions.length > 0"
-                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg dark:bg-gray-800"
-                            >
-                                <div
-                                    v-for="(suggestion, index) in suggestions"
-                                    :key="index"
+                            <div v-if="suggestions.length > 0"
+                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg dark:bg-gray-800">
+                                <div v-for="(suggestion, index) in suggestions" :key="index"
                                     class="cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                    @click="selectSuggestion(suggestion)"
-                                >
+                                    @click="selectSuggestion(suggestion)">
                                     {{ suggestion }}
                                 </div>
                             </div>
@@ -221,7 +213,8 @@
                         <div class="flex gap-4">
                             <div class="w-1/2">
                                 <Label for="item-quantity">Quantity</Label>
-                                <Input id="item-quantity" type="number" step="0.5" min="0" v-model="itemForm.quantity" placeholder="e.g., 2" />
+                                <Input id="item-quantity" type="number" step="0.5" min="0" v-model="itemForm.quantity"
+                                    placeholder="e.g., 2" />
                                 <InputError :message="itemForm.errors.quantity" />
                             </div>
                             <div class="w-1/2">
@@ -255,27 +248,16 @@
                     <div class="space-y-4 py-4">
                         <div class="relative">
                             <Label for="edit-item-name">Item Name</Label>
-                            <Input
-                                id="edit-item-name"
-                                v-model="itemForm.name"
-                                placeholder="e.g., Milk"
-                                required
-                                @input="searchItems"
-                                autocomplete="off"
-                            />
+                            <Input id="edit-item-name" v-model="itemForm.name" placeholder="e.g., Milk" required
+                                @input="searchItems" autocomplete="off" />
                             <InputError :message="itemForm.errors.name" />
 
                             <!-- Autocomplete Suggestions -->
-                            <div
-                                v-if="suggestions.length > 0"
-                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg dark:bg-gray-800"
-                            >
-                                <div
-                                    v-for="(suggestion, index) in suggestions"
-                                    :key="index"
+                            <div v-if="suggestions.length > 0"
+                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg dark:bg-gray-800">
+                                <div v-for="(suggestion, index) in suggestions" :key="index"
                                     class="cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                    @click="selectSuggestion(suggestion)"
-                                >
+                                    @click="selectSuggestion(suggestion)">
                                     {{ suggestion }}
                                 </div>
                             </div>
@@ -283,7 +265,8 @@
                         <div class="flex gap-4">
                             <div class="w-1/2">
                                 <Label for="edit-item-quantity">Quantity</Label>
-                                <Input id="edit-item-quantity" type="number" step="0.5" min="0" v-model="itemForm.quantity" placeholder="e.g., 2" />
+                                <Input id="edit-item-quantity" type="number" step="0.5" min="0"
+                                    v-model="itemForm.quantity" placeholder="e.g., 2" />
                                 <InputError :message="itemForm.errors.quantity" />
                             </div>
                             <div class="w-1/2">
@@ -311,7 +294,8 @@
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Delete Item</DialogTitle>
-                    <DialogDescription>Are you sure you want to delete this item? This action cannot be undone. </DialogDescription>
+                    <DialogDescription>Are you sure you want to delete this item? This action cannot be undone.
+                    </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
                     <Button type="button" variant="outline" @click="showDeleteItemModal = false">Cancel</Button>
@@ -332,14 +316,17 @@
 
                 <div class="relative">
                     <!-- Camera Viewfinder -->
-                    <div v-show="!isLoading && !scanError" class="relative aspect-video overflow-hidden rounded bg-black">
+                    <div v-show="!isLoading && !scanError"
+                        class="relative aspect-video overflow-hidden rounded bg-black">
                         <video ref="videoElement" class="h-full w-full object-cover"></video>
                         <div class="absolute inset-0 m-8 rounded border-2 border-dashed border-white/50"></div>
                     </div>
 
                     <!-- Loading State -->
                     <div v-if="isLoading" class="flex flex-col items-center justify-center py-8">
-                        <div class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                        <div
+                            class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent">
+                        </div>
                         <p>{{ loadingMessage }}</p>
                     </div>
 
@@ -358,7 +345,9 @@
                 <DialogFooter>
                     <div class="flex w-full flex-col justify-between gap-2 sm:flex-row sm:justify-end">
                         <!-- Standard Controls -->
-                        <Button v-if="!barcodeNotFound && !scanError" variant="outline" @click="closeScannerModal"> Cancel </Button>
+                        <Button v-if="!barcodeNotFound && !scanError" variant="outline" @click="closeScannerModal">
+                            Cancel
+                        </Button>
 
                         <!-- Error Controls -->
                         <Button v-if="scanError" variant="outline" @click="retryScanner"> Retry </Button>
@@ -555,7 +544,7 @@ const formatAmount = (amount: number | string | null): string => {
         amount = parseFloat(amount);
     }
 
-    if (!amount) return '0';
+    if (!amount) return '';
 
     // For small values, show more decimal places
     if (amount < 0.1) {
