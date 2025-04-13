@@ -11,7 +11,7 @@ export interface Recipe {
     name?: string;
     description: string;
     servings: number;
-    preparation_time: number;
+    prep_time: number;
     cooking_time: number;
     total_time?: number;
     difficulty_level?: string;
@@ -23,6 +23,7 @@ export interface Recipe {
     images: string[] | null;
     slug: string;
     user?: User;
+    instructions: string;
     categories: Array<{
         id: number;
         name: string;
@@ -34,6 +35,7 @@ export interface Recipe {
         pivot: {
             amount: number;
             unit: string;
+            description: string;
         };
     }>;
     nutrition_information?: {
