@@ -1,19 +1,23 @@
-import { watchEffect } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import { useToast } from '@/components/ui/toast';
+
+interface Flash {
+    success?: string;
+    error?: string;
+    info?: string;
+    warning?: string;
+}
 
 export default {
     install() {
         const { toast } = useToast();
-        const page = usePage();
 
-        watchEffect(() => {
-            const flash = page.props.flash as {
-                success?: string;
-                error?: string;
-                info?: string;
-                warning?: string;
-            };
+        // Process flash messages only after page navigation completes
+        router.on('success', (event) => {
+            const flash = event.detail.page.props.flash as Flash;
+
+            // Only process if flash messages exist
+            if (!flash) return;
 
             if (flash.success) {
                 toast({
