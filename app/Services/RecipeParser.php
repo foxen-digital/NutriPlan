@@ -33,10 +33,15 @@ class RecipeParser
         /** @var array<int, string> */
         private array $categories = [],
         private ?IngredientNormalizationService $normalizationService = null,
+        private ?InstructionNormalizationService $instructionNormalizationService = null,
         private readonly NutritionParser $nutrition_parser = new NutritionParser()
     ) {
         if (!$this->normalizationService instanceof \App\Services\IngredientNormalizationService) {
             $this->normalizationService = app(IngredientNormalizationService::class);
+        }
+
+        if (!$this->instructionNormalizationService instanceof \App\Services\InstructionNormalizationService) {
+            $this->instructionNormalizationService = app(InstructionNormalizationService::class);
         }
     }
 
@@ -95,7 +100,7 @@ class RecipeParser
             'title' => $this->title,
             'author' => $this->author,
             'description' => $this->description,
-            'instructions' => implode("\n\n", $this->steps),
+            'instructions' => $this->instructionNormalizationService->normalize(implode("\n", $this->steps)),
             'prep_time' => $this->prep_time,
             'cooking_time' => $this->cooking_time,
             'servings' => $this->servings !== 0 ? $this->servings : (int) $this->yield,

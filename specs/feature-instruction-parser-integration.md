@@ -31,7 +31,7 @@ This document outlines the necessary changes to `App\Services\RecipeParser` to i
 -   **Dependency Injection:** Inject `InstructionNormalizationService` into the constructor of `RecipeParser`.
 -   **Method Modification:** Modify the `parse` method:
     -   Locate the line where `$this->steps` are currently processed (e.g., `implode("\n\n", $this->steps)`).
-    -   Replace this logic with a call to the injected service: `$normalizedInstructions = $this->instructionNormalizationService->normalize($this->steps);`
+    -   Replace this logic with a call to the injected service: `$normalizedInstructions = $this->instructionNormalizationService->normalize(implode("\n", $this->steps)`);`
     -   Ensure `$normalizedInstructions` is assigned to the `instructions` property of the `Recipe` model before saving (e.g., `$recipe->instructions = $normalizedInstructions;`).
 
 ## 5. Implementation Plan

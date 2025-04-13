@@ -7,6 +7,7 @@ use App\Models\Ingredient;
 use App\Models\NutritionInformation;
 use App\Models\Recipe;
 use App\Services\IngredientNormalizationService;
+use App\Services\InstructionNormalizationService;
 use App\Services\NutritionParser;
 use App\Services\RecipeParser;
 use Brick\StructuredData\Item;
@@ -19,9 +20,14 @@ beforeEach(function () {
     $normalizationService = mock(IngredientNormalizationService::class);
     $normalizationService->shouldReceive('normalize')->andReturn([]);
 
+    // Mock the InstructionNormalizationService
+    $instructionNormalizationService = mock(InstructionNormalizationService::class);
+    $instructionNormalizationService->shouldReceive('normalize')->andReturn('Normalized Instructions');
+
     $this->parser = new RecipeParser(
         nutrition_parser: $nutritionParser,
-        normalizationService: $normalizationService
+        normalizationService: $normalizationService,
+        instructionNormalizationService: $instructionNormalizationService
     );
 });
 
@@ -477,4 +483,36 @@ it('uses fallback values for missing fields in normalized data', function () {
         ->and($recipeWater->pivot->amount)->toEqual(1.0)
         ->and($recipeWater->pivot->unit)->toBeNull()
         ->and($recipeWater->pivot->description)->toBe('water');
+});
+
+it('normalizes recipe instructions using InstructionNormalizationService', function () {
+    $user = createUser();
+    Auth::login($user);
+
+    // Create a custom mock for InstructionNormalizationService for this test
+    $instructionNormalizationService = mock(InstructionNormalizationService::class);
+    $instructionNormalizationService->shouldReceive('normalize')
+        ->withArgs(function ($rawInstructions) {
+            // Verify the raw instructions are passed as expected
+            return $rawInstructions === "Step 1\nStep 2\nStep 3";
+        })
+        ->andReturn('1. **Step 1**\n2. **Step 2**\n3. **Step 3**');
+
+    // Create parser with the custom mock
+    $parser = new RecipeParser(
+        normalizationService: mock(IngredientNormalizationService::class)->shouldReceive('normalize')->andReturn([])->getMock(),
+        instructionNormalizationService: $instructionNormalizationService
+    );
+
+    $item = mock(Item::class);
+    $item->shouldReceive('getProperties')
+        ->andReturn([
+            'name' => ['Test Recipe'],
+            'recipeInstructions' => ['Step 1', 'Step 2', 'Step 3']
+        ]);
+
+    $recipe = $parser->parse($item);
+
+    expect($recipe->instructions)
+        ->toBe('1. **Step 1**\n2. **Step 2**\n3. **Step 3**');
 });
