@@ -25,7 +25,8 @@
 
                 <div>
                     <Label for="cooking_time">Cooking Time (minutes)</Label>
-                    <Input id="cooking_time" v-model.number="form.cooking_time" type="number" min="1" class="mt-1" required />
+                    <Input id="cooking_time" v-model.number="form.cooking_time" type="number" min="1" class="mt-1"
+                        required />
                     <InputError :message="form.errors.cooking_time" />
                 </div>
 
@@ -41,13 +42,16 @@
                 <Checkbox id="is_public" :checked="form.is_public" @update:checked="form.is_public = $event" />
                 <Label for="is_public" class="cursor-pointer">Make this recipe public</Label>
                 <div class="ml-2">
-                    <Badge v-if="form.is_public" variant="outline" class="border-green-300 bg-green-100 text-green-800"> Public</Badge>
+                    <Badge v-if="form.is_public" variant="outline" class="border-green-300 bg-green-100 text-green-800">
+                        Public</Badge>
                     <Badge v-else variant="outline" class="border-gray-300 bg-gray-100 text-gray-800">Private</Badge>
                 </div>
                 <InputError :message="form.errors.is_public" />
             </div>
-            <div v-if="form.is_public && hasSourceUrl" class="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-600">
-                <span class="font-medium">Note:</span> This is an imported recipe. When made public, other users will only see basic details and will
+            <div v-if="form.is_public && hasSourceUrl"
+                class="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-600">
+                <span class="font-medium">Note:</span> This is an imported recipe. When made public, other users will
+                only see basic details and will
                 be directed to the original source for full recipe instructions.
             </div>
 
@@ -55,25 +59,17 @@
             <div>
                 <Label>Categories</Label>
                 <div class="mt-1 flex flex-wrap gap-2">
-                    <Badge
-                        v-for="category in selectedCategories"
-                        :key="category.id"
-                        variant="outline"
+                    <Badge v-for="category in selectedCategories" :key="category.id" variant="outline"
                         class="cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
-                        @click="toggleCategory(category.id)"
-                    >
+                        @click="toggleCategory(category.id)">
                         {{ category.name }}
                         <XIcon class="ml-1 h-3 w-3" />
                     </Badge>
                 </div>
 
                 <div class="mt-2">
-                    <Combobox
-                        :model-value="0"
-                        :options="availableCategories"
-                        placeholder="Search for categories..."
-                        @update:model-value="addCategory"
-                    />
+                    <Combobox :model-value="0" :options="availableCategories" placeholder="Search for categories..."
+                        @update:model-value="addCategory" />
                 </div>
                 <InputError :message="form.errors.categories" />
             </div>
@@ -85,36 +81,25 @@
                     <div v-for="(ingredient, index) in form.ingredients" :key="index" class="flex items-end gap-4">
                         <div class="flex-1">
                             <Label :for="'ingredient-' + index">Ingredient</Label>
-                            <ComboboxWithCreate
-                                :id="'ingredient-' + index"
-                                v-model="ingredient.ingredient_id"
+                            <ComboboxWithCreate :id="'ingredient-' + index" v-model="ingredient.ingredient_id"
                                 :options="ingredients"
                                 :selected="ingredients.find((i) => i.id === ingredient.ingredient_id)"
-                                :allow-create="true"
-                                create-endpoint="/ingredients"
-                                class="mt-1"
-                                @option-created="handleNewIngredient"
-                            />
+                                :allow-create="true" create-endpoint="/ingredients" class="mt-1"
+                                @option-created="handleNewIngredient" />
                             <InputError :message="form.errors['ingredients.' + index + '.ingredient_id']" />
                         </div>
 
                         <div class="w-24">
                             <Label :for="'amount-' + index">Amount</Label>
-                            <Input
-                                :id="'amount-' + index"
-                                v-model.number="ingredient.amount"
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                class="mt-1"
-                                required
-                            />
+                            <Input :id="'amount-' + index" v-model.number="ingredient.amount" type="number" min="0"
+                                step="0.01" class="mt-1" />
                             <InputError :message="form.errors['ingredients.' + index + '.amount']" />
                         </div>
 
                         <div class="w-32">
                             <Label :for="'unit-' + index">Unit</Label>
-                            <Select :id="'unit-' + index" v-model="ingredient.unit" :options="measurementUnits" class="mt-1" :allow-empty="true" />
+                            <Select :id="'unit-' + index" v-model="ingredient.unit" :options="measurementUnits"
+                                class="mt-1" :allow-empty="true" />
                             <InputError :message="form.errors['ingredients.' + index + '.unit']" />
                         </div>
 
