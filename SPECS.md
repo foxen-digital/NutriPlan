@@ -17,6 +17,7 @@ This document provides an overview of all feature specifications for the NutriPl
 | User Recipe Filtering | Filter recipes by specific user, showing user profiles and replacing My Recipes toggle | ✅ | [View Spec](specs/user-recipe-filtering.md) |
 | Ingredient Normalization Service | Create service to parse/normalize ingredients via LLM | ✅ | [View Spec](specs/feature-ingredient-normalization-service.md) |
 | Integrate Ingredient Normalization | Integrate service, update schema & UI for normalized ingredients | ✅ | [View Spec](specs/feature-integrate-ingredient-normalization.md) |
+| Notification Toasts | Display notification messages to users using radix-vue toast components | ⏳ | [View Spec](specs/notification-toasts.md) |
 | Meal Planning | Create and manage meal plans with recipes | 🚧 | [View Spec](specs/meal-planning.md) |
 
 ### Meal Planning Phases

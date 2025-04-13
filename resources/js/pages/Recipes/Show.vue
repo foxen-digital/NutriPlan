@@ -1,6 +1,5 @@
 <template>
     <AppLayout>
-
         <Head :title="`${recipe.title} | NutriPlan`" />
 
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
@@ -9,26 +8,27 @@
                     <h1 class="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">{{ recipe.title }}</h1>
                     <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">
                         Created by
-                        <Link v-if="recipe.user.slug" :href="route('recipes.by-user', { user: recipe.user.slug })"
-                            class="text-blue-600 hover:underline dark:text-blue-400">
-                        {{ recipe.user.name }}
+                        <Link
+                            v-if="recipe.user.slug"
+                            :href="route('recipes.by-user', { user: recipe.user.slug })"
+                            class="text-blue-600 hover:underline dark:text-blue-400"
+                        >
+                            {{ recipe.user.name }}
                         </Link>
                         <span v-else>{{ recipe.user.name }}</span>
                         on {{ new Date(recipe.created_at).toLocaleDateString() }}
                     </p>
                     <div class="mt-2 flex items-center gap-2">
-                        <Badge v-if="recipe.is_public" variant="outline"
-                            class="border-green-300 bg-green-100 text-green-800">Public</Badge>
-                        <Badge v-else variant="outline" class="border-gray-300 bg-gray-100 text-gray-800">Private
-                        </Badge>
+                        <Badge v-if="recipe.is_public" variant="outline" class="border-green-300 bg-green-100 text-green-800">Public</Badge>
+                        <Badge v-else variant="outline" class="border-gray-300 bg-gray-100 text-gray-800">Private </Badge>
                     </div>
                 </div>
                 <div class="mt-4 hidden flex-wrap items-center gap-2 sm:mt-0 sm:flex">
                     <Link v-if="isOwner" :href="route('recipes.edit', recipe.slug)">
-                    <Button variant="outline" size="sm">
-                        <PencilIcon class="mr-2 h-4 w-4" />
-                        Edit
-                    </Button>
+                        <Button variant="outline" size="sm">
+                            <PencilIcon class="mr-2 h-4 w-4" />
+                            Edit
+                        </Button>
                     </Link>
 
                     <Button size="sm" @click="toggleFavorite" :variant="isFavorited ? 'default' : 'outline'">
@@ -107,8 +107,7 @@
                         <!-- Details - Compact mobile version with icons -->
                         <div class="mt-6">
                             <!-- Mobile version with icons -->
-                            <div
-                                class="flex flex-wrap items-center justify-between gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50 md:hidden">
+                            <div class="flex flex-wrap items-center justify-between gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50 md:hidden">
                                 <div class="flex items-center gap-2">
                                     <ClockIcon class="h-5 w-5 text-gray-500 dark:text-gray-400" />
                                     <div>
@@ -120,8 +119,7 @@
                                     <UtensilsIcon class="h-5 w-5 text-gray-500 dark:text-gray-400" />
                                     <div>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">Cook</p>
-                                        <p class="font-medium text-gray-900 dark:text-white">{{ recipe.cooking_time }}
-                                        </p>
+                                        <p class="font-medium text-gray-900 dark:text-white">{{ recipe.cooking_time }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2">
@@ -137,13 +135,11 @@
                             <div class="hidden grid-cols-3 gap-4 md:grid">
                                 <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
                                     <p class="text-sm text-gray-600 dark:text-gray-400">Prep Time</p>
-                                    <p class="font-medium text-gray-900 dark:text-white">{{ recipe.prep_time }} minutes
-                                    </p>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ recipe.prep_time }} minutes</p>
                                 </div>
                                 <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
                                     <p class="text-sm text-gray-600 dark:text-gray-400">Cooking Time</p>
-                                    <p class="font-medium text-gray-900 dark:text-white">{{ recipe.cooking_time }}
-                                        minutes</p>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ recipe.cooking_time }} minutes</p>
                                 </div>
                                 <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
                                     <p class="text-sm text-gray-600 dark:text-gray-400">Servings</p>
@@ -155,12 +151,10 @@
                         <!-- Categories -->
                         <div v-if="recipe.categories.length > 0" class="mt-6">
                             <div class="flex flex-wrap gap-2">
-                                <Link v-for="category in recipe.categories" :key="category.id"
-                                    :href="route('categories.show', category.slug)">
-                                <Badge variant="secondary"
-                                    class="cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700">
-                                    {{ category.name }}
-                                </Badge>
+                                <Link v-for="category in recipe.categories" :key="category.id" :href="route('categories.show', category.slug)">
+                                    <Badge variant="secondary" class="cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700">
+                                        {{ category.name }}
+                                    </Badge>
                                 </Link>
                             </div>
                         </div>
@@ -176,8 +170,13 @@
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Source</h2>
                             <p class="text-gray-600 dark:text-gray-300">
                                 <span v-if="recipe.author">{{ recipe.author }}:&nbsp;</span>
-                                <a v-if="recipe.url" :href="recipe.url" target="_blank" rel="noopener noreferrer"
-                                    class="text-blue-600 hover:underline dark:text-blue-400">
+                                <a
+                                    v-if="recipe.url"
+                                    :href="recipe.url"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="text-blue-600 hover:underline dark:text-blue-400"
+                                >
                                     {{ recipe.url }}
                                 </a>
                             </p>
@@ -187,21 +186,22 @@
                         <template v-if="!hideDetails">
                             <!-- Scaling Control -->
                             <div class="mt-6">
-                                <ScalingControl :original-servings="recipe.servings"
-                                    @update:scaling-factor="updateScalingFactor" />
+                                <ScalingControl :original-servings="recipe.servings" @update:scaling-factor="updateScalingFactor" />
                             </div>
 
                             <!-- Ingredients -->
                             <div class="mt-8">
                                 <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Ingredients</h2>
                                 <ul class="space-y-2">
-                                    <li v-for="ingredient in recipe.ingredients" :key="ingredient.id"
-                                        class="flex items-center text-gray-700 dark:text-gray-300">
+                                    <li
+                                        v-for="ingredient in recipe.ingredients"
+                                        :key="ingredient.id"
+                                        class="flex items-center text-gray-700 dark:text-gray-300"
+                                    >
                                         <div class="mr-3 h-1.5 w-1.5 rounded-full bg-gray-600 dark:bg-gray-400" />
                                         <span class="font-medium">
                                             {{ formatScaledAmount(ingredient.pivot.amount) }}
-                                            <template v-if="ingredient.pivot.unit">{{ ingredient.pivot.unit
-                                            }}</template>
+                                            <template v-if="ingredient.pivot.unit">{{ ingredient.pivot.unit }}</template>
                                         </span>
                                         <span class="ml-1">{{ ingredient.pivot.description || ingredient.name }}</span>
                                     </li>
@@ -218,10 +218,12 @@
                                 </template>
                                 <template v-else>
                                     <ul class="list-none space-y-6">
-                                        <li v-for="(step, index) in parseInstructions(recipe.instructions)" :key="index"
-                                            class="text-gray-700 dark:text-gray-300">
-                                            <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">Step {{
-                                                index + 1 }}</h3>
+                                        <li
+                                            v-for="(step, index) in parseInstructions(recipe.instructions)"
+                                            :key="index"
+                                            class="text-gray-700 dark:text-gray-300"
+                                        >
+                                            <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">Step {{ index + 1 }}</h3>
                                             <p>{{ step }}</p>
                                         </li>
                                     </ul>
@@ -234,10 +236,14 @@
             <!-- Original source notice for imported public recipes viewed by non-owners -->
             <div v-if="hideDetails" class="mt-4 rounded-md border-2 border-amber-500 bg-amber-50 p-4">
                 <h2 class="text-lg font-semibold text-amber-800">This recipe was imported from another website</h2>
-                <p class="mt-2 text-amber-700">The full ingredients and instructions are available at the original
-                    source:</p>
-                <a v-if="recipe.url" :href="recipe.url" target="_blank" rel="noopener noreferrer"
-                    class="mt-4 inline-flex items-center rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700">
+                <p class="mt-2 text-amber-700">The full ingredients and instructions are available at the original source:</p>
+                <a
+                    v-if="recipe.url"
+                    :href="recipe.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="mt-4 inline-flex items-center rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+                >
                     <ExternalLinkIcon class="mr-2 h-4 w-4" /> View Original Recipe
                 </a>
             </div>
@@ -264,7 +270,7 @@ import type { Recipe } from '@/types/recipe';
 import { Head, Link, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ClockIcon, ExternalLinkIcon, HeartIcon, MenuIcon, PencilIcon, PlusIcon, UsersIcon, UtensilsIcon } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import VueMarkdownRender from 'vue-markdown-render';
 
 const props = defineProps<{
@@ -285,16 +291,16 @@ const showMealPlanMenu = ref(false);
 const isMarkdown = (text: string): boolean => {
     // Simple check for common markdown syntax
     const markdownPatterns = [
-        /^#+ .+$/m,       // Headers
-        /\*\*.+\*\*/,     // Bold
-        /\*.+\*/,         // Italic
-        /\[.+\]\(.+\)/,   // Links
+        /^#+ .+$/m, // Headers
+        /\*\*.+\*\*/, // Bold
+        /\*.+\*/, // Italic
+        /\[.+\]\(.+\)/, // Links
         /^\s*[\*\-\+] .+/m, // Unordered lists
-        /^\s*\d+\. .+/m,  // Ordered lists
-        /```[\s\S]*```/,  // Code blocks
+        /^\s*\d+\. .+/m, // Ordered lists
+        /```[\s\S]*```/, // Code blocks
     ];
 
-    return markdownPatterns.some(pattern => pattern.test(text));
+    return markdownPatterns.some((pattern) => pattern.test(text));
 };
 
 const isInstructionsMarkdown = computed(() => {

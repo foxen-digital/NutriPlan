@@ -76,5 +76,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/meal-assignments/{mealAssignment}/toggle-cook', [MealAssignmentController::class, 'toggleToCook'])->name('meal-assignments.toggle-cook');
 });
 
+// Demo Routes
+Route::get('/demo/toasts', function () {
+    return Inertia::render('Demo/Toasts');
+})->middleware(['auth'])->name('demo.toasts');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

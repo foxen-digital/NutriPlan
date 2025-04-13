@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { ToastProvider, ToastRegistry, ToastViewport } from '@/components/ui/toast';
 import { onMounted, ref } from 'vue';
 
 interface Props {
@@ -21,10 +22,15 @@ const handleSidebarChange = (open: boolean) => {
 </script>
 
 <template>
-    <div v-if="variant === 'header'" class="flex min-h-screen w-full flex-col">
-        <slot />
-    </div>
-    <SidebarProvider v-else :default-open="isOpen" :open="isOpen" @update:open="handleSidebarChange">
-        <slot />
-    </SidebarProvider>
+    <ToastProvider>
+        <div v-if="variant === 'header'" class="flex min-h-screen w-full flex-col">
+            <slot />
+        </div>
+        <SidebarProvider v-else :default-open="isOpen" :open="isOpen" @update:open="handleSidebarChange">
+            <slot />
+        </SidebarProvider>
+
+        <ToastViewport class="fixed right-4 top-4 z-50 flex flex-col gap-2" />
+        <ToastRegistry />
+    </ToastProvider>
 </template>
