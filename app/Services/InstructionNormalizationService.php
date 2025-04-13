@@ -37,7 +37,7 @@ EOT;
 
     public function normalize(string $rawInstructions): string
     {
-        if (empty($rawInstructions)) {
+        if ($rawInstructions === '' || $rawInstructions === '0') {
             return '';
         }
 
