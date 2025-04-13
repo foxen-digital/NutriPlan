@@ -122,14 +122,14 @@ class RecipeParser
 
         // First detach all existing ingredients
         $recipe->ingredients()->detach();
-        
+
         // Then attach each ingredient individually to allow duplicates
         foreach ($normalizedIngredients as $normalizedData) {
             // Skip if base_name is missing or empty
             if (!isset($normalizedData['base_name']) || empty($normalizedData['base_name'])) {
                 continue;
             }
-            
+
             $ingredient = Ingredient::firstOrCreate(['name' => $normalizedData['base_name']]);
 
             $recipe->ingredients()->attach($ingredient->id, [

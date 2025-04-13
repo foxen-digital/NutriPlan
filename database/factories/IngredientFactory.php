@@ -53,7 +53,7 @@ class IngredientFactory extends Factory
             ->afterCreating(function (Ingredient $ingredient): void {
                 // Occasionally use null amount for ingredients like 'to taste' items
                 $useNullAmount = fake()->boolean(20); // 20% chance of null amount
-                
+
                 $ingredient->recipes()->attach(
                     Recipe::factory()->create(),
                     [

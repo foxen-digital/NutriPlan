@@ -141,7 +141,7 @@ test('it handles scaling with null unit', function () {
 
 test('it handles null amounts', function () {
     $measurement = new Measurement(null, MeasurementUnit::CUP);
-    
+
     expect($measurement->amount)->toBeNull();
     expect($measurement->unit)->toBe(MeasurementUnit::CUP);
 });
@@ -155,14 +155,14 @@ test('it can be created with null amount from static factory', function () {
 
 test('it converts null amounts to empty strings with unit', function () {
     $measurement = new Measurement(null, MeasurementUnit::CUP);
-    
+
     expect((string) $measurement)->toBe('cup');
     expect($measurement->format())->toBe('cup');
 });
 
 test('it formats null amounts with null unit as empty string', function () {
     $measurement = new Measurement(null, null);
-    
+
     expect((string) $measurement)->toBe('');
     expect($measurement->format())->toBe('');
 });
@@ -170,14 +170,14 @@ test('it formats null amounts with null unit as empty string', function () {
 test('it returns null amount when scaling null amount', function () {
     $measurement = new Measurement(null, MeasurementUnit::CUP);
     $scaled = $measurement->scale(2.0);
-    
+
     expect($scaled->amount)->toBeNull();
     expect($scaled->unit)->toBe(MeasurementUnit::CUP);
 });
 
 test('it serializes null amounts to JSON correctly', function () {
     $measurement = new Measurement(null, MeasurementUnit::CUP);
-    
+
     expect($measurement->jsonSerialize())->toBe([
         'amount' => null,
         'unit' => 'cup',

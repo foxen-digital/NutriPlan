@@ -36,7 +36,7 @@ class Measurement implements JsonSerializable, \Stringable
         if ($this->amount === null) {
             return new self(null, $this->unit);
         }
-        
+
         $scaledAmount = $this->amount * $factor;
 
         // Apply smart rounding based on the unit type and quantity
@@ -117,7 +117,7 @@ class Measurement implements JsonSerializable, \Stringable
         if ($this->amount === null) {
             return $this->unit?->value ?? '';
         }
-        
+
         if (!$this->unit instanceof \App\Enums\MeasurementUnit) {
             return (string) $this->amount;
         }
@@ -130,7 +130,7 @@ class Measurement implements JsonSerializable, \Stringable
         if ($this->amount === null) {
             return $this->unit?->value ?? '';
         }
-        
+
         $amount = number_format($this->amount, 2);
         // Remove trailing zeros after decimal point
         $amount = rtrim(rtrim($amount, '0'), '.');

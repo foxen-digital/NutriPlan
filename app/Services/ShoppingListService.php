@@ -93,21 +93,21 @@ class ShoppingListService
                         } else {
                             $ingredients[$key]['quantity'] += $amount;
                         }
-                        
+
                         // Track that this ingredient has a quantity version
                         $ingredientsWithQuantity[$ingredient->id] = true;
                     }
                 }
-                
+
                 // Second pass: collect ingredients without quantities, but only if no quantity version exists
                 foreach ($recipe->ingredients as $ingredient) {
                     if ($ingredient->pivot->amount === null && !isset($ingredientsWithQuantity[$ingredient->id])) {
                         $unit = $ingredient->pivot->unit;
                         $unitValue = $unit ? ($unit instanceof MeasurementUnit ? $unit->value : $unit) : null;
-                        
+
                         // Use ingredient ID and unit as key
                         $key = $ingredient->id . '|' . ($unitValue ?? 'null');
-                        
+
                         // Only add if we don't already have this item
                         if (!isset($ingredients[$key])) {
                             $ingredients[$key] = [
