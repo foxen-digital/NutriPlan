@@ -17,7 +17,11 @@ This document provides an overview of all feature specifications for the NutriPl
 | User Recipe Filtering | Filter recipes by specific user, showing user profiles and replacing My Recipes toggle | ✅ | [View Spec](specs/user-recipe-filtering.md) |
 | Ingredient Normalization Service | Create service to parse/normalize ingredients via LLM | ✅ | [View Spec](specs/feature-ingredient-normalization-service.md) |
 | Integrate Ingredient Normalization | Integrate service, update schema & UI for normalized ingredients | ✅ | [View Spec](specs/feature-integrate-ingredient-normalization.md) |
-| Notification Toasts | Display notification messages to users using radix-vue toast components | ⏳ | [View Spec](specs/notification-toasts.md) |
+| Instruction Normalization Service | Service for LLM-based instruction parsing | ⏳ | [View Spec](specs/feature-instruction-normalization-service.md) |
+| Parser Integration (Instructions) | Integrate instruction normalization into RecipeParser | ⏳ | [View Spec](specs/feature-instruction-parser-integration.md) |
+| Async Recipe Import | Move recipe import to a queued job | ⏳ | [View Spec](specs/feature-async-recipe-import.md) |
+| Real-time Notifications (Import) | WebSocket notifications for import status | ⏳ | [View Spec](specs/feature-real-time-notifications.md) |
+| Notification Toasts | Display notification messages to users using radix-vue toast components | ✅ | [View Spec](specs/notification-toasts.md) |
 | Meal Planning | Create and manage meal plans with recipes | 🚧 | [View Spec](specs/meal-planning.md) |
 
 ### Meal Planning Phases
