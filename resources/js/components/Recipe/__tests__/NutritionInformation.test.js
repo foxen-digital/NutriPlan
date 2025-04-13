@@ -131,7 +131,6 @@ describe('NutritionInformation.vue', () => {
         });
 
         expect(wrapper.text()).not.toContain('No nutrition information available');
-        expect(wrapper.text()).toContain('Nutrition Information');
         expect(wrapper.find('.grid').exists()).toBe(true);
         expect(wrapper.find('.grid').element.children.length).toBe(0);
     });

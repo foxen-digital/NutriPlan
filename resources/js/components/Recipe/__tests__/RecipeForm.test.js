@@ -211,7 +211,7 @@ describe('RecipeForm.vue', () => {
         expect(wrapper.find('form').exists()).toBe(true);
         expect(wrapper.find('.input').exists()).toBe(true); // Input for title
         expect(wrapper.find('.textarea').exists()).toBe(true); // Textarea for description
-        expect(wrapper.find('.combobox').exists()).toBe(true);
+        expect(wrapper.find('.combobox-with-create').exists()).toBe(true);
         expect(wrapper.find('.file-input').exists()).toBe(true);
         expect(wrapper.find('.nutrition-form').exists()).toBe(true);
     });
