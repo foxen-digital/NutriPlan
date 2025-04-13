@@ -68,11 +68,14 @@
                 </div>
 
                 <div class="mt-2">
-                    <Combobox
+                    <ComboboxWithCreate
                         :model-value="0"
                         :options="availableCategories"
                         placeholder="Search for categories..."
+                        :allow-create="true"
+                        create-endpoint="/categories"
                         @update:model-value="addCategory"
+                        @option-created="handleNewCategory"
                     />
                 </div>
                 <InputError :message="form.errors.categories" />
@@ -154,7 +157,7 @@ import NutritionForm from '@/components/Recipe/NutritionForm.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Combobox, ComboboxWithCreate } from '@/components/ui/combobox';
+import { ComboboxWithCreate } from '@/components/ui/combobox';
 import { FileInput } from '@/components/ui/file-input';
 import { Input } from '@/components/ui/input';
 import { InputError } from '@/components/ui/input-error';
@@ -262,11 +265,17 @@ const removeIngredient = (index: number) => {
 const emit = defineEmits<{
     (e: 'submit', form: ReturnType<typeof useForm<FormData>>): void;
     (e: 'new-ingredient', ingredient: { id: number; name: string }): void;
+    (e: 'new-category', category: { id: number; name: string }): void;
 }>();
 
 const handleNewIngredient = (newIngredient: { id: number; name: string }) => {
     // Emit event to add the new ingredient to the ingredients list
     emit('new-ingredient', newIngredient);
+};
+
+const handleNewCategory = (newCategory: { id: number; name: string }) => {
+    // Emit event to add the new category to the categories list
+    emit('new-category', newCategory);
 };
 
 const submit = () => {

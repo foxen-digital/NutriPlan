@@ -3,24 +3,33 @@ import DeleteRecipeModal from '@/components/Recipe/DeleteRecipeModal.vue';
 import RecipeForm from '@/components/Recipe/RecipeForm.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
+import type { Category } from '@/types/category';
+import type { Ingredient } from '@/types/ingredient';
 import type { MeasurementUnit, Recipe } from '@/types/recipe';
 import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
-defineProps<{
+interface Props {
     recipe: Recipe;
-    categories: Array<{
-        id: number;
-        name: string;
-    }>;
-    ingredients: Array<{
-        id: number;
-        name: string;
-    }>;
+    categories: Category[];
+    ingredients: Ingredient[];
     measurementUnits: MeasurementUnit[];
-}>();
+}
 
+const props = defineProps<Props>();
+
+// Use refs to allow adding new items
+const categories = ref<Category[]>([...props.categories]);
+const ingredients = ref<Ingredient[]>([...props.ingredients]);
 const showDeleteModal = ref(false);
+
+const addNewIngredient = (ingredient: { id: number; name: string }) => {
+    ingredients.value.push(ingredient as Ingredient);
+};
+
+const addNewCategory = (category: { id: number; name: string }) => {
+    categories.value.push(category as Category);
+};
 </script>
 
 <template>
@@ -49,6 +58,8 @@ const showDeleteModal = ref(false);
                     :action="route('recipes.update', recipe.id)"
                     method="put"
                     @submit="(form) => form.put(route('recipes.update', recipe.slug))"
+                    @new-ingredient="addNewIngredient"
+                    @new-category="addNewCategory"
                 />
             </div>
         </div>

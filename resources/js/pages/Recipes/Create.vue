@@ -17,6 +17,8 @@
                     :measurement-units="measurementUnits"
                     submit-label="Create Recipe"
                     @submit="createRecipe"
+                    @new-ingredient="addNewIngredient"
+                    @new-category="addNewCategory"
                 />
             </div>
         </div>
@@ -30,6 +32,7 @@ import type { Category } from '@/types/category';
 import type { Ingredient } from '@/types/ingredient';
 import type { MeasurementUnit } from '@/types/recipe';
 import { Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 interface Props {
     categories: Category[];
@@ -37,7 +40,11 @@ interface Props {
     measurementUnits: MeasurementUnit[];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+// Use refs to allow adding new items
+const categories = ref<Category[]>([...props.categories]);
+const ingredients = ref<Ingredient[]>([...props.ingredients]);
 
 const createRecipe = (form: any) => {
     form.post(route('recipes.store'), {
@@ -46,5 +53,13 @@ const createRecipe = (form: any) => {
             form.reset();
         },
     });
+};
+
+const addNewIngredient = (ingredient: { id: number; name: string }) => {
+    ingredients.value.push(ingredient as Ingredient);
+};
+
+const addNewCategory = (category: { id: number; name: string }) => {
+    categories.value.push(category as Category);
 };
 </script>

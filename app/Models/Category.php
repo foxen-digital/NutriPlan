@@ -15,6 +15,12 @@ class Category extends Model
     use HasFactory;
     use HasSlug;
 
+    protected $fillable = [
+        'name',
+        'description',
+        'is_active',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

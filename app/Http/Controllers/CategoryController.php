@@ -8,6 +8,9 @@ use App\Models\Category;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,6 +38,23 @@ class CategoryController extends Controller
 
         return Inertia::render('Categories/Index', [
             'categories' => $categories,
+        ]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('categories', 'name')],
+        ]);
+
+        $category = Category::query()->create([
+            'name' => $validated['name'],
+            'is_active' => true,
+        ]);
+
+        return response()->json([
+            'id' => $category->id,
+            'name' => $category->name,
         ]);
     }
 

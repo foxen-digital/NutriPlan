@@ -34,10 +34,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('recipes/import', RecipeImportController::class)->name('recipes.import');
     Route::get('recipes/by/{user}', [UserRecipeController::class, 'index'])->name('recipes.by-user');
 
-    Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::get('categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+    // Categories
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+    Route::post('/categories', [CategoryController::class, 'store']);
 
-    Route::post('ingredients', [IngredientController::class, 'store'])->name('ingredients.store');
+    // Ingredients
+    Route::post('/ingredients', [IngredientController::class, 'store'])->name('ingredients.store');
 
     Route::resource('collections', CollectionController::class);
     Route::post('collections/add-recipe', [CollectionRecipeController::class, 'store'])->name('collections.add-recipe');

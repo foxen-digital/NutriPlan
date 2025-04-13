@@ -76,3 +76,71 @@ test('category show page displays recipes filtered by category', function () {
         ->where('category.id', $category->id)
     );
 });
+
+test('authenticated user can create a new category', function () {
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->post('/categories', [
+            'name' => 'New Test Category'
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'id' => 1,
+            'name' => 'New Test Category'
+        ]);
+
+    $this->assertDatabaseHas('categories', [
+        'name' => 'New Test Category',
+        'is_active' => true
+    ]);
+});
+
+test('category name must be unique', function () {
+    $user = User::factory()->create();
+    $existingCategory = Category::factory()->create(['name' => 'Existing Category']);
+
+    $response = $this
+        ->actingAs($user)
+        ->from('/some-page')
+        ->post('/categories', [
+            'name' => 'Existing Category'
+        ]);
+
+    $response->assertStatus(302)
+        ->assertRedirect('/some-page')
+        ->assertInvalid(['name']);
+
+    $this->assertDatabaseCount('categories', 1);
+});
+
+test('category name is required', function () {
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->from('/some-page')
+        ->post('/categories', [
+            'name' => ''
+        ]);
+
+    $response->assertStatus(302)
+        ->assertRedirect('/some-page')
+        ->assertInvalid(['name']);
+
+    $this->assertDatabaseCount('categories', 0);
+});
+
+test('unauthenticated user cannot create a category', function () {
+    $response = $this
+        ->post('/categories', [
+            'name' => 'Test Category'
+        ]);
+
+    $response->assertStatus(302)
+        ->assertRedirect('/login');
+
+    $this->assertDatabaseCount('categories', 0);
+});
