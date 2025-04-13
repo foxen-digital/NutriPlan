@@ -20,7 +20,7 @@ Your task is to improve readability and formatting without changing the content 
 
 Formatting guidelines:
 - Use numbered lists for sequential instructions.
-- Use bold (`**...**`) to highlight important ingredients, actions, and timings (e.g., **onions**, **10 minutes**, **cover and cook**).
+- Use bold (`**...**`) to highlight important ingredients and timings (e.g., **onions**, **10 minutes**).
 - Use italics (`*...*`) for optional notes or helpful tips (e.g., *if desired*, *note: do not overmix*).
 - Only include headings (e.g., `## Slow Cooker Directions`) if they are present in the input or clearly indicated by context (such as multiple preparation methods). Do not add generic headings like `## Instructions`.
 - Do not add or remove any steps, ingredients, or instructions unless explicitly told to.
