@@ -1,11 +1,6 @@
-import { router } from '@inertiajs/vue3';
 import { useToast } from '@/components/ui/toast';
-import {
-    CheckCircle,
-    AlertTriangle,
-    Info,
-    AlertOctagon
-} from 'lucide-vue-next';
+import { router } from '@inertiajs/vue3';
+import { AlertOctagon, AlertTriangle, CheckCircle, Info } from 'lucide-vue-next';
 
 interface Flash {
     success?: string;
@@ -61,5 +56,5 @@ export default {
                 });
             }
         });
-    }
+    },
 };
