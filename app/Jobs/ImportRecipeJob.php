@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Actions\FetchRecipe;
+use App\Events\RecipeImportCompleted;
 use App\Exceptions\RecipeImport\ConnectionFailedException;
 use App\Exceptions\RecipeImport\NoStructuredDataException;
 use App\Models\Recipe;
@@ -55,6 +56,14 @@ class ImportRecipeJob implements ShouldQueue
                 'user_id' => $this->userId
             ]);
 
+            // Dispatch event for real-time notification
+            RecipeImportCompleted::dispatch(
+                $this->userId,
+                'success',
+                'Recipe imported successfully!',
+                $recipe->id
+            );
+
             return $recipe;
         } catch (NoStructuredDataException $e) {
             Log::warning('No recipe data found during import', [
@@ -62,6 +71,14 @@ class ImportRecipeJob implements ShouldQueue
                 'user_id' => $this->userId,
                 'error' => $e->getMessage(),
             ]);
+
+            // Dispatch event for real-time notification
+            RecipeImportCompleted::dispatch(
+                $this->userId,
+                'error',
+                'No recipe data found at the provided URL.',
+                null
+            );
 
             throw $e;
         } catch (ConnectionFailedException $e) {
@@ -71,6 +88,14 @@ class ImportRecipeJob implements ShouldQueue
                 'error' => $e->getMessage(),
             ]);
 
+            // Dispatch event for real-time notification
+            RecipeImportCompleted::dispatch(
+                $this->userId,
+                'error',
+                'Failed to connect to the recipe website. Please check the URL or try again later.',
+                null
+            );
+
             throw $e;
         } catch (Throwable $e) {
             Log::error('Recipe import failed', [
@@ -79,6 +104,14 @@ class ImportRecipeJob implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            // Dispatch event for real-time notification
+            RecipeImportCompleted::dispatch(
+                $this->userId,
+                'error',
+                'Failed to import recipe. Please try again later.',
+                null
+            );
 
             throw $e;
         } finally {

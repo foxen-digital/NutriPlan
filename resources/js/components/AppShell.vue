@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { ToastProvider, ToastRegistry, ToastViewport } from '@/components/ui/toast';
+import { useRecipeImport } from '@/composables/useRecipeImport';
 import { onMounted, ref } from 'vue';
 
 interface Props {
@@ -13,6 +14,10 @@ const isOpen = ref(true);
 
 onMounted(() => {
     isOpen.value = localStorage.getItem('sidebar') !== 'false';
+
+    // Initialize Echo listeners for real-time recipe import notifications
+    const { initializeListeners } = useRecipeImport();
+    initializeListeners();
 });
 
 const handleSidebarChange = (open: boolean) => {

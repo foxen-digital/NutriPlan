@@ -20,7 +20,7 @@ it('dispatches an import job and returns a redirect response', function () {
 
     // Assert
     $response->assertRedirect()
-        ->assertSessionHas('success', 'Recipe import started. You will be notified when it completes.');
+        ->assertSessionHas('success', 'Recipe queued for import. You will be notified when it completes.');
 
     Queue::assertPushed(ImportRecipeJob::class, function (ImportRecipeJob $job) {
         return $job->url === 'https://example.com/recipe' &&
