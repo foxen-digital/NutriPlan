@@ -15,7 +15,7 @@ This specification details the setup of Laravel Sanctum for API authentication a
 ## 2. Goals
 
 -   Install and configure Laravel Sanctum for API authentication.
--   Provide secure API endpoints for users to create, list, and revoke their own API tokens.
+-   Provide secure web routes and controller actions for users to create, list, and revoke their own API tokens within the settings area.
 -   Create a dedicated settings page in the user interface for token management.
 -   Ensure tokens are displayed only once upon creation for security.
 
@@ -29,35 +29,35 @@ This specification details the setup of Laravel Sanctum for API authentication a
     -   Run migrations (`php artisan migrate`).
     -   Add `Laravel\Sanctum\HasApiTokens` trait to the `App\Models\User` model.
 
-### 3.2. Backend: API Token Management Endpoints
+### 3.2. Backend: Token Management Routes & Controller
 
--   **API Routes (`routes/api.php`):**
-    -   Create routes within a `/v1` group, protected by the `auth:sanctum` middleware.
-    -   `GET /api/v1/tokens`: List the authenticated user's tokens.
-    -   `POST /api/v1/tokens`: Create a new token for the authenticated user. Requires a `name` parameter in the request body.
-    -   `DELETE /api/v1/tokens/{tokenId}`: Delete a specific token belonging to the authenticated user.
--   **Controller (`App\Http\Controllers\Api\V1\ApiTokenController`):**
-    -   `index()`: Retrieve and return a list of the authenticated user's tokens (e.g., ID, name, abilities, last used timestamp, created timestamp). **Do not include the token value.**
+-   **Web Routes (`routes/settings.php`):**
+    -   Define routes within the standard `web` middleware group, likely protected by the `auth` middleware.
+    -   `GET /settings/tokens`: Display the token management page (handled by `index` method).
+    -   `POST /settings/tokens`: Create a new token for the authenticated user (handled by `store` method). Requires a `name` parameter in the request body.
+    -   `DELETE /settings/tokens/{tokenId}`: Delete a specific token belonging to the authenticated user (handled by `destroy` method).
+-   **Controller (`App\Http\Controllers\Settings\ApiTokenController`):**
+    -   `index()`: Retrieve the authenticated user's tokens (excluding the token value) and return the Inertia view (`Settings/ApiTokens`) passing the tokens as props.
     -   `store(Request $request)`:
         -   Validate the request (require `name` string).
         -   Create a new token using `$request->user()->createToken($request->name)`.
-        -   Return a JSON response containing the token's metadata *and* the `plainTextToken`. Status code 201 (Created).
+        -   Redirect back to the token settings page, flashing the token's metadata *and* the `plainTextToken` to the session for display by Inertia.
     -   `destroy(Request $request, $tokenId)`:
         -   Find the token belonging to the authenticated user by its ID.
         -   If found, delete the token using `$request->user()->tokens()->where('id', $tokenId)->delete()`.
-        -   Return an appropriate response (e.g., 204 No Content on success, 404 Not Found if token doesn't exist or belong to the user).
+        -   Redirect back to the token settings page, possibly with a success message. Handle cases where the token is not found.
 
 ### 3.3. Frontend Settings Page
 
 -   **Vue Component (`resources/js/pages/Settings/ApiTokens.vue`):**
-    -   Fetch the user's tokens from the `GET /api/v1/tokens` endpoint on component mount.
+    -   Receive the user's tokens as props from the controller via Inertia (`index` method).
     -   Display a list/table of existing tokens showing their name, creation date, and last used date (if available).
-    -   Provide a button/form element to trigger the token revocation (calling `DELETE /api/v1/tokens/{tokenId}`). Confirm deletion with the user.
+    -   Provide a button/form element to trigger token revocation (using Inertia's method, e.g., `this.$inertia.delete('/settings/tokens/{tokenId}')`). Confirm deletion with the user.
     -   Provide a form to create a new token:
         -   Input field for the token name.
-        -   Button to submit the creation request to `POST /api/v1/tokens`.
-    -   **Crucially:** When a new token is created, display the received `plainTextToken` clearly to the user *immediately* after creation. Include a strong warning that this is the only time the token will be shown and it must be copied securely.
-    -   Handle loading states and potential API errors gracefully.
+        -   Button to submit the creation request (using Inertia's method, e.g., `this.$inertia.post('/settings/tokens')`).
+    -   **Crucially:** When a new token is created, the page will reload via the redirect. Use Inertia's flashed data mechanism to retrieve the `plainTextToken` from the session and display it clearly to the user *immediately* after creation. Include a strong warning that this is the only time the token will be shown and it must be copied securely.
+    -   Handle loading states (using Inertia's progress indicators) and potential validation or server errors gracefully (using Inertia's error handling).
 -   **Layout Update (`resources/js/layouts/settings/Layout.vue`):**
     -   Add a navigation link in the settings sidebar/menu pointing to the "API Tokens" page (`/settings/api-tokens`).
 
@@ -70,12 +70,12 @@ This specification details the setup of Laravel Sanctum for API authentication a
 ## 5. Implementation Plan
 
 1.  Install/Configure Sanctum, run migrations, update User model.
-2.  Define API routes in `routes/api.php`.
-3.  Implement `ApiTokenController` with `index`, `store`, `destroy` methods.
-4.  Write feature tests for the `ApiTokenController` endpoints (authentication, creation, listing, deletion, ensuring token value is only shown on creation).
+2.  Define web routes in `routes/settings.php`.
+3.  Implement `App\Http\Controllers\Settings\ApiTokenController` with `index`, `store`, `destroy` methods tailored for Inertia responses (views, redirects with flashed data).
+4.  Write feature tests for the `ApiTokenController` actions (authentication, creation, listing, deletion, checking flashed token value on creation).
 5.  Create `ApiTokens.vue` component.
-6.  Implement the UI for listing, creating, and deleting tokens, including API calls.
-7.  Implement the secure display of the newly generated token.
+6.  Implement the UI for listing, creating, and deleting tokens using Inertia methods.
+7.  Implement the display of the newly generated token using Inertia's flashed data.
 8.  Add the navigation link to the settings layout.
 9.  Manually test the full flow of token management via the UI.
 
