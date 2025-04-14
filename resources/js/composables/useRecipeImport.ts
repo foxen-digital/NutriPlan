@@ -56,38 +56,35 @@ export function useRecipeImport() {
         }
 
         // Listen for recipe import completed events on the user's private channel
-        window.Echo.private(`user.${userId.value}`).listen(
-            '.recipe.import.completed',
-            (e: RecipeImportEvent) => {
-                console.log('Recipe Import Event Received:', e);
+        window.Echo.private(`user.${userId.value}`).listen('.recipe.import.completed', (e: RecipeImportEvent) => {
+            console.log('Recipe Import Event Received:', e);
 
-                const title = e.status === 'success' ? 'Success' : 'Error';
-                const variant = e.status === 'success' ? 'success' : 'destructive';
+            const title = e.status === 'success' ? 'Success' : 'Error';
+            const variant = e.status === 'success' ? 'success' : 'destructive';
 
-                // Show toast notification
-                const toastOptions: ToastProps = {
-                    title,
-                    description: e.message,
-                    variant,
-                    duration: 3000,
-                };
+            // Show toast notification
+            const toastOptions: ToastProps = {
+                title,
+                description: e.message,
+                variant,
+                duration: 3000,
+            };
 
-                if (e.status === 'success' && e.recipeId !== null) {
-                    Object.assign(toastOptions, {
-                        action: {
-                            label: 'View Recipe',
-                            onClick: () => {
-                                // Navigate to the recipe page using Inertia router
-                                router.visit(e.recipeUrl);
-                            },
-                            altText: 'View the imported recipe',
+            if (e.status === 'success' && e.recipeId !== null) {
+                Object.assign(toastOptions, {
+                    action: {
+                        label: 'View Recipe',
+                        onClick: () => {
+                            // Navigate to the recipe page using Inertia router
+                            router.visit(e.recipeUrl);
                         },
-                    });
-                }
+                        altText: 'View the imported recipe',
+                    },
+                });
+            }
 
-                toast(toastOptions);
-            },
-        );
+            toast(toastOptions);
+        });
     }
 
     return {

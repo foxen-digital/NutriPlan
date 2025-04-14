@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\ApiTokenController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -18,4 +19,9 @@ Route::middleware('auth')->group(function () {
     Route::get('settings/appearance', function () {
         return Inertia::render('settings/Appearance');
     })->name('appearance');
+
+    // API Tokens
+    Route::get('settings/tokens', [ApiTokenController::class, 'index'])->name('settings.tokens.index');
+    Route::post('settings/tokens', [ApiTokenController::class, 'store'])->name('settings.tokens.store');
+    Route::delete('settings/tokens/{tokenId}', [ApiTokenController::class, 'destroy'])->name('settings.tokens.destroy');
 });

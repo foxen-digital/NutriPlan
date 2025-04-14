@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -19,6 +20,7 @@ class User extends Authenticatable
     use HasFactory;
     use Notifiable;
     use HasSlug;
+    use HasApiTokens;
 
     /**
      * The attributes that should be visible in arrays.
