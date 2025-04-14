@@ -22,11 +22,6 @@ This document details the implementation of real-time frontend notifications for
 
 ### 3.1. Backend (Pusher & Events)
 
--   Pusher Channels must be set up:
-    -   Create an account on [pusher.com](https://pusher.com)
-    -   Create a new Channels app in the Pusher dashboard
-    -   Install the Pusher PHP SDK: `composer require pusher/pusher-php-server`
-    -   Configure the `.env` variables (`BROADCAST_DRIVER=pusher`, `PUSHER_APP_ID`, `PUSHER_APP_KEY`, `PUSHER_APP_SECRET`, `PUSHER_APP_CLUSTER`)
 -   Broadcasting routes must be enabled in `routes/channels.php` for private channels (e.g., `Broadcast::channel('user.{id}', function ($user, $id) { return (int) $user->id === (int) $id; });`).
 -   A new broadcast event `App\Events\RecipeImportCompleted` must be created.
     -   It must implement `Illuminate\Contracts\Broadcasting\ShouldBroadcast`.
@@ -45,23 +40,6 @@ This document details the implementation of real-time frontend notifications for
 
 ### 3.2. Frontend (Echo & Notifications)
 
--   Laravel Echo and Pusher JS must be installed and configured:
-    -   Install with npm: `npm install --save laravel-echo pusher-js`
-    -   Configure in `resources/js/bootstrap.js`:
-      ```javascript
-      import Echo from 'laravel-echo';
-      import Pusher from 'pusher-js';
-      
-      window.Pusher = Pusher;
-      
-      window.Echo = new Echo({
-          broadcaster: 'pusher',
-          key: import.meta.env.VITE_PUSHER_APP_KEY,
-          cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-          forceTLS: true
-      });
-      ```
-    -   Add required environment variables to `.env` and expose them via Vite config
 -   The frontend JavaScript (e.g., in `resources/js/app.js` or a root layout component) must listen for the broadcast event on the authenticated user's private channel.
 -   The listener callback must trigger the existing frontend notification/toast component.
 -   The notification component should display the `message` received from the event.
@@ -94,15 +72,9 @@ This document details the implementation of real-time frontend notifications for
 
 ## 5. Implementation Plan
 
-1.  Set up Pusher Channels:
-    - Create a Pusher account and app
-    - Install the PHP SDK (`composer require pusher/pusher-php-server`)
-    - Configure `.env` with Pusher credentials
 2.  Ensure `routes/channels.php` authorizes the private user channel.
 3.  Create the `App\Events\RecipeImportCompleted` event class with the required properties and methods (`broadcastOn`, `broadcastAs`, `broadcastWith`).
 4.  Modify `App\Jobs\ImportRecipeJob` to dispatch the event on success and failure.
-5.  Install the required frontend packages (`npm install --save laravel-echo pusher-js`).
-6.  Configure Echo in `resources/js/bootstrap.js` to use Pusher.
 7.  Add the required environment variables to the frontend Vite configuration.
 8.  Implement the Echo listener in the appropriate frontend JavaScript file.
 9.  Connect the Echo listener callback to the existing notification component, passing the status, message, and optional link.
