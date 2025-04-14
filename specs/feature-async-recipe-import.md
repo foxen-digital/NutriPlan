@@ -34,7 +34,7 @@ This document outlines the plan to refactor the recipe import process to run asy
 -   The controller/HTTP endpoint currently responsible for handling recipe imports must be modified:
     -   It should no longer perform the import synchronously.
     -   It should dispatch the `ImportRecipeJob` with the `$url` and the authenticated user's ID (`auth()->id()`).
-    -   It should return an immediate response to the user indicating the import has been queued (e.g., a JSON response or a redirect with a flash message).
+    -   It should return an immediate response to the user indicating the import has been queued (e.g., a JSON response as defined in our notification-toasts.md spec).
 -   The job must handle potential exceptions during the import process (e.g., network errors fetching URL, parsing errors, database errors) and log them appropriately.
 
 ## 4. Technical Design
@@ -51,7 +51,13 @@ The `ImportRecipeJob` would then call this service.
     -   Identify the controller method handling the `POST` request for recipe imports.
     -   Remove the synchronous import logic.
     -   Add `ImportRecipeJob::dispatch($request->input('url'), auth()->id());`.
-    -   Return a response, e.g., `response()->json(['message' => 'Recipe import started. You will be notified upon completion.'], 202);`
+    -   Return a response, e.g., `response()->json([
+    'notification' => [
+        'type' => 'success',
+        'message' => 'Operation completed successfully',
+        'duration' => 5000
+    ]
+], 202);`
 -   **Error Handling:** Use `try...catch` blocks within the job's `handle` method to catch exceptions. Log errors using `Log::error()`. Integration with the notification system for failures will be handled in the *Real-time Frontend Notifications* feature.
 
 ## 5. Implementation Plan
