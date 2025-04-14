@@ -20,7 +20,7 @@ This document provides an overview of all feature specifications for the NutriPl
 | Instruction Normalization Service | Service for LLM-based instruction parsing | ✅ | [View Spec](specs/feature-instruction-normalization-service.md) |
 | Parser Integration (Instructions) | Integrate instruction normalization into RecipeParser | ✅ | [View Spec](specs/feature-instruction-parser-integration.md) |
 | Async Recipe Import | Move recipe import to a queued job | ✅ | [View Spec](specs/feature-async-recipe-import.md) |
-| Real-time Notifications (Import) | WebSocket notifications for import status | ⏳ | [View Spec](specs/feature-real-time-notifications.md) |
+| Real-time Notifications (Import) | WebSocket notifications for import status | ✅ | [View Spec](specs/feature-real-time-notifications.md) |
 | Notification Toasts | Display notification messages to users using radix-vue toast components | ✅ | [View Spec](specs/notification-toasts.md) |
 | Meal Planning | Create and manage meal plans with recipes | 🚧 | [View Spec](specs/meal-planning.md) |
 
