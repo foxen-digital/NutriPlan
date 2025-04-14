@@ -48,7 +48,7 @@ it('imports a recipe for a user and dispatches a success event', function () {
     Event::assertDispatched(RecipeImportCompleted::class, function ($event) use ($recipe) {
         return $event->userId === $this->user->id &&
                $event->status === 'success' &&
-               $event->recipeId === $recipe->id;
+               $event->recipe === $recipe;
     });
 });
 
@@ -70,7 +70,7 @@ it('handles recipe parsing failures and dispatches an error event', function () 
     Event::assertDispatched(RecipeImportCompleted::class, function ($event) {
         return $event->userId === $this->user->id &&
                $event->status === 'error' &&
-               $event->recipeId === null;
+               $event->recipe === null;
     });
 });
 
@@ -92,6 +92,6 @@ it('handles connection failures and dispatches an error event', function () {
     Event::assertDispatched(RecipeImportCompleted::class, function ($event) {
         return $event->userId === $this->user->id &&
                $event->status === 'error' &&
-               $event->recipeId === null;
+               $event->recipe === null;
     });
 });
