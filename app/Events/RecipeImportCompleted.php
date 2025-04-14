@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Events;
 
+use App\Models\Recipe;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -28,7 +29,7 @@ class RecipeImportCompleted implements ShouldBroadcast
         public readonly int $userId,
         public readonly string $status,
         public readonly string $message,
-        public readonly ?int $recipeId
+        public readonly ?Recipe $recipe
     ) {
     }
 
@@ -64,7 +65,8 @@ class RecipeImportCompleted implements ShouldBroadcast
         return [
             'status' => $this->status,
             'message' => $this->message,
-            'recipeId' => $this->recipeId,
+            'recipeId' => $this->recipe->id,
+            'recipeUrl' => route('recipes.show', $this->recipe->slug),
         ];
     }
 }

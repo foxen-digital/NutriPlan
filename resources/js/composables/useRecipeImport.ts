@@ -32,6 +32,13 @@ interface CustomPageProps {
     [key: string]: any;
 }
 
+interface RecipeImportEvent {
+    status: 'success' | 'error';
+    message: string;
+    recipeId: number | null;
+    recipeUrl: string | URL;
+}
+
 export function useRecipeImport() {
     const { toast } = useToast();
     const page = usePage<CustomPageProps>();
@@ -51,7 +58,7 @@ export function useRecipeImport() {
         // Listen for recipe import completed events on the user's private channel
         window.Echo.private(`user.${userId.value}`).listen(
             '.recipe.import.completed',
-            (e: { status: 'success' | 'error'; message: string; recipeId: number | null }) => {
+            (e: RecipeImportEvent) => {
                 console.log('Recipe Import Event Received:', e);
 
                 const title = e.status === 'success' ? 'Success' : 'Error';
@@ -62,6 +69,7 @@ export function useRecipeImport() {
                     title,
                     description: e.message,
                     variant,
+                    duration: 3000,
                 };
 
                 if (e.status === 'success' && e.recipeId !== null) {
@@ -70,7 +78,7 @@ export function useRecipeImport() {
                             label: 'View Recipe',
                             onClick: () => {
                                 // Navigate to the recipe page using Inertia router
-                                router.visit(`/recipes/${e.recipeId}`);
+                                router.visit(e.recipeUrl);
                             },
                             altText: 'View the imported recipe',
                         },

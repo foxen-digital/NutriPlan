@@ -60,8 +60,8 @@ class ImportRecipeJob implements ShouldQueue
             RecipeImportCompleted::dispatch(
                 $this->userId,
                 'success',
-                'Recipe imported successfully!',
-                $recipe->id
+                "Recipe '{$recipe->title}' imported successfully!",
+                $recipe
             );
 
             return $recipe;
