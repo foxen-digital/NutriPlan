@@ -36,11 +36,15 @@ const flashToken = computed(() => {
 const showTokenDialog = ref(false);
 
 // Watch for token changes to show the dialog
-watch(flashToken, (newToken) => {
-    if (newToken) {
-        showTokenDialog.value = true;
-    }
-}, { immediate: true });
+watch(
+    flashToken,
+    (newToken) => {
+        if (newToken) {
+            showTokenDialog.value = true;
+        }
+    },
+    { immediate: true },
+);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -94,26 +98,22 @@ const copyTokenToClipboard = () => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-
         <Head title="API Tokens" />
 
         <SettingsLayout>
             <div class="flex flex-col space-y-6">
-                <HeadingSmall title="API Tokens"
-                    description="Create API tokens for third-party applications to access your account securely." />
+                <HeadingSmall title="API Tokens" description="Create API tokens for third-party applications to access your account securely." />
 
                 <!-- Token created dialog -->
                 <Dialog v-model:open="showTokenDialog" v-if="flashToken">
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Token created successfully</DialogTitle>
-                            <DialogDescription> Please copy your new token now. It will not be shown again.
-                            </DialogDescription>
+                            <DialogDescription> Please copy your new token now. It will not be shown again. </DialogDescription>
                         </DialogHeader>
                         <div class="mt-2">
                             <div class="mt-1 flex rounded-md shadow-sm">
-
-                                <pre class="text-xs border rounded-md p-2">{{ flashToken }}</pre>
+                                <pre class="rounded-md border p-2 text-xs">{{ flashToken }}</pre>
                             </div>
                         </div>
                         <DialogFooter>
@@ -131,22 +131,19 @@ const copyTokenToClipboard = () => {
                             <DialogHeader>
                                 <DialogTitle>Create API Token</DialogTitle>
                                 <DialogDescription>
-                                    API tokens allow third-party services to authenticate with our application on your
-                                    behalf.
+                                    API tokens allow third-party services to authenticate with our application on your behalf.
                                 </DialogDescription>
                             </DialogHeader>
                             <form @submit.prevent="submitTokenForm">
                                 <div class="grid gap-4 py-4">
                                     <div class="grid grid-cols-4 items-center gap-4">
                                         <Label for="token-name" class="col-span-4"> Token Name </Label>
-                                        <Input id="token-name" v-model="tokenForm.name" placeholder="Token Name"
-                                            class="col-span-4" />
+                                        <Input id="token-name" v-model="tokenForm.name" placeholder="Token Name" class="col-span-4" />
                                         <InputError class="col-span-4" :message="tokenForm.errors.name" />
                                     </div>
                                 </div>
                                 <DialogFooter>
-                                    <Button type="button" variant="outline"
-                                        @click="showCreateDialog = false">Cancel</Button>
+                                    <Button type="button" variant="outline" @click="showCreateDialog = false">Cancel</Button>
                                     <Button type="submit" :disabled="tokenForm.processing">Create</Button>
                                 </DialogFooter>
                             </form>
@@ -173,8 +170,7 @@ const copyTokenToClipboard = () => {
                                 <TableCell>{{ formattedDate(token.created_at) }}</TableCell>
                                 <TableCell>{{ formattedDate(token.last_used_at) }}</TableCell>
                                 <TableCell class="text-right">
-                                    <Button variant="destructive" size="sm" @click="deleteToken(token.id)"> Delete
-                                    </Button>
+                                    <Button variant="destructive" size="sm" @click="deleteToken(token.id)"> Delete </Button>
                                 </TableCell>
                             </TableRow>
                         </TableBody>

@@ -25,9 +25,9 @@ This specification defines the dedicated API endpoint that external applications
 ### 3.1. Backend: Recipe Import API Endpoint
 
 -   **API Route (`routes/api.php`):**
-    -   Create a new API route within the `/v1` group, protected by `auth:sanctum`:
-        -   `POST /api/v1/recipes/import-via-extension`
--   **Controller (e.g., `App\Http\Controllers\Api\V1\RecipeImportController`):**
+    -   Create a new API route protected by `auth:sanctum`:
+        -   `POST /api/recipes/import-via-extension`
+-   **Controller (e.g., `App\Http\Controllers\Api\RecipeImportController`):**
     -   Create a new controller or add a method to an existing relevant API controller.
     -   `importViaExtension(Request $request)` method:
         -   **Authentication:** The `auth:sanctum` middleware handles authentication via the Bearer token. Access the authenticated user via `$request->user()`.
@@ -56,7 +56,7 @@ This specification defines the dedicated API endpoint that external applications
 
 ## 5. Implementation Plan
 
-1.  Define the `POST /api/v1/recipes/import-via-extension` route in `routes/api.php`, applying the `auth:sanctum` middleware.
+1.  Define the `POST /api/recipes/import-via-extension` route in `routes/api.php`, applying the `auth:sanctum` middleware.
 2.  Create the `RecipeImportController` (or add the method to an existing controller).
 3.  Implement the `importViaExtension` method, including validation and dispatching `ImportRecipeJob`.
 4.  Write feature tests for this endpoint:

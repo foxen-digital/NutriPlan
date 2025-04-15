@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\RecipeSearchController;
 use App\Http\Controllers\Api\BarcodeLookupController;
 use App\Http\Controllers\Api\ItemSearchController;
+use App\Http\Controllers\Api\RecipeImportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,4 +27,10 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('recipes/search', RecipeSearchController::class)->name('api.recipes.search');
     Route::post('barcode-lookup', [BarcodeLookupController::class, 'lookup'])->name('api.barcode-lookup');
     Route::get('item-search', ItemSearchController::class)->name('api.item-search');
+});
+
+// Sanctum protected API routes for external applications
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('recipes/import-via-extension', [RecipeImportController::class, 'importViaExtension'])
+        ->name('api.recipes.import-via-extension');
 });
