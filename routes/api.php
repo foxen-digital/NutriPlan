@@ -31,6 +31,6 @@ Route::middleware(['web', 'auth'])->group(function () {
 
 // Sanctum protected API routes for external applications
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('recipes/import-via-extension', [RecipeImportController::class, 'importViaExtension'])
+    Route::post('recipes/import-via-extension', RecipeImportController::class)
         ->name('api.recipes.import-via-extension');
 });

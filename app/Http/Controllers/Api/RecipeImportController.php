@@ -21,7 +21,7 @@ class RecipeImportController extends Controller
      * @param ImportRecipeRequest $request The validated request containing the recipe URL
      * @return JsonResponse Response indicating the recipe import has been queued
      */
-    public function importViaExtension(ImportRecipeRequest $request): JsonResponse
+    public function __invoke(ImportRecipeRequest $request): JsonResponse
     {
         // Dispatch the job to import the recipe asynchronously
         ImportRecipeJob::dispatch(
