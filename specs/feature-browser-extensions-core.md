@@ -72,7 +72,7 @@ This specification details the creation of browser extensions for Google Chrome 
         -   Option 2: Programmatically open the options page using `browser.runtime.openOptionsPage()`.
         -   Abort further execution.
     3.  **Get Current Tab URL:** Use `browser.tabs.query({ active: true, currentWindow: true })` to get the active tab's information. Extract the `url` from the result. Handle potential errors (e.g., no active tab found).
-    4.  **Construct API URL:** Combine the stored App URL with the specific API endpoint path (`/api/v1/recipes/import-via-extension`).
+    4.  **Construct API URL:** Combine the stored App URL with the specific API endpoint path (`/api/recipes/import-via-extension`).
     5.  **Make API Request:**
         -   Use the `fetch` API to make a POST request.
         -   **Headers:**
