@@ -27,9 +27,9 @@ Route::get('/', function () {
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth:sanctum', 'verified'])->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::resource('recipes', RecipeController::class);
     Route::post('recipes/import', RecipeImportController::class)->name('recipes.import');
     Route::get('recipes/by/{user}', [UserRecipeController::class, 'index'])->name('recipes.by-user');
@@ -69,7 +69,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('shopping-lists/{shoppingList}/order-items', ShoppingListItemOrderController::class)->name('shopping-lists.items.order');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/meal-assignments', [MealAssignmentController::class, 'store'])->name('meal-assignments.store');
     Route::put('/meal-assignments/{mealAssignment}', [MealAssignmentController::class, 'update'])->name('meal-assignments.update');
     Route::delete('/meal-assignments/{mealAssignment}', [MealAssignmentController::class, 'destroy'])->name('meal-assignments.destroy');
@@ -79,7 +79,7 @@ Route::middleware(['auth'])->group(function () {
 // Demo Routes
 Route::get('/demo/toasts', function () {
     return Inertia::render('Demo/Toasts');
-})->middleware(['auth'])->name('demo.toasts');
+})->middleware(['auth:sanctum'])->name('demo.toasts');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

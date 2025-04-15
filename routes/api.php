@@ -23,7 +23,7 @@ Route::middleware('auth')->get('/user', function (Request $request) {
 });
 
 // Use web middleware to ensure it works with session authentication
-Route::middleware(['web', 'auth'])->group(function () {
+Route::middleware(['web', 'auth:sanctum'])->group(function () {
     Route::get('recipes/search', RecipeSearchController::class)->name('api.recipes.search');
     Route::post('barcode-lookup', [BarcodeLookupController::class, 'lookup'])->name('api.barcode-lookup');
     Route::get('item-search', ItemSearchController::class)->name('api.item-search');
