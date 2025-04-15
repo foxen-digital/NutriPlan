@@ -24,7 +24,7 @@ This document provides an overview of all feature specifications for the NutriPl
 | Notification Toasts | Display notification messages to users using radix-vue toast components | ✅ | [View Spec](specs/notification-toasts.md) |
 | Sanctum API Tokens | Backend & Frontend for managing Personal Access Tokens | ✅ | [View Spec](specs/feature-sanctum-api-tokens.md) |
 | Recipe Import API | API endpoint for triggering imports via extensions/apps | ✅ | [View Spec](specs/feature-recipe-import-api.md) |
-| Browser Extensions Core | Chrome/Firefox extensions for triggering recipe imports | ⏳ | [View Spec](specs/feature-browser-extensions-core.md) |
+| Browser Extensions Core | Chrome/Firefox extensions for triggering recipe imports | ✅ | [View Spec](specs/feature-browser-extensions-core.md) |
 | Meal Planning | Create and manage meal plans with recipes | 🚧 | [View Spec](specs/meal-planning.md) |
 
 ### Meal Planning Phases
