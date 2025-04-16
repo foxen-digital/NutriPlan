@@ -10,7 +10,7 @@
                 </p>
             </div>
             <div class="grid gap-6 mt-10 md:grid-cols-2 lg:grid-cols-3">
-                <div class="rounded-lg border bg-card p-6 shadow-sm">
+                <div class="rounded-lg border dark:bg-gray-800/80 p-6 shadow-sm">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                             <span class="font-semibold text-primary">JD</span>
@@ -26,7 +26,7 @@
                         each week!"
                     </p>
                 </div>
-                <div class="rounded-lg border bg-card p-6 shadow-sm">
+                <div class="rounded-lg border dark:bg-gray-800/80 p-6 shadow-sm">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                             <span class="font-semibold text-primary">MS</span>
@@ -42,7 +42,7 @@
                         game-changer."
                     </p>
                 </div>
-                <div class="rounded-lg border bg-card p-6 shadow-sm">
+                <div class="rounded-lg border dark:bg-gray-800/80 p-6 shadow-sm">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                             <span class="font-semibold text-primary">AL</span>
