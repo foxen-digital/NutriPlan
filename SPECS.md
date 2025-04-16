@@ -25,6 +25,7 @@ This document provides an overview of all feature specifications for the NutriPl
 | Sanctum API Tokens | Backend & Frontend for managing Personal Access Tokens | ✅ | [View Spec](specs/feature-sanctum-api-tokens.md) |
 | Recipe Import API | API endpoint for triggering imports via extensions/apps | ✅ | [View Spec](specs/feature-recipe-import-api.md) |
 | Browser Extensions Core | Chrome/Firefox extensions for triggering recipe imports | ✅ | [View Spec](specs/feature-browser-extensions-core.md) |
+| Web Share Target | Alternative to browser extensions for mobile, allowing mobiles users to 'share' a page directly to NutriPlan| 🔮 | [View Spec](specs/feature-web-share.md) |
 | Meal Planning | Create and manage meal plans with recipes | 🚧 | [View Spec](specs/meal-planning.md) |
 
 ### Meal Planning Phases
@@ -64,6 +65,10 @@ This section outlines potential features for future consideration, inspired by u
 * Use https://github.com/fivefilters/readability.php to extract the text content of teh page
 * send this to an LLM, along with a detailed system message
 * have the LLM return structured data matching what we already get for Ingredients & Instructions
+
+### Recipe exports
+* Allow users to export their recipe collection (manually created only?)
+    - What format? json-ld? Custom
 
 ### Enhanced Nutrition & Dietary Features
 
