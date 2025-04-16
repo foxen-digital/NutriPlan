@@ -4,6 +4,7 @@ import Features from '@/components/Landing/Features.vue';
 import Hero from '@/components/Landing/Hero.vue';
 import Menu from '@/components/Landing/Menu.vue';
 import Testimonials from '@/components/Landing/Testimonials.vue';
+import Footer from '@/components/Landing/Footer.vue';
 import { Head } from '@inertiajs/vue3';
 
 defineProps<{
@@ -26,4 +27,5 @@ defineProps<{
         <Testimonials />
         <CallToAction :authenticated="!!auth.user" />
     </main>
+    <Footer />
 </template>

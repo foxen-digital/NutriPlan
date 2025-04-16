@@ -23,18 +23,18 @@ defineProps<{
                         class="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
                     Features
                     </Link>
-                    <Link href="#"
+                    <Link href="#testimonials"
                         class="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-                    Pricing
+                    Testimonials
                     </Link>
-                    <Link href="#"
+                    <!-- <Link href="#"
                         class="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
                     About
                     </Link>
                     <Link href="#"
                         class="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
                     Contact
-                    </Link>
+                    </Link> -->
                 </nav>
             </div>
             <div v-if="!loggedIn" class="flex flex-1 items-center justify-end space-x-4">
