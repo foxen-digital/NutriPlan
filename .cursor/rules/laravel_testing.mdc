@@ -1,7 +1,7 @@
 ---
-description: Laravel Testing Standards
+description: USE WHEN creating or modifying PHP tests
 globs: ["tests/**/*Test.php"]
-alwaysApply: true
+alwaysApply: false
 ---
 # Laravel Testing Standards
 
