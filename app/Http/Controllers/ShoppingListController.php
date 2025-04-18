@@ -7,11 +7,12 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\ShoppingList;
+use App\Services\ShoppingListService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use App\Http\Resources\ShoppingListResource;
 use App\Http\Requests\StoreShoppingListRequest;
 use App\Http\Requests\UpdateShoppingListRequest;
-use App\Services\ShoppingListService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ShoppingListController extends Controller
