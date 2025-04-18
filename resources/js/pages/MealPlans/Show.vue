@@ -258,27 +258,12 @@
         <AddRecipeModal v-model:open="showAddRecipeModal" :meal-plan-id="mealPlan.id" @recipe-added="handleRecipeAdded" />
 
         <!-- Edit Recipe Scale Factor Modal -->
-        <Dialog :open="showEditRecipeModal" @update:open="showEditRecipeModal = $event">
-            <DialogContent class="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Edit Scale Factor</DialogTitle>
-                    <DialogDescription> Adjust the scale factor for "{{ recipeToEdit?.title }}" </DialogDescription>
-                </DialogHeader>
-                <div class="space-y-4 py-4">
-                    <div>
-                        <Label for="edit-scale-factor">Scale Factor</Label>
-                        <Input id="edit-scale-factor" v-model.number="editScaleFactor" type="number" min="0.5" max="10" step="0.5" />
-                        <p class="mt-1 text-xs text-gray-500">
-                            This will make approximately {{ recipeToEdit ? calculateServings(recipeToEdit.servings, editScaleFactor) : 0 }} servings
-                        </p>
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" @click="showEditRecipeModal = false">Cancel</Button>
-                    <Button @click="updateRecipeScaleFactor">Save Changes</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <EditRecipeScaleFactorModal
+            v-model:open="showEditRecipeModal"
+            :recipe="recipeToEdit"
+            :meal-plan-id="mealPlan.id"
+            @save="handleUpdateRecipeScaleFactor"
+        />
 
         <!-- START: Add Meal Assignment Modal -->
         <Dialog :open="showAssignMealModal" @update:open="showAssignMealModal = $event">
@@ -351,6 +336,7 @@
 import MealAssignmentCard from '@/components/MealPlan/MealAssignmentCard.vue';
 import AddRecipeModal from '@/components/MealPlan/Modals/AddRecipeModal.vue';
 import DeleteConfirmationModal from '@/components/MealPlan/Modals/DeleteConfirmationModal.vue';
+import EditRecipeScaleFactorModal from '@/components/MealPlan/Modals/EditRecipeScaleFactorModal.vue';
 import RecipeCard from '@/components/MealPlan/RecipeCard.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -413,8 +399,6 @@ const showRemoveRecipeDialog = ref(false);
 const showEditRecipeModal = ref(false);
 const recipeToRemove = ref<RecipeWithPivot | null>(null);
 const recipeToEdit = ref<RecipeWithPivot | null>(null);
-
-const editScaleFactor = ref(1.0);
 
 const showEditAssignmentModal = ref(false);
 const showAssignMealModal = ref(false);
@@ -479,10 +463,6 @@ const confirmDeleteMealPlan = () => {
     showDeleteDialog.value = true;
 };
 
-const calculateServings = (originalServings: number, scaleFactor: number): number => {
-    return Math.round(originalServings * scaleFactor);
-};
-
 const confirmRemoveRecipe = (recipe: RecipeWithPivot) => {
     console.log('Confirming removal of recipe:', recipe.title);
     recipeToRemove.value = recipe;
@@ -510,33 +490,30 @@ const removeRecipe = () => {
 const editRecipeInPlan = (recipe: RecipeWithPivot) => {
     console.log('Editing recipe:', recipe.title);
     recipeToEdit.value = recipe;
-    editScaleFactor.value = recipe.pivot.scale_factor;
     showEditRecipeModal.value = true;
 };
 
-const updateRecipeScaleFactor = () => {
-    console.log('Updating scale factor for:', recipeToEdit.value?.title, 'to:', editScaleFactor.value);
+const handleUpdateRecipeScaleFactor = (recipe: RecipeWithPivot, newScaleFactor: number) => {
+    console.log('Updating scale factor for:', recipe.title, 'to:', newScaleFactor);
     showEditRecipeModal.value = false;
-    if (!recipeToEdit.value) return;
 
-    // First remove the recipe (leave this part unchanged)
+    // First remove the recipe
     router.delete(
         route('meal-plans.remove-recipe', {
             id: props.mealPlan.id,
-            recipeId: recipeToEdit.value.id,
+            recipeId: recipe.id,
         }),
         {
             preserveScroll: true,
             onSuccess: () => {
-                // Then add it back with the new scale factor (update this part)
+                // Then add it back with the new scale factor
                 axios
                     .post(route('meal-plans.add-recipe'), {
                         meal_plan_id: props.mealPlan.id,
-                        recipe_id: recipeToEdit.value!.id,
-                        scale_factor: editScaleFactor.value,
+                        recipe_id: recipe.id,
+                        scale_factor: newScaleFactor,
                     })
                     .then(() => {
-                        showEditRecipeModal.value = false;
                         recipeToEdit.value = null;
                         // Refresh the meal plan data
                         router.reload({ only: ['mealPlan'] });
