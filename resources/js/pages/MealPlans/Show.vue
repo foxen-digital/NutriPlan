@@ -159,54 +159,15 @@
         />
 
         <!-- Generate Shopping List Modal -->
-        <Dialog :open="isGenerateShoppingListModalOpen" @update:open="isGenerateShoppingListModalOpen = $event">
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Generate Shopping List</DialogTitle>
-                    <DialogDescription>Create a shopping list from this meal plan.</DialogDescription>
-                </DialogHeader>
-                <form @submit.prevent="generateShoppingList">
-                    <div class="space-y-4 py-4">
-                        <!-- Add warning message if no meals are flagged to cook -->
-                        <div v-if="!hasMealsToCook" class="rounded-md bg-amber-50 p-4 dark:bg-amber-900/20">
-                            <div class="flex">
-                                <div class="ml-3">
-                                    <p class="text-sm font-medium text-amber-800 dark:text-amber-200">
-                                        No meals marked "to cook" in this meal plan. Please mark at least one meal as "to cook" before generating a
-                                        shopping list.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <Label for="list-name">Shopping List Name (Optional)</Label>
-                            <Input id="list-name" v-model="shoppingListForm.name" placeholder="e.g., Groceries for the week" />
-                            <p class="mt-1 text-xs text-gray-500">
-                                Leave blank to use "Shopping List for {{ props.mealPlan.name || 'Meal Plan' }} - {{ selectedPeriodLabel }}"
-                            </p>
-                        </div>
-                        <div>
-                            <Label for="period">Period</Label>
-                            <select
-                                id="period"
-                                v-model="shoppingListForm.period"
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:ring-gray-800 sm:text-sm sm:leading-6"
-                            >
-                                <option value="full">Full Plan ({{ formatPeriod('full') }})</option>
-                                <option v-if="props.mealPlan.duration === 14" value="week1">Week 1 ({{ formatPeriod('week1') }})</option>
-                                <option v-if="props.mealPlan.duration === 14" value="week2">Week 2 ({{ formatPeriod('week2') }})</option>
-                            </select>
-                            <InputError :message="shoppingListForm.errors.period" />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button type="button" variant="outline" @click="isGenerateShoppingListModalOpen = false">Cancel</Button>
-                        <Button type="submit" :disabled="!hasMealsToCook || shoppingListForm.processing">Generate List</Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+        <GenerateShoppingListModal
+            :open="isGenerateShoppingListModalOpen"
+            :meal-plan-id="mealPlan.id"
+            :meal-plan-name="mealPlan.name"
+            :meal-plan-start-date="mealPlan.start_date"
+            :meal-plan-duration="mealPlan.duration"
+            :has-meals-to-cook="hasMealsToCook"
+            @update:open="isGenerateShoppingListModalOpen = $event"
+        />
 
         <!-- Add Recipe Modal -->
         <AddRecipeModal v-model:open="showAddRecipeModal" :meal-plan-id="mealPlan.id" @recipe-added="handleRecipeAdded" />
@@ -248,20 +209,17 @@ import CopyPlanModal from '@/components/MealPlan/Modals/CopyPlanModal.vue';
 import DeleteConfirmationModal from '@/components/MealPlan/Modals/DeleteConfirmationModal.vue';
 import EditMealAssignmentModal from '@/components/MealPlan/Modals/EditMealAssignmentModal.vue';
 import EditRecipeScaleFactorModal from '@/components/MealPlan/Modals/EditRecipeScaleFactorModal.vue';
+import GenerateShoppingListModal from '@/components/MealPlan/Modals/GenerateShoppingListModal.vue';
 import RemoveRecipeModal from '@/components/MealPlan/Modals/RemoveRecipeModal.vue';
 import RecipeCard from '@/components/MealPlan/RecipeCard.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { InputError } from '@/components/ui/input-error';
-import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { MealAssignment, MealPlan, MealPlanDay } from '@/types/meal-plan';
 import type { Recipe } from '@/types/recipe';
 import { formatEndDate, formatStartDate } from '@/utils/date';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { CopyIcon, MenuIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
@@ -301,11 +259,6 @@ const selectedDay = ref<MealPlanDay | null>(null);
 const selectedAssignment = ref<MealAssignment | null>(null);
 const isCopyModalOpen = ref(false);
 const isGenerateShoppingListModalOpen = ref(false);
-
-const shoppingListForm = useForm({
-    name: '',
-    period: 'full',
-});
 
 const daysWithDates = computed(() => {
     if (!props.mealPlan.days || !props.mealPlan.start_date) {
@@ -437,65 +390,17 @@ function getToCookCount(day: MealPlanDay): number {
 }
 
 const showGenerateShoppingListModal = () => {
-    // Reset the form and show the modal
-    shoppingListForm.reset();
-    shoppingListForm.period = 'full';
     isGenerateShoppingListModalOpen.value = true;
-};
-
-const selectedPeriodLabel = computed(() => {
-    const period = shoppingListForm.period;
-    if (period === 'week1') return 'Week 1';
-    if (period === 'week2') return 'Week 2';
-    return 'Full Plan';
-});
-
-const formatPeriod = (period: 'full' | 'week1' | 'week2'): string => {
-    const startDate = new Date(props.mealPlan.start_date);
-    let endDate;
-
-    if (period === 'full') {
-        endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + props.mealPlan.duration - 1);
-    } else if (period === 'week1') {
-        endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 6);
-    } else {
-        // week2
-        const week2Start = new Date(startDate);
-        week2Start.setDate(week2Start.getDate() + 7);
-        endDate = new Date(week2Start);
-        endDate.setDate(endDate.getDate() + 6);
-        return `${formatShortDate(week2Start)} - ${formatShortDate(endDate)}`;
-    }
-
-    return `${formatShortDate(startDate)} - ${formatShortDate(endDate)}`;
-};
-
-const formatShortDate = (date: Date): string => {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-};
-
-const generateShoppingList = () => {
-    shoppingListForm.post(route('meal-plans.generate-shopping-list', props.mealPlan.id), {
-        onSuccess: () => {
-            isGenerateShoppingListModalOpen.value = false;
-            shoppingListForm.reset();
-        },
-    });
 };
 
 // Add a computed property to check if there are any meals to cook
 const hasMealsToCook = computed(() => {
     if (!props.mealPlan.days) return false;
-
     // Check if any day has at least one meal assignment marked as "to cook"
     return props.mealPlan.days.some((day) => day.meal_assignments && day.meal_assignments.some((assignment) => assignment.to_cook));
 });
 
 const handleRecipeAdded = () => {
-    // Handle the event when a new recipe is added
-    // This function should be implemented to refresh the meal plan data
     router.reload({ only: ['mealPlan'] });
 };
 </script>
