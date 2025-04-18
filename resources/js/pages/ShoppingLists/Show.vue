@@ -470,8 +470,7 @@ const sortedItems = computed(() => {
             return aOrder - bOrder;
         }
 
-        // Finally, sort by name as a fallback
-        return a.name.localeCompare(b.name);
+        return 0;
     });
 });
 
