@@ -20,6 +20,8 @@ use App\Http\Controllers\ShoppingListGenerationController;
 use App\Http\Controllers\ShoppingListItemOrderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Models\MealPlan;
+use App\Models\Recipe;
 
 Route::get('/', function () {
     return Inertia::render('Landing');
@@ -56,8 +58,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('meal-plans/{mealPlan}/copy', MealPlanCopyController::class)->name('meal-plans.copy');
     Route::post('meal-plans/{mealPlan}/shopping-list', ShoppingListGenerationController::class)->name('meal-plans.generate-shopping-list');
 
-    // Fix the parameter names to match the controller expectations
-    Route::delete('meal-plans/{id}/recipes/{recipeId}', [MealPlanRecipeController::class, 'destroy'])
+    Route::delete('meal-plans/{mealPlan}/recipes/{recipe}', [MealPlanRecipeController::class, 'destroy'])
          ->name('meal-plans.remove-recipe');
 
     // Shopping list routes
@@ -80,6 +81,26 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::get('/demo/toasts', function () {
     return Inertia::render('Demo/Toasts');
 })->middleware(['auth:sanctum'])->name('demo.toasts');
+
+// Add a debug route to check parameters
+Route::delete('/meal-plans/{mealPlan}/recipes/{recipe}/debug', function (MealPlan $mealPlan, Recipe $recipe) {
+    return [
+        'mealPlan' => $mealPlan->id,
+        'recipe' => $recipe->id,
+        'success' => true
+    ];
+})->name('meal-plans.remove-recipe.debug');
+
+// Add a temporary route to help with debugging
+Route::get('/test-route', function () {
+    $mealPlanId = 1;
+    $recipeId = 1;
+    $url = route('meal-plans.remove-recipe', [
+        'mealPlan' => $mealPlanId,
+        'recipe' => $recipeId,
+    ]);
+    return "Route URL: " . $url;
+})->name('test-route');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

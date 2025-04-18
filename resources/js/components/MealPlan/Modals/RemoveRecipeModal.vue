@@ -23,16 +23,27 @@ const closeModal = () => {
 const removeRecipe = () => {
     if (!props.recipe) return;
 
+    // Log details for debugging
+    console.log('mealPlanId:', props.mealPlanId, 'recipeId:', props.recipe.id);
+    
+    // Use array notation to match test format
+    const url = route('meal-plans.remove-recipe', [
+        props.mealPlanId,
+        props.recipe.id,
+    ]);
+    console.log('Removing recipe using URL:', url);
+
     router.delete(
-        route('meal-plans.remove-recipe', {
-            id: props.mealPlanId,
-            recipeId: props.recipe.id,
-        }),
+        url,
         {
             preserveScroll: true,
-            onSuccess: () => {
+            onSuccess: (page) => {
+                console.log('Success:', page);
                 closeModal();
             },
+            onError: (errors) => {
+                console.error('Error removing recipe:', errors);
+            }
         },
     );
 };

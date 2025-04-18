@@ -312,10 +312,10 @@ const handleUpdateRecipeScaleFactor = (recipe: RecipeWithPivot, newScaleFactor: 
 
     // First remove the recipe
     router.delete(
-        route('meal-plans.remove-recipe', {
-            id: props.mealPlan.id,
-            recipeId: recipe.id,
-        }),
+        route('meal-plans.remove-recipe', [
+            props.mealPlan.id,
+            recipe.slug,
+        ]),
         {
             preserveScroll: true,
             onSuccess: () => {
