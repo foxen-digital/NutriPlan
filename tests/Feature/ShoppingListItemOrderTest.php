@@ -71,10 +71,12 @@ test('cannot update item order with invalid items', function () {
     $invalidItemIds = array_merge($this->items->pluck('id')->toArray(), [$otherItem->id]);
 
     // Act
-    $response = $this->put(route('shopping-lists.items.order', $this->shoppingList), [
+    // Use putJson as this is an API-like endpoint
+    $response = $this->putJson(route('shopping-lists.items.order', $this->shoppingList), [
         'item_ids' => $invalidItemIds,
     ]);
 
     // Assert
-    $response->assertSessionHasErrors('item_ids.*');
+    $response->assertStatus(Illuminate\Http\Response::HTTP_UNPROCESSABLE_ENTITY); // Expect 422
+    $response->assertJsonValidationErrors(['item_ids.3']); // Expect JSON validation error for the invalid item
 });

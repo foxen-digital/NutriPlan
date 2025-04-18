@@ -18,10 +18,7 @@ class ShoppingListItemOrderController extends Controller
      */
     public function __invoke(UpdateItemOrderRequest $request, ShoppingList $shoppingList): JsonResponse
     {
-        // Check if user owns this shopping list
-        if ($shoppingList->user_id !== $request->user()->id) {
-            abort(Response::HTTP_FORBIDDEN);
-        }
+        // Authorization is handled by UpdateItemOrderRequest::authorize()
 
         $itemIds = $request->validated()['item_ids'];
 

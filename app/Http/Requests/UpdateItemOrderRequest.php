@@ -14,8 +14,11 @@ class UpdateItemOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // We can add policy checks later if needed
-        return true;
+        /** @var \App\Models\ShoppingList|null $shoppingList */
+        $shoppingList = $this->route('shoppingList');
+
+        // Check if the shopping list exists and the authenticated user owns it.
+        return $shoppingList && $shoppingList->user_id === $this->user()->id;
     }
 
     /**
