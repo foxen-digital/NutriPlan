@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Recipe;
+use App\Actions\AddRecipeToCollectionAction;
+use App\Http\Requests\StoreCollectionRecipeRequest;
 use App\Models\Collection;
+use App\Models\Recipe;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Http\RedirectResponse;
-use App\Actions\AddRecipeToCollectionAction;
 
 class CollectionRecipeController extends Controller
 {
@@ -19,20 +20,15 @@ class CollectionRecipeController extends Controller
      * This method handles the association between a recipe and a collection,
      * allowing users to organize recipes into their collections.
      *
-     * @param Request $request The HTTP request containing collection_id and recipe_id
+     * @param StoreCollectionRecipeRequest $request The HTTP request containing collection_id and recipe_id
      * @param AddRecipeToCollectionAction $action The action to handle the business logic
      */
-    public function store(Request $request, AddRecipeToCollectionAction $action): RedirectResponse
+    public function store(StoreCollectionRecipeRequest $request, AddRecipeToCollectionAction $action): RedirectResponse
     {
-        $request->validate([
-            'collection_id' => ['required', 'exists:collections,id'],
-            'recipe_id' => ['required', 'exists:recipes,id'],
-        ]);
+        $validatedData = $request->validated();
 
-        $collection = Collection::query()->findOrFail($request->input('collection_id'));
-        Gate::authorize('update', $collection);
-
-        $recipe = Recipe::query()->findOrFail($request->input('recipe_id'));
+        $collection = Collection::query()->findOrFail($validatedData['collection_id']);
+        $recipe = Recipe::query()->findOrFail($validatedData['recipe_id']);
 
         $action->handle($collection, $recipe);
 
