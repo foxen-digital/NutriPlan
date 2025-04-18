@@ -19,7 +19,7 @@
                             <TrashIcon class="mr-2 h-4 w-4" />
                             Delete
                         </Button>
-                        <Button variant="outline" @click="showCopyModal">
+                        <Button variant="outline" @click="isCopyModalOpen = true">
                             <CopyIcon class="mr-2 h-4 w-4" />
                             Copy Plan
                         </Button>
@@ -44,7 +44,7 @@
                             <ShoppingCartIcon class="mr-2 h-4 w-4" />
                             Generate Shopping List
                         </DropdownMenuItem>
-                        <DropdownMenuItem @click="showCopyModal">
+                        <DropdownMenuItem @click="isCopyModalOpen = true">
                             <CopyIcon class="mr-2 h-4 w-4" />
                             Copy Plan
                         </DropdownMenuItem>
@@ -150,53 +150,13 @@
         />
 
         <!-- Copy Meal Plan Modal -->
-        <Dialog :open="isCopyModalOpen" @update:open="isCopyModalOpen = $event">
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Copy Meal Plan</DialogTitle>
-                    <DialogDescription>Create a new meal plan by copying this one.</DialogDescription>
-                </DialogHeader>
-                <form @submit.prevent="copyMealPlan">
-                    <div class="space-y-4 py-4">
-                        <div>
-                            <Label for="name">New Plan Name (Optional)</Label>
-                            <Input id="name" v-model="copyForm.name" placeholder="e.g., Copy of Weekly Plan" />
-                            <p class="mt-1 text-xs text-gray-500">Leave blank to use "Copy of {{ props.mealPlan.name || 'Meal Plan' }}"</p>
-                        </div>
-                        <div>
-                            <Label for="start_date">Start Date</Label>
-                            <Input id="start_date" type="date" v-model="copyForm.start_date" required />
-                            <InputError :message="copyForm.errors.start_date" />
-                        </div>
-                        <div>
-                            <Label for="people_count">Number of People</Label>
-                            <div class="flex items-center space-x-2">
-                                <Button type="button" variant="outline" size="icon" @click="decrementPeople" :disabled="copyForm.people_count <= 1">
-                                    <MinusIcon class="h-4 w-4" />
-                                </Button>
-                                <Input
-                                    id="people_count"
-                                    type="number"
-                                    v-model="copyForm.people_count"
-                                    class="w-20 text-center"
-                                    min="1"
-                                    max="20"
-                                    required
-                                />
-                                <Button type="button" variant="outline" size="icon" @click="incrementPeople" :disabled="copyForm.people_count >= 20">
-                                    <PlusIcon class="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <InputError :message="copyForm.errors.people_count" />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button type="button" variant="outline" @click="isCopyModalOpen = false">Cancel</Button>
-                        <Button type="submit" :disabled="copyForm.processing">Copy Plan</Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+        <CopyPlanModal
+            :open="isCopyModalOpen"
+            :meal-plan-id="mealPlan.id"
+            :meal-plan-name="mealPlan.name"
+            :initial-people-count="mealPlan.people_count"
+            @update:open="isCopyModalOpen = $event"
+        />
 
         <!-- Generate Shopping List Modal -->
         <Dialog :open="isGenerateShoppingListModalOpen" @update:open="isGenerateShoppingListModalOpen = $event">
@@ -284,6 +244,7 @@
 import MealAssignmentCard from '@/components/MealPlan/MealAssignmentCard.vue';
 import AddMealAssignmentModal from '@/components/MealPlan/Modals/AddMealAssignmentModal.vue';
 import AddRecipeModal from '@/components/MealPlan/Modals/AddRecipeModal.vue';
+import CopyPlanModal from '@/components/MealPlan/Modals/CopyPlanModal.vue';
 import DeleteConfirmationModal from '@/components/MealPlan/Modals/DeleteConfirmationModal.vue';
 import EditMealAssignmentModal from '@/components/MealPlan/Modals/EditMealAssignmentModal.vue';
 import EditRecipeScaleFactorModal from '@/components/MealPlan/Modals/EditRecipeScaleFactorModal.vue';
@@ -302,7 +263,7 @@ import type { Recipe } from '@/types/recipe';
 import { formatEndDate, formatStartDate } from '@/utils/date';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
-import { CopyIcon, MenuIcon, MinusIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
+import { CopyIcon, MenuIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface RecipeWithPivot extends Recipe {
@@ -340,12 +301,6 @@ const selectedDay = ref<MealPlanDay | null>(null);
 const selectedAssignment = ref<MealAssignment | null>(null);
 const isCopyModalOpen = ref(false);
 const isGenerateShoppingListModalOpen = ref(false);
-
-const copyForm = useForm({
-    name: '',
-    start_date: new Date().toISOString().slice(0, 10), // Today's date in YYYY-MM-DD format
-    people_count: props.mealPlan.people_count,
-});
 
 const shoppingListForm = useForm({
     name: '',
@@ -480,33 +435,6 @@ function getToCookCount(day: MealPlanDay): number {
     }
     return day.meal_assignments.filter((a) => a.to_cook).length;
 }
-
-const showCopyModal = () => {
-    copyForm.name = '';
-    copyForm.start_date = new Date().toISOString().slice(0, 10);
-    copyForm.people_count = props.mealPlan.people_count;
-    isCopyModalOpen.value = true;
-};
-
-const incrementPeople = () => {
-    if (copyForm.people_count < 20) {
-        copyForm.people_count++;
-    }
-};
-
-const decrementPeople = () => {
-    if (copyForm.people_count > 1) {
-        copyForm.people_count--;
-    }
-};
-
-const copyMealPlan = () => {
-    copyForm.post(route('meal-plans.copy', props.mealPlan.id), {
-        onSuccess: () => {
-            isCopyModalOpen.value = false;
-        },
-    });
-};
 
 const showGenerateShoppingListModal = () => {
     // Reset the form and show the modal
