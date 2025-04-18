@@ -54,7 +54,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     ]);
     Route::post('meal-plans/add-recipe', [MealPlanRecipeController::class, 'store'])->name('meal-plans.add-recipe');
     Route::post('meal-plans/{mealPlan}/copy', MealPlanCopyController::class)->name('meal-plans.copy');
-    Route::post('meal-plans/{mealPlan}/shopping-list', [ShoppingListGenerationController::class, 'store'])->name('meal-plans.generate-shopping-list');
+    Route::post('meal-plans/{mealPlan}/shopping-list', ShoppingListGenerationController::class)->name('meal-plans.generate-shopping-list');
 
     // Fix the parameter names to match the controller expectations
     Route::delete('meal-plans/{id}/recipes/{recipeId}', [MealPlanRecipeController::class, 'destroy'])

@@ -21,7 +21,7 @@ class ShoppingListGenerationController extends Controller
      * Automatically generates a default name, can be overridden.
      * POST /meal-plans/{mealPlan}/shopping-list
      */
-    public function store(GenerateShoppingListRequest $request, MealPlan $mealPlan): RedirectResponse
+    public function __invoke(GenerateShoppingListRequest $request, MealPlan $mealPlan): RedirectResponse
     {
         $validated = $request->validated();
 
