@@ -255,65 +255,7 @@
         </Dialog>
 
         <!-- Add Recipe Modal -->
-        <Dialog :open="showAddRecipeModal" @update:open="showAddRecipeModal = $event">
-            <DialogContent class="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Add Recipe to Meal Plan</DialogTitle>
-                    <DialogDescription> Search for a recipe to add to your meal plan. </DialogDescription>
-                </DialogHeader>
-                <div class="space-y-4 py-4">
-                    <div class="space-y-2">
-                        <Label for="recipe-search">Search Recipes</Label>
-                        <div class="relative">
-                            <Input id="recipe-search" v-model="searchQuery" placeholder="Type to search..." @input="debounceSearch" />
-                            <div v-if="isSearching" class="absolute right-3 top-2.5">
-                                <Spinner class="h-5 w-5 text-gray-400" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-if="searchResults.length > 0" class="max-h-60 overflow-y-auto rounded-md border p-2 dark:border-gray-700">
-                        <div
-                            v-for="recipe in searchResults"
-                            :key="recipe.id"
-                            class="cursor-pointer rounded-md p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            @click="selectRecipe(recipe)"
-                        >
-                            <div class="flex items-center gap-3">
-                                <div v-if="recipe.images && recipe.images.length > 0" class="h-10 w-10 overflow-hidden rounded-md">
-                                    <img :src="recipe.images[0]" alt="" class="h-full w-full object-cover" />
-                                </div>
-                                <div>
-                                    <p class="font-medium">{{ recipe.title }}</p>
-                                    <p class="text-xs text-gray-500">{{ recipe.servings }} servings</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-if="searchQuery && !isSearching && searchResults.length === 0" class="rounded-md bg-gray-50 p-3 dark:bg-gray-800">
-                        <p class="text-center text-sm text-gray-500">No recipes found matching your search.</p>
-                    </div>
-
-                    <div v-if="selectedRecipe" class="rounded-md border p-3 dark:border-gray-700">
-                        <h3 class="font-medium">{{ selectedRecipe.title }}</h3>
-                        <div class="mt-3 space-y-2">
-                            <div>
-                                <Label for="scale-factor">Scale Factor</Label>
-                                <Input id="scale-factor" v-model.number="scaleFactor" type="number" min="0.5" max="10" step="0.5" />
-                                <p class="mt-1 text-xs text-gray-500">
-                                    This will make approximately {{ calculateServings(selectedRecipe.servings, scaleFactor) }} servings
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" @click="showAddRecipeModal = false">Cancel</Button>
-                    <Button :disabled="!selectedRecipe" @click="addRecipeToMealPlan"> Add Recipe </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <AddRecipeModal v-model:open="showAddRecipeModal" :meal-plan-id="mealPlan.id" @recipe-added="handleRecipeAdded" />
 
         <!-- Edit Recipe Scale Factor Modal -->
         <Dialog :open="showEditRecipeModal" @update:open="showEditRecipeModal = $event">
@@ -407,6 +349,7 @@
 
 <script setup lang="ts">
 import MealAssignmentCard from '@/components/MealPlan/MealAssignmentCard.vue';
+import AddRecipeModal from '@/components/MealPlan/Modals/AddRecipeModal.vue';
 import DeleteConfirmationModal from '@/components/MealPlan/Modals/DeleteConfirmationModal.vue';
 import RecipeCard from '@/components/MealPlan/RecipeCard.vue';
 import { Badge } from '@/components/ui/badge';
@@ -418,7 +361,6 @@ import { Input } from '@/components/ui/input';
 import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
-import Spinner from '@/components/ui/spinner.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { MealAssignment, MealPlan, MealPlanDay } from '@/types/meal-plan';
 import type { Recipe } from '@/types/recipe';
@@ -472,11 +414,6 @@ const showEditRecipeModal = ref(false);
 const recipeToRemove = ref<RecipeWithPivot | null>(null);
 const recipeToEdit = ref<RecipeWithPivot | null>(null);
 
-const searchQuery = ref('');
-const searchResults = ref<Recipe[]>([]);
-const isSearching = ref(false);
-const selectedRecipe = ref<Recipe | null>(null);
-const scaleFactor = ref(1.0);
 const editScaleFactor = ref(1.0);
 
 const showEditAssignmentModal = ref(false);
@@ -542,67 +479,8 @@ const confirmDeleteMealPlan = () => {
     showDeleteDialog.value = true;
 };
 
-let searchTimeout: ReturnType<typeof setTimeout>;
-
-const debounceSearch = () => {
-    clearTimeout(searchTimeout);
-    if (searchQuery.value) {
-        isSearching.value = true;
-        searchTimeout = setTimeout(() => {
-            searchRecipes();
-        }, 300);
-    } else {
-        searchResults.value = [];
-        isSearching.value = false;
-    }
-};
-
-const searchRecipes = async () => {
-    try {
-        const response = await axios.get(route('api.recipes.search'), {
-            params: { query: searchQuery.value },
-            withCredentials: true,
-        });
-        searchResults.value = response.data.data;
-    } catch (error) {
-        console.error('Error searching recipes:', error);
-        searchResults.value = [];
-    } finally {
-        isSearching.value = false;
-    }
-};
-
-const selectRecipe = (recipe: Recipe) => {
-    selectedRecipe.value = recipe;
-    scaleFactor.value = 1.0;
-    searchQuery.value = '';
-    searchResults.value = [];
-};
-
 const calculateServings = (originalServings: number, scaleFactor: number): number => {
     return Math.round(originalServings * scaleFactor);
-};
-
-const addRecipeToMealPlan = () => {
-    if (!selectedRecipe.value) return;
-
-    axios
-        .post(route('meal-plans.add-recipe'), {
-            meal_plan_id: props.mealPlan.id,
-            recipe_id: selectedRecipe.value.id,
-            scale_factor: scaleFactor.value,
-        })
-        .then(() => {
-            showAddRecipeModal.value = false;
-            selectedRecipe.value = null;
-            scaleFactor.value = 1.0;
-
-            // Refresh the meal plan data
-            router.reload({ only: ['mealPlan'] });
-        })
-        .catch((error) => {
-            console.error('Error adding recipe to meal plan:', error);
-        });
 };
 
 const confirmRemoveRecipe = (recipe: RecipeWithPivot) => {
@@ -796,7 +674,7 @@ const formatPeriod = (period: 'full' | 'week1' | 'week2'): string => {
         endDate.setDate(endDate.getDate() + props.mealPlan.duration - 1);
     } else if (period === 'week1') {
         endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + 6);
+        endDate.setDate(startDate.getDate() + 6);
     } else {
         // week2
         const week2Start = new Date(startDate);
@@ -829,4 +707,10 @@ const hasMealsToCook = computed(() => {
     // Check if any day has at least one meal assignment marked as "to cook"
     return props.mealPlan.days.some((day) => day.meal_assignments && day.meal_assignments.some((assignment) => assignment.to_cook));
 });
+
+const handleRecipeAdded = () => {
+    // Handle the event when a new recipe is added
+    // This function should be implemented to refresh the meal plan data
+    router.reload({ only: ['mealPlan'] });
+};
 </script>
