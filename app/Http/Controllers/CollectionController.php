@@ -20,7 +20,7 @@ class CollectionController extends Controller
     public function index(Request $request): Response|\Illuminate\Http\JsonResponse
     {
         $collections = Collection::query()
-            ->where('user_id', auth()->id())
+            ->where('user_id', $request->user()->id)
             ->withCount('recipes')
             ->latest()
             ->get();
@@ -51,8 +51,7 @@ class CollectionController extends Controller
 
     public function store(CreateCollectionRequest $request, CreateCollectionAction $action): RedirectResponse
     {
-        $user = $request->user();
-        $action->handle($user, $request->validated());
+        $action->handle($request->user(), $request->validated());
 
         return redirect()->route('collections.index')
             ->with('success', 'Collection created successfully.');

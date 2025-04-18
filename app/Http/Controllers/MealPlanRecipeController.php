@@ -57,12 +57,6 @@ class MealPlanRecipeController extends Controller
      */
     public function destroy(string $id, string $recipeId): RedirectResponse
     {
-        // Debug info
-        \Log::info('MealPlanRecipeController@destroy called', [
-            'mealPlanId' => $id,
-            'recipeId' => $recipeId,
-        ]);
-
         $mealPlan = MealPlan::findOrFail($id);
         $recipe = Recipe::findOrFail($recipeId);
 
