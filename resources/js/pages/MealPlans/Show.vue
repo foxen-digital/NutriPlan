@@ -142,18 +142,12 @@
         <DeleteConfirmationModal :open="showDeleteDialog" @update:open="showDeleteDialog = $event" @confirm="deleteMealPlan" />
 
         <!-- Remove Recipe Confirmation Modal -->
-        <Dialog :open="showRemoveRecipeDialog" @update:open="showRemoveRecipeDialog = $event">
-            <DialogContent class="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Remove Recipe</DialogTitle>
-                    <DialogDescription> Are you sure you want to remove "{{ recipeToRemove?.title }}" from this meal plan? </DialogDescription>
-                </DialogHeader>
-                <div class="flex items-center justify-end space-x-2 pt-4">
-                    <Button variant="outline" @click="showRemoveRecipeDialog = false">Cancel</Button>
-                    <Button variant="destructive" @click="removeRecipe">Remove</Button>
-                </div>
-            </DialogContent>
-        </Dialog>
+        <RemoveRecipeModal
+            :open="showRemoveRecipeDialog"
+            :recipe="recipeToRemove"
+            :meal-plan-id="mealPlan.id"
+            @update:open="showRemoveRecipeDialog = $event"
+        />
 
         <!-- Copy Meal Plan Modal -->
         <Dialog :open="isCopyModalOpen" @update:open="isCopyModalOpen = $event">
@@ -337,6 +331,7 @@ import MealAssignmentCard from '@/components/MealPlan/MealAssignmentCard.vue';
 import AddRecipeModal from '@/components/MealPlan/Modals/AddRecipeModal.vue';
 import DeleteConfirmationModal from '@/components/MealPlan/Modals/DeleteConfirmationModal.vue';
 import EditRecipeScaleFactorModal from '@/components/MealPlan/Modals/EditRecipeScaleFactorModal.vue';
+import RemoveRecipeModal from '@/components/MealPlan/Modals/RemoveRecipeModal.vue';
 import RecipeCard from '@/components/MealPlan/RecipeCard.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -467,24 +462,6 @@ const confirmRemoveRecipe = (recipe: RecipeWithPivot) => {
     console.log('Confirming removal of recipe:', recipe.title);
     recipeToRemove.value = recipe;
     showRemoveRecipeDialog.value = true;
-};
-
-const removeRecipe = () => {
-    if (!recipeToRemove.value) return;
-    console.log('Removing recipe:', recipeToRemove.value.title);
-    router.delete(
-        route('meal-plans.remove-recipe', {
-            id: props.mealPlan.id,
-            recipeId: recipeToRemove.value.id,
-        }),
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                showRemoveRecipeDialog.value = false;
-                recipeToRemove.value = null;
-            },
-        },
-    );
 };
 
 const editRecipeInPlan = (recipe: RecipeWithPivot) => {
