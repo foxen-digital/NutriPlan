@@ -16,17 +16,17 @@ class StoreMealPlanRecipeRequest extends FormRequest
     public function authorize(): bool
     {
         $mealPlanId = $this->input('meal_plan_id');
-        
+
         if (!$mealPlanId) {
             return false;
         }
-        
+
         $mealPlan = MealPlan::find($mealPlanId);
-        
+
         if (!$mealPlan) {
             return false;
         }
-        
+
         return Gate::allows('update', $mealPlan);
     }
 
@@ -43,15 +43,14 @@ class StoreMealPlanRecipeRequest extends FormRequest
             'scale_factor' => 'nullable|numeric|min:0.01|max:100',
         ];
     }
-    
+
     /**
      * Handle a failed authorization attempt.
      *
-     * @return void
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    protected function failedAuthorization()
+    protected function failedAuthorization(): void
     {
         // Only throw an authorization exception if the validation would pass
         if ($this->input('meal_plan_id') && MealPlan::find($this->input('meal_plan_id'))) {

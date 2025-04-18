@@ -311,32 +311,26 @@ const handleUpdateRecipeScaleFactor = (recipe: RecipeWithPivot, newScaleFactor: 
     showEditRecipeModal.value = false;
 
     // First remove the recipe
-    router.delete(
-        route('meal-plans.remove-recipe', [
-            props.mealPlan.id,
-            recipe.slug,
-        ]),
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                // Then add it back with the new scale factor
-                axios
-                    .post(route('meal-plans.add-recipe'), {
-                        meal_plan_id: props.mealPlan.id,
-                        recipe_id: recipe.id,
-                        scale_factor: newScaleFactor,
-                    })
-                    .then(() => {
-                        recipeToEdit.value = null;
-                        // Refresh the meal plan data
-                        router.reload({ only: ['mealPlan'] });
-                    })
-                    .catch((error) => {
-                        console.error('Error updating recipe scale factor:', error);
-                    });
-            },
+    router.delete(route('meal-plans.remove-recipe', [props.mealPlan.id, recipe.slug]), {
+        preserveScroll: true,
+        onSuccess: () => {
+            // Then add it back with the new scale factor
+            axios
+                .post(route('meal-plans.add-recipe'), {
+                    meal_plan_id: props.mealPlan.id,
+                    recipe_id: recipe.id,
+                    scale_factor: newScaleFactor,
+                })
+                .then(() => {
+                    recipeToEdit.value = null;
+                    // Refresh the meal plan data
+                    router.reload({ only: ['mealPlan'] });
+                })
+                .catch((error) => {
+                    console.error('Error updating recipe scale factor:', error);
+                });
         },
-    );
+    });
 };
 
 const availableRecipes = computed(() => {

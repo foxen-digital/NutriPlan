@@ -9,8 +9,6 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
-use Mockery\MockInterface;
 
 uses(RefreshDatabase::class);
 
@@ -93,34 +91,34 @@ test('validation fails when scale_factor is greater than 100', function () {
 
 test('authorize returns true when user owns meal plan', function () {
     $this->actingAs($this->user);
-    
+
     Gate::shouldReceive('allows')
         ->once()
         ->with('update', Mockery::type(MealPlan::class))
         ->andReturn(true);
-    
+
     $this->request->merge(['meal_plan_id' => $this->mealPlan->id]);
-    
+
     expect($this->request->authorize())->toBeTrue();
 });
 
 test('authorize returns false when user does not own meal plan', function () {
     $otherUser = User::factory()->create();
     $this->actingAs($otherUser);
-    
+
     Gate::shouldReceive('allows')
         ->once()
         ->with('update', Mockery::type(MealPlan::class))
         ->andReturn(false);
-    
+
     $this->request->merge(['meal_plan_id' => $this->mealPlan->id]);
-    
+
     expect($this->request->authorize())->toBeFalse();
 });
 
 test('authorize returns false when meal plan does not exist', function () {
     $this->request->merge(['meal_plan_id' => 999]);
-    
+
     expect($this->request->authorize())->toBeFalse();
 });
 

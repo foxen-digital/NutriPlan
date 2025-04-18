@@ -22,4 +22,4 @@ class UserResource extends JsonResource
             'slug' => $this->slug,
         ];
     }
-} 
+}

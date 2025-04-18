@@ -16,14 +16,11 @@ class MealPlanRecipeController extends Controller
 {
     /**
      * Add a recipe to a meal plan.
-     *
-     * @param StoreMealPlanRecipeRequest $request
-     * @return JsonResponse
      */
     public function store(StoreMealPlanRecipeRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        
+
         $mealPlan = MealPlan::findOrFail($validated['meal_plan_id']);
         $recipeId = $validated['recipe_id'];
         $scaleFactor = $validated['scale_factor'] ?? 1.0;
@@ -50,10 +47,6 @@ class MealPlanRecipeController extends Controller
 
     /**
      * Remove a recipe from a meal plan.
-     *
-     * @param MealPlan $mealPlan
-     * @param Recipe $recipe
-     * @return RedirectResponse
      */
     public function destroy(MealPlan $mealPlan, Recipe $recipe): RedirectResponse
     {
@@ -61,7 +54,7 @@ class MealPlanRecipeController extends Controller
             'mealPlanId' => $mealPlan->id,
             'recipeId' => $recipe->id
         ]);
-        
+
         Gate::authorize('update', $mealPlan);
 
         $mealPlan->recipes()->detach($recipe->id);

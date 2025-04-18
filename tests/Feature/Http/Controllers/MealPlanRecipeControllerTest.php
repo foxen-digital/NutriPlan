@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -90,7 +89,7 @@ test('scale_factor must be numeric and within range', function () {
             'scale_factor' => 0.001,
         ])
         ->assertJsonValidationErrors(['scale_factor']);
-    
+
     // Too large
     $this->actingAs($this->user)
         ->postJson(route('meal-plans.add-recipe'), [
@@ -99,7 +98,7 @@ test('scale_factor must be numeric and within range', function () {
             'scale_factor' => 150,
         ])
         ->assertJsonValidationErrors(['scale_factor']);
-    
+
     // Not numeric
     $this->actingAs($this->user)
         ->postJson(route('meal-plans.add-recipe'), [
@@ -118,7 +117,7 @@ test('adding a recipe that already exists in meal plan does not duplicate it', f
             'recipe_id' => $this->recipe->id,
             'scale_factor' => 1.0,
         ]);
-    
+
     // Try to add the same recipe again
     $this->actingAs($this->user)
         ->postJson(route('meal-plans.add-recipe'), [
@@ -126,10 +125,10 @@ test('adding a recipe that already exists in meal plan does not duplicate it', f
             'recipe_id' => $this->recipe->id,
             'scale_factor' => 2.0, // Even with different scale factor
         ]);
-    
+
     // Verify there's only one record
     $this->assertDatabaseCount('meal_plan_recipe', 1);
-    
+
     // And it still has the original scale factor
     $this->assertDatabaseHas('meal_plan_recipe', [
         'meal_plan_id' => $this->mealPlan->id,
@@ -145,7 +144,7 @@ test('authenticated user can remove a recipe from their meal plan', function () 
     $this->mealPlan->recipes()->attach($this->recipe->id, [
         'scale_factor' => 1.0,
     ]);
-    
+
     // Remove recipe
     $this->actingAs($this->user)
         ->delete(route('meal-plans.remove-recipe', [
@@ -153,7 +152,7 @@ test('authenticated user can remove a recipe from their meal plan', function () 
             'recipe' => $this->recipe,
         ]))
         ->assertRedirect();
-    
+
     // Verify recipe was removed
     $this->assertDatabaseMissing('meal_plan_recipe', [
         'meal_plan_id' => $this->mealPlan->id,
@@ -164,14 +163,14 @@ test('authenticated user can remove a recipe from their meal plan', function () 
 test('authenticated user cannot remove a recipe from another users meal plan', function () {
     $otherUserMealPlan = MealPlan::factory()->create(['user_id' => $this->anotherUser->id]);
     $otherUserMealPlan->recipes()->attach($this->recipe->id);
-    
+
     $this->actingAs($this->user)
         ->delete(route('meal-plans.remove-recipe', [
             'mealPlan' => $otherUserMealPlan,
             'recipe' => $this->recipe,
         ]))
         ->assertForbidden();
-    
+
     $this->assertDatabaseHas('meal_plan_recipe', [
         'meal_plan_id' => $otherUserMealPlan->id,
         'recipe_id' => $this->recipe->id,
@@ -180,13 +179,13 @@ test('authenticated user cannot remove a recipe from another users meal plan', f
 
 test('unauthenticated user cannot remove a recipe from a meal plan', function () {
     $this->mealPlan->recipes()->attach($this->recipe->id);
-    
+
     $this->delete(route('meal-plans.remove-recipe', [
         'mealPlan' => $this->mealPlan,
         'recipe' => $this->recipe,
     ]))
     ->assertRedirect(route('login'));
-    
+
     $this->assertDatabaseHas('meal_plan_recipe', [
         'meal_plan_id' => $this->mealPlan->id,
         'recipe_id' => $this->recipe->id,

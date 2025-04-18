@@ -1,5 +1,5 @@
 declare global {
-    var route: (name: string) => string;
+    let route: (name: string) => string;
 }
 
 export {};

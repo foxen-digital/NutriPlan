@@ -47,8 +47,6 @@ class RecipeImportCompleted implements ShouldBroadcast
 
     /**
      * The event's broadcast name.
-     *
-     * @return string
      */
     public function broadcastAs(): string
     {

@@ -19,9 +19,6 @@ class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource, filtered by categories with visible recipes.
-     *
-     * @param Request $request
-     * @return InertiaResponse
      */
     public function index(Request $request): InertiaResponse
     {
@@ -50,9 +47,6 @@ class CategoryController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param StoreCategoryRequest $request
-     * @return JsonResponse
      */
     public function store(StoreCategoryRequest $request): JsonResponse
     {
@@ -68,10 +62,6 @@ class CategoryController extends Controller
 
     /**
      * Display the specified resource's recipes.
-     *
-     * @param Category $category
-     * @param Request $request
-     * @return InertiaResponse
      */
     public function show(Category $category, Request $request): InertiaResponse
     {

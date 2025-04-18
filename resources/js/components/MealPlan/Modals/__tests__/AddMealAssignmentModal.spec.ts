@@ -25,7 +25,7 @@ vi.mock('@inertiajs/vue3', async (importOriginal) => {
 });
 
 // Mock route function
-vi.stubGlobal('route', (name: string, params?: any) => {
+vi.stubGlobal('route', (name: string) => {
     return `/api/route/${name}`;
 });
 

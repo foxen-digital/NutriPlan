@@ -25,27 +25,21 @@ const removeRecipe = () => {
 
     // Log details for debugging
     console.log('mealPlanId:', props.mealPlanId, 'recipeId:', props.recipe.id);
-    
+
     // Use array notation to match test format
-    const url = route('meal-plans.remove-recipe', [
-        props.mealPlanId,
-        props.recipe.id,
-    ]);
+    const url = route('meal-plans.remove-recipe', [props.mealPlanId, props.recipe.id]);
     console.log('Removing recipe using URL:', url);
 
-    router.delete(
-        url,
-        {
-            preserveScroll: true,
-            onSuccess: (page) => {
-                console.log('Success:', page);
-                closeModal();
-            },
-            onError: (errors) => {
-                console.error('Error removing recipe:', errors);
-            }
+    router.delete(url, {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            console.log('Success:', page);
+            closeModal();
         },
-    );
+        onError: (errors) => {
+            console.error('Error removing recipe:', errors);
+        },
+    });
 };
 </script>
 
