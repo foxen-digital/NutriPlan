@@ -260,88 +260,42 @@
         />
 
         <!-- START: Add Meal Assignment Modal -->
-        <Dialog :open="showAssignMealModal" @update:open="showAssignMealModal = $event">
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Add Meal to Day</DialogTitle>
-                    <DialogDescription>Select a recipe and specify the number of servings.</DialogDescription>
-                </DialogHeader>
-                <InputError v-if="assignmentForm.errors.error" :message="assignmentForm.errors.error" class="mt-2" />
-
-                <form @submit.prevent="addMealAssignment" class="space-y-4">
-                    <div>
-                        <Label for="recipe">Recipe</Label>
-                        <Select id="recipe" v-model="assignmentForm.meal_plan_recipe_id" :options="availableRecipes" class="mt-1 block w-full" />
-                        <InputError :message="assignmentForm.errors.meal_plan_recipe_id" class="mt-2" />
-                    </div>
-                    <div>
-                        <Label for="servings">Servings</Label>
-                        <Input id="servings" v-model="assignmentForm.servings" type="number" step="1" min="1" max="20" class="mt-1 block w-full" />
-                        <InputError :message="assignmentForm.errors.servings" class="mt-2" />
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <Checkbox id="to_cook" v-model="assignmentForm.to_cook" />
-                        <Label for="to_cook" class="font-normal">Mark as "to cook"</Label>
-                    </div>
-                    <DialogFooter>
-                        <Button type="button" variant="secondary" @click="showAssignMealModal = false">Cancel</Button>
-                        <Button type="submit" :disabled="assignmentForm.processing">Add Meal</Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+        <AddMealAssignmentModal
+            :open="showAssignMealModal"
+            :meal-plan-day="selectedDay"
+            :available-recipes="availableRecipes"
+            @update:open="showAssignMealModal = $event"
+            @meal-added="router.reload({ only: ['mealPlan'] })"
+        />
         <!-- END: Add Meal Assignment Modal -->
 
         <!-- START: Edit Meal Assignment Modal -->
-        <Dialog :open="showEditAssignmentModal" @update:open="showEditAssignmentModal = $event">
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Edit Meal Assignment</DialogTitle>
-                    <DialogDescription>Update the number of servings for this meal.</DialogDescription>
-                </DialogHeader>
-                <InputError v-if="editAssignmentForm.errors.error" :message="editAssignmentForm.errors.error" class="mt-2" />
-
-                <form @submit.prevent="updateMealAssignment" class="space-y-4">
-                    <div>
-                        <Label for="edit-servings">Servings</Label>
-                        <Input
-                            id="edit-servings"
-                            v-model="editAssignmentForm.servings"
-                            type="number"
-                            step="1"
-                            min="1"
-                            max="20"
-                            class="mt-1 block w-full"
-                        />
-                        <InputError :message="editAssignmentForm.errors.servings" class="mt-2" />
-                    </div>
-                    <DialogFooter>
-                        <Button type="button" variant="secondary" @click="showEditAssignmentModal = false">Cancel</Button>
-                        <Button type="submit" :disabled="editAssignmentForm.processing">Update</Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+        <EditMealAssignmentModal
+            :open="showEditAssignmentModal"
+            :assignment="selectedAssignment"
+            @update:open="showEditAssignmentModal = $event"
+            @assignment-updated="router.reload({ only: ['mealPlan'] })"
+        />
         <!-- END: Edit Meal Assignment Modal -->
     </AppLayout>
 </template>
 
 <script setup lang="ts">
 import MealAssignmentCard from '@/components/MealPlan/MealAssignmentCard.vue';
+import AddMealAssignmentModal from '@/components/MealPlan/Modals/AddMealAssignmentModal.vue';
 import AddRecipeModal from '@/components/MealPlan/Modals/AddRecipeModal.vue';
 import DeleteConfirmationModal from '@/components/MealPlan/Modals/DeleteConfirmationModal.vue';
+import EditMealAssignmentModal from '@/components/MealPlan/Modals/EditMealAssignmentModal.vue';
 import EditRecipeScaleFactorModal from '@/components/MealPlan/Modals/EditRecipeScaleFactorModal.vue';
 import RemoveRecipeModal from '@/components/MealPlan/Modals/RemoveRecipeModal.vue';
 import RecipeCard from '@/components/MealPlan/RecipeCard.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { MealAssignment, MealPlan, MealPlanDay } from '@/types/meal-plan';
 import type { Recipe } from '@/types/recipe';
@@ -371,21 +325,6 @@ interface Props {
     }>;
 }
 
-interface AssignmentFormData {
-    meal_plan_day_id: string;
-    meal_plan_recipe_id: string;
-    servings: number;
-    to_cook: boolean;
-    error?: string;
-    [key: string]: any;
-}
-
-interface EditAssignmentFormData {
-    servings: number;
-    error?: string;
-    [key: string]: any;
-}
-
 const props = defineProps<Props>();
 
 const showDeleteDialog = ref(false);
@@ -406,17 +345,6 @@ const copyForm = useForm({
     name: '',
     start_date: new Date().toISOString().slice(0, 10), // Today's date in YYYY-MM-DD format
     people_count: props.mealPlan.people_count,
-});
-
-const assignmentForm = useForm<AssignmentFormData>({
-    meal_plan_day_id: '',
-    meal_plan_recipe_id: '',
-    servings: 1,
-    to_cook: false,
-});
-
-const editAssignmentForm = useForm<EditAssignmentFormData>({
-    servings: 1,
 });
 
 const shoppingListForm = useForm({
@@ -517,37 +445,12 @@ const availableRecipes = computed(() => {
 
 function showAddMealAssignmentModal(day: MealPlanDay) {
     selectedDay.value = day;
-    assignmentForm.meal_plan_day_id = day.id.toString();
     showAssignMealModal.value = true;
-}
-
-async function addMealAssignment() {
-    await assignmentForm.post(route('meal-assignments.store'), {
-        preserveScroll: true,
-        onSuccess: () => {
-            showAssignMealModal.value = false;
-            assignmentForm.reset();
-        },
-    });
 }
 
 function editMealAssignment(assignment: MealAssignment) {
     selectedAssignment.value = assignment;
-    editAssignmentForm.servings = assignment.servings;
     showEditAssignmentModal.value = true;
-}
-
-async function updateMealAssignment() {
-    if (!selectedAssignment.value) return;
-
-    await editAssignmentForm.put(route('meal-assignments.update', selectedAssignment.value.id), {
-        preserveScroll: true,
-        onSuccess: () => {
-            showEditAssignmentModal.value = false;
-            editAssignmentForm.reset();
-            selectedAssignment.value = null;
-        },
-    });
 }
 
 async function removeMealAssignment(assignment: MealAssignment) {
