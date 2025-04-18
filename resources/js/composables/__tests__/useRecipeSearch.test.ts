@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useRecipeSearch } from '../useRecipeSearch';
-import axios from 'axios';
 import type { Recipe } from '@/types/recipe';
+import axios from 'axios';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useRecipeSearch } from '../useRecipeSearch';
 
 vi.mock('axios');
 
@@ -29,8 +29,8 @@ describe('useRecipeSearch', () => {
             {
                 id: 1,
                 name: 'Test Category',
-                slug: 'test-category'
-            }
+                slug: 'test-category',
+            },
         ],
         ingredients: [
             {
@@ -39,10 +39,10 @@ describe('useRecipeSearch', () => {
                 pivot: {
                     amount: 1,
                     unit: 'cup',
-                    description: 'Test Description'
-                }
-            }
-        ]
+                    description: 'Test Description',
+                },
+            },
+        ],
     };
 
     beforeEach(() => {
@@ -64,7 +64,7 @@ describe('useRecipeSearch', () => {
         const mockResponse = { data: { data: [mockRecipe] } };
 
         vi.mocked(axios.get).mockResolvedValueOnce(mockResponse);
-        
+
         searchQuery.value = 'test';
         debounceSearch();
 
@@ -73,24 +73,21 @@ describe('useRecipeSearch', () => {
 
         await vi.advanceTimersByTimeAsync(300);
 
-        expect(axios.get).toHaveBeenCalledWith(
-            'mocked-route/api.recipes.search',
-            {
-                params: { query: 'test' },
-                withCredentials: true,
-            }
-        );
+        expect(axios.get).toHaveBeenCalledWith('mocked-route/api.recipes.search', {
+            params: { query: 'test' },
+            withCredentials: true,
+        });
         expect(searchResults.value).toEqual([mockRecipe]);
         expect(isSearching.value).toBe(false);
     });
 
     it('clears search results when query is empty', () => {
         const { searchQuery, searchResults, isSearching, debounceSearch } = useRecipeSearch();
-        
+
         searchResults.value = [mockRecipe];
         isSearching.value = true;
         searchQuery.value = '';
-        
+
         debounceSearch();
 
         expect(searchResults.value).toEqual([]);
@@ -99,9 +96,9 @@ describe('useRecipeSearch', () => {
 
     it('handles API error gracefully', async () => {
         const { searchQuery, searchResults, isSearching, debounceSearch } = useRecipeSearch();
-        
+
         vi.mocked(axios.get).mockRejectedValueOnce(new Error('API Error'));
-        
+
         searchQuery.value = 'test';
         debounceSearch();
 
@@ -113,10 +110,10 @@ describe('useRecipeSearch', () => {
 
     it('selects a recipe correctly', () => {
         const { selectedRecipe, searchQuery, searchResults, selectRecipe } = useRecipeSearch();
-        
+
         searchQuery.value = 'test';
         searchResults.value = [mockRecipe];
-        
+
         selectRecipe(mockRecipe);
 
         expect(selectedRecipe.value).toEqual(mockRecipe);
@@ -126,15 +123,15 @@ describe('useRecipeSearch', () => {
 
     it('clears selection correctly', () => {
         const { selectedRecipe, searchQuery, searchResults, clearSelection } = useRecipeSearch();
-        
+
         selectedRecipe.value = mockRecipe;
         searchQuery.value = 'test';
         searchResults.value = [mockRecipe];
-        
+
         clearSelection();
 
         expect(selectedRecipe.value).toBeNull();
         expect(searchQuery.value).toBe('');
         expect(searchResults.value).toEqual([]);
     });
-}); 
+});

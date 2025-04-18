@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateItemOrderRequest;
 use App\Models\ShoppingList;
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 class ShoppingListItemOrderController extends Controller
 {

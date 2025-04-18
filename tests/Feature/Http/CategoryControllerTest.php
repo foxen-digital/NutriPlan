@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Models\Recipe;
 use App\Models\User;
@@ -74,7 +73,9 @@ test('category show page displays recipes filtered by category', function () {
         fn (AssertableInertia $page) => $page
         ->component('Recipes/Index')
         ->has('recipes.data', $categoryRecipes->count())
-        ->has('category', fn (AssertableInertia $prop) =>
+        ->has(
+            'category',
+            fn (AssertableInertia $prop) =>
             $prop->where('id', $category->id)
                  ->where('name', $category->name)
                  ->has('id')

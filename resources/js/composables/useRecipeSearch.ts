@@ -1,6 +1,6 @@
-import { ref } from 'vue';
-import axios from 'axios';
 import type { Recipe } from '@/types/recipe';
+import axios from 'axios';
+import { ref } from 'vue';
 
 export function useRecipeSearch() {
     const searchQuery = ref('');
@@ -59,4 +59,4 @@ export function useRecipeSearch() {
         selectRecipe,
         clearSelection,
     };
-} 
+}
