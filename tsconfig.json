@@ -125,6 +125,9 @@
         "resources/js/**/*.tsx",
         "resources/js/**/*.vue"
     ],
-    "types": ["@vue/runtime-dom"]
+    "types": [
+        "vitest/globals",
+        "@vue/runtime-dom"
+    ]
 
 }
