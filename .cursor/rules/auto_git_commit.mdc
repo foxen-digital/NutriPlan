@@ -1,3 +1,9 @@
+---
+description: USE WHEN you have completed a task, and there are new or changed files
+globs:
+alwaysApply: true
+---
+
 # Automatic Git Commit Message Rule
 
 This rule specifies that after each feature developed by Cursor IDE, an automatic Git commit message should be created following the conventional commit format.
@@ -13,33 +19,36 @@ This rule specifies that after each feature developed by Cursor IDE, an automati
 
 1. After each Cursor IDE change, automatically create a Git commit message
 2. Commit messages must follow the conventional commit format:
-   ```
-   type(scope): description
 
-   [optional body]
+    ```
+    type(scope): description
 
-   [optional footer]
-   ```
+    [optional body]
+
+    [optional footer]
+    ```
+
 3. The commit type should be determined based on the nature of the change:
-   - `feat`: New feature
-   - `fix`: Bug fix
-   - `docs`: Documentation changes
-   - `style`: Code style changes (formatting, etc.)
-   - `refactor`: Code refactoring
-   - `perf`: Performance improvements
-   - `test`: Adding or modifying tests
-   - `chore`: Maintenance tasks
-   - `ci`: CI/CD related changes
-   - `build`: Build system changes
-   - `revert`: Reverting changes
+    - `feat`: New feature
+    - `fix`: Bug fix
+    - `docs`: Documentation changes
+    - `style`: Code style changes (formatting, etc.)
+    - `refactor`: Code refactoring
+    - `perf`: Performance improvements
+    - `test`: Adding or modifying tests
+    - `chore`: Maintenance tasks
+    - `ci`: CI/CD related changes
+    - `build`: Build system changes
+    - `revert`: Reverting changes
 
 ## Implementation
 
 When Cursor IDE makes changes:
+
 1. Analyze the changes and prompts used to determine:
-   - Appropriate commit type
-   - Scope of changes
-   - Description of changes
+    - Appropriate commit type
+    - Scope of changes
+    - Description of changes
 2. Generate commit message following conventional format
 3. Include relevant details from the prompts in the commit body
 
@@ -62,7 +71,8 @@ proper validation and error handling.
 ## Validation
 
 The IDE will enforce this rule by:
+
 1. Automatically detecting when Cursor IDE makes changes
 2. Validating commit message format
 3. Ensuring all changed files are included in the commit
-4. Verifying that the commit message accurately reflects the changes made 
+4. Verifying that the commit message accurately reflects the changes made

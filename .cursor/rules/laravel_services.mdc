@@ -1,8 +1,9 @@
 ---
-description: Laravel Service Standards
-globs: ["app/Services/**/*.php"]
-alwaysApply: true
+description:
+globs: app/Services/**/*.php
+alwaysApply: false
 ---
+
 # Laravel Service Standards
 
 This rule defines best practices and standards for Laravel services.
@@ -17,40 +18,43 @@ This rule defines best practices and standards for Laravel services.
 ## Requirements
 
 1. Service Structure:
-   - Use proper namespacing under `App\Services`
-   - Follow service naming conventions (PascalCase, suffixed with 'Service')
-   - Keep services focused on single domain/responsibility
-   - Use constructor property promotion for dependencies
-   - Include proper type declarations for methods
-   - Use proper PHPDoc blocks for methods
-   - Implement corresponding interfaces
+
+    - Use proper namespacing under `App\Services`
+    - Follow service naming conventions (PascalCase, suffixed with 'Service')
+    - Keep services focused on single domain/responsibility
+    - Use constructor property promotion for dependencies
+    - Include proper type declarations for methods
+    - Use proper PHPDoc blocks for methods
+    - Implement corresponding interfaces
 
 2. Service Methods:
-   - Use clear, descriptive method names
-   - Return consistent types
-   - Use Data Transfer Objects (DTOs) for complex data
-   - Implement proper error handling
-   - Use proper transaction management
-   - Keep methods focused and single-responsibility
-   - Document method behavior and side effects
+
+    - Use clear, descriptive method names
+    - Return consistent types
+    - Use Data Transfer Objects (DTOs) for complex data
+    - Implement proper error handling
+    - Use proper transaction management
+    - Keep methods focused and single-responsibility
+    - Document method behavior and side effects
 
 3. Business Logic:
-   - Encapsulate complex business rules
-   - Implement proper validation logic
-   - Use proper event dispatching
-   - Handle asynchronous operations properly
-   - Implement proper caching strategies
-   - Use proper logging
-   - Include proper error recovery
+
+    - Encapsulate complex business rules
+    - Implement proper validation logic
+    - Use proper event dispatching
+    - Handle asynchronous operations properly
+    - Implement proper caching strategies
+    - Use proper logging
+    - Include proper error recovery
 
 4. Dependency Management:
-   - Use proper dependency injection
-   - Implement proper repository pattern when needed
-   - Use proper service interfaces
-   - Handle external service dependencies
-   - Implement proper fallback strategies
-   - Use proper configuration management
-   - Include proper service documentation
+    - Use proper dependency injection
+    - Implement proper repository pattern when needed
+    - Use proper service interfaces
+    - Handle external service dependencies
+    - Implement proper fallback strategies
+    - Use proper configuration management
+    - Include proper service documentation
 
 ## Example
 
@@ -239,8 +243,9 @@ class RecipeService implements RecipeServiceInterface
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating service class structure and organization
 2. Checking for proper method signatures and return types
 3. Ensuring proper use of dependency injection
 4. Verifying proper transaction and error handling
-5. Validating proper documentation and PHPDoc blocks 
+5. Validating proper documentation and PHPDoc blocks

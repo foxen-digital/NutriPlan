@@ -1,8 +1,9 @@
 ---
-description: Laravel Error Handling and Logging Standards
-globs: ["app/**/*.php"]
-alwaysApply: true
+description:
+globs: app/**/*.php
+alwaysApply: false
 ---
+
 # Laravel Error Handling and Logging Standards
 
 This rule defines best practices and standards for error handling and logging in Laravel applications.
@@ -17,35 +18,38 @@ This rule defines best practices and standards for error handling and logging in
 ## Requirements
 
 1. Exception Handling:
-   - Create custom exceptions in `App/Exceptions`
-   - Use descriptive exception names
-   - Follow Laravel's exception naming conventions
-   - Group related exceptions logically
-   - Use proper namespacing
-   - Implement proper exception hierarchy
+
+    - Create custom exceptions in `App/Exceptions`
+    - Use descriptive exception names
+    - Follow Laravel's exception naming conventions
+    - Group related exceptions logically
+    - Use proper namespacing
+    - Implement proper exception hierarchy
 
 2. Exception Structure:
-   - Make exceptions immutable
-   - Use constructor property promotion
-   - Include only necessary data
-   - Use proper type hints
-   - Implement proper interfaces
-   - Include proper error messages
+
+    - Make exceptions immutable
+    - Use constructor property promotion
+    - Include only necessary data
+    - Use proper type hints
+    - Implement proper interfaces
+    - Include proper error messages
 
 3. Logging Implementation:
-   - Use proper log channels
-   - Implement proper log levels
-   - Use proper log context
-   - Implement proper log rotation
-   - Use proper log formatting
-   - Include proper metadata
+
+    - Use proper log channels
+    - Implement proper log levels
+    - Use proper log context
+    - Implement proper log rotation
+    - Use proper log formatting
+    - Include proper metadata
 
 4. Error Management:
-   - Use proper error reporting
-   - Implement proper error tracking
-   - Use proper error monitoring
-   - Implement proper error notifications
-   - Use proper error documentation
+    - Use proper error reporting
+    - Implement proper error tracking
+    - Use proper error monitoring
+    - Implement proper error notifications
+    - Use proper error documentation
 
 ## Example
 
@@ -89,7 +93,8 @@ class UserNotFoundException extends Exception
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating exception class structure
 2. Checking for proper error handling
 3. Ensuring proper logging implementation
-4. Verifying proper error reporting 
+4. Verifying proper error reporting

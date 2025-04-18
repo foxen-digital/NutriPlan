@@ -1,8 +1,9 @@
 ---
-description: Laravel Database Standards
-globs: ["database/**/*.php"]
-alwaysApply: true
+description:
+globs: database/**/*.php
+alwaysApply: false
 ---
+
 # Laravel Database Standards
 
 This rule defines best practices and standards for database management in Laravel applications.
@@ -17,36 +18,39 @@ This rule defines best practices and standards for database management in Larave
 ## Requirements
 
 1. Database Organization:
-   - Use proper migration structure
-   - Implement proper seeding
-   - Use proper model organization
-   - Implement proper relationships
-   - Use proper indexes
-   - Include proper documentation
+
+    - Use proper migration structure
+    - Implement proper seeding
+    - Use proper model organization
+    - Implement proper relationships
+    - Use proper indexes
+    - Include proper documentation
 
 2. Database Structure:
-   - Use proper column types
-   - Implement proper constraints
-   - Use proper foreign keys
-   - Implement proper defaults
-   - Use proper nullable fields
-   - Include proper timestamps
+
+    - Use proper column types
+    - Implement proper constraints
+    - Use proper foreign keys
+    - Implement proper defaults
+    - Use proper nullable fields
+    - Include proper timestamps
 
 3. Database Implementation:
-   - Use proper query builders
-   - Implement proper transactions
-   - Use proper eager loading
-   - Implement proper caching
-   - Use proper validation
-   - Include proper error handling
+
+    - Use proper query builders
+    - Implement proper transactions
+    - Use proper eager loading
+    - Implement proper caching
+    - Use proper validation
+    - Include proper error handling
 
 4. Database Management:
-   - Use proper backup strategy
-   - Implement proper monitoring
-   - Use proper optimization
-   - Implement proper testing
-   - Use proper versioning
-   - Include proper documentation
+    - Use proper backup strategy
+    - Implement proper monitoring
+    - Use proper optimization
+    - Implement proper testing
+    - Use proper versioning
+    - Include proper documentation
 
 ## Example
 
@@ -267,7 +271,8 @@ class PostFactory extends Factory
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating database file structure
 2. Checking for proper migration organization
 3. Ensuring proper model relationships
-4. Verifying proper database configuration 
+4. Verifying proper database configuration

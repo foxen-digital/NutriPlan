@@ -1,8 +1,9 @@
 ---
-description: Laravel Frontend Development Standards
-globs: ["resources/**/*"]
-alwaysApply: true
+description:
+globs: 'resources/**/*'
+alwaysApply: false
 ---
+
 # Laravel Frontend Development Standards
 
 This rule defines best practices and standards for frontend development in Laravel applications using Vite, Inertia, and Vue.
@@ -17,46 +18,49 @@ This rule defines best practices and standards for frontend development in Larav
 ## Requirements
 
 1. Inertia Integration:
-   - Use Inertia without server-side rendering
-   - Implement proper page components
-   - Use Inertia's shared data features
-   - Handle form submissions with Inertia
-   - Use proper error handling with Inertia
-   - Implement proper loading states
+
+    - Use Inertia without server-side rendering
+    - Implement proper page components
+    - Use Inertia's shared data features
+    - Handle form submissions with Inertia
+    - Use proper error handling with Inertia
+    - Implement proper loading states
 
 2. Vue Components:
-   - Use Vue 3 Composition API
-   - Implement proper component structure
-   - Use TypeScript for type safety
-   - Keep components focused and reusable
-   - Use proper prop validation
-   - Implement proper state management
+
+    - Use Vue 3 Composition API
+    - Implement proper component structure
+    - Use TypeScript for type safety
+    - Keep components focused and reusable
+    - Use proper prop validation
+    - Implement proper state management
 
 3. Asset Management:
-   - Use Vite for asset compilation
-   - Implement proper HMR (Hot Module Replacement)
-   - Use proper asset organization
-   - Optimize asset loading
-   - Use proper environment variables
-   - Implement proper code splitting
+
+    - Use Vite for asset compilation
+    - Implement proper HMR (Hot Module Replacement)
+    - Use proper asset organization
+    - Optimize asset loading
+    - Use proper environment variables
+    - Implement proper code splitting
 
 4. Frontend Testing:
-   - Use Vitest for unit testing
-   - Use Vue Test Utils for component testing
-   - Use Testing Library for integration testing
-   - Test component behavior and user interactions
-   - Test accessibility
-   - Test responsive design
-   - Use proper test organization
-   - Place component tests in a `__tests__` directory adjacent to the component being tested
-   - Name test files using either `.test.ts/.test.js` or `.spec.ts/.spec.js` convention
-   - Mock external dependencies and UI components as needed
-   - Use `describe` blocks to group related tests
-   - Write individual test cases using `it` blocks
-   - Use `beforeEach` for common setup
-   - Test both initial rendering and interactive behaviors
-   - Verify correct event emissions when applicable
-   - Test edge cases and input validation
+    - Use Vitest for unit testing
+    - Use Vue Test Utils for component testing
+    - Use Testing Library for integration testing
+    - Test component behavior and user interactions
+    - Test accessibility
+    - Test responsive design
+    - Use proper test organization
+    - Place component tests in a `__tests__` directory adjacent to the component being tested
+    - Name test files using either `.test.ts/.test.js` or `.spec.ts/.spec.js` convention
+    - Mock external dependencies and UI components as needed
+    - Use `describe` blocks to group related tests
+    - Write individual test cases using `it` blocks
+    - Use `beforeEach` for common setup
+    - Test both initial rendering and interactive behaviors
+    - Verify correct event emissions when applicable
+    - Test edge cases and input validation
 
 ## Example
 
@@ -117,10 +121,10 @@ describe('UserList', () => {
 
   it('is accessible', async () => {
     render(UserList, { props: { users } })
-    
+
     const list = screen.getByRole('list')
     expect(list).toBeInTheDocument()
-    
+
     const items = screen.getAllByRole('listitem')
     expect(items).toHaveLength(2)
   })
@@ -130,12 +134,13 @@ describe('UserList', () => {
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating Inertia page structure
 2. Checking for proper Vue component organization
 3. Ensuring proper TypeScript usage
 4. Verifying test coverage and organization
-   - Confirming tests exist for components
-   - Ensuring tests follow the proper directory structure
-   - Checking that tests use the appropriate testing libraries
-   - Validating that both rendering and interactions are tested
-5. Validating Vite configuration 
+    - Confirming tests exist for components
+    - Ensuring tests follow the proper directory structure
+    - Checking that tests use the appropriate testing libraries
+    - Validating that both rendering and interactions are tested
+5. Validating Vite configuration

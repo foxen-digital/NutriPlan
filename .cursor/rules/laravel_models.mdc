@@ -1,8 +1,9 @@
 ---
-description: Laravel Model Standards
-globs: ["app/Models/**/*.php"]
-alwaysApply: true
+description:
+globs: app/Models/**/*.php
+alwaysApply: false
 ---
+
 # Laravel Model Standards
 
 This rule defines best practices and standards for Laravel models.
@@ -17,40 +18,43 @@ This rule defines best practices and standards for Laravel models.
 ## Requirements
 
 1. Model Structure:
-   - Use proper namespacing under `App\Models`
-   - Follow Laravel's model naming conventions (singular, PascalCase)
-   - Tables should be plural, snake_case versions of model names
-   - Models should be unguarded by default (no $fillable property)
-   - Use constructor property promotion where applicable
-   - Include proper type declarations for properties
-   - Use proper PHPDoc blocks for properties and methods
+
+    - Use proper namespacing under `App\Models`
+    - Follow Laravel's model naming conventions (singular, PascalCase)
+    - Tables should be plural, snake_case versions of model names
+    - Models should be unguarded by default (no `$fillable` property)
+    - Use constructor property promotion where applicable
+    - Include proper type declarations for properties
+    - Use proper PHPDoc blocks for properties and methods
 
 2. Model Properties:
-   - Define `$casts` array for type casting attributes
-   - Use `$dates` array for additional date fields
-   - Define `$appends` array for computed attributes
-   - Use `$with` array for default eager loading
-   - Define `$touches` array for touch relationships
-   - Use proper attribute accessors and mutators
-   - Implement proper hidden/visible attributes
+
+    - Define `$casts` array for type casting attributes
+    - Use `$dates` array for additional date fields
+    - Define `$appends` array for computed attributes
+    - Use `$with` array for default eager loading
+    - Define `$touches` array for touch relationships
+    - Use proper attribute accessors and mutators
+    - Implement proper hidden/visible attributes
 
 3. Model Relationships:
-   - Use proper relationship method return types
-   - Implement inverse relationships
-   - Use proper relationship naming conventions
-   - Define foreign key constraints in migrations
-   - Use proper eager loading strategies
-   - Implement proper polymorphic relationships
-   - Include proper relationship documentation
+
+    - Use proper relationship method return types
+    - Implement inverse relationships
+    - Use proper relationship naming conventions
+    - Define foreign key constraints in migrations
+    - Use proper eager loading strategies
+    - Implement proper polymorphic relationships
+    - Include proper relationship documentation
 
 4. Model Functionality:
-   - Use proper scopes for query filtering
-   - Implement proper events and observers
-   - Use proper trait implementations
-   - Define proper query scopes
-   - Implement proper attribute casting
-   - Use proper model factories
-   - Include proper model testing
+    - Use proper scopes for query filtering
+    - Implement proper events and observers
+    - Use proper trait implementations
+    - Define proper query scopes
+    - Implement proper attribute casting
+    - Use proper model factories
+    - Include proper model testing
 
 ## Example
 
@@ -210,8 +214,9 @@ class Recipe extends Model
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating model class structure and organization
 2. Checking for proper relationship definitions
 3. Ensuring proper type declarations and casting
 4. Verifying proper use of Laravel model features
-5. Validating proper documentation and PHPDoc blocks 
+5. Validating proper documentation and PHPDoc blocks

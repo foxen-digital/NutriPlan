@@ -1,8 +1,9 @@
 ---
-description: Laravel Events Standards
-globs: ["app/Events/**/*.php"]
-alwaysApply: true
+description:
+globs: app/Events/**/*.php
+alwaysApply: false
 ---
+
 # Laravel Events Standards
 
 This rule defines best practices and standards for events and listeners in Laravel applications.
@@ -17,36 +18,39 @@ This rule defines best practices and standards for events and listeners in Larav
 ## Requirements
 
 1. Event Organization:
-   - Use proper event structure
-   - Implement proper event handling
-   - Use proper event naming
-   - Implement proper event dispatching
-   - Use proper event queuing
-   - Include proper documentation
+
+    - Use proper event structure
+    - Implement proper event handling
+    - Use proper event naming
+    - Implement proper event dispatching
+    - Use proper event queuing
+    - Include proper documentation
 
 2. Event Structure:
-   - Use proper event classes
-   - Implement proper event data
-   - Use proper event properties
-   - Implement proper event validation
-   - Use proper event serialization
-   - Include proper event logging
+
+    - Use proper event classes
+    - Implement proper event data
+    - Use proper event properties
+    - Implement proper event validation
+    - Use proper event serialization
+    - Include proper event logging
 
 3. Event Implementation:
-   - Use proper event listeners
-   - Implement proper event subscribers
-   - Use proper event middleware
-   - Implement proper event broadcasting
-   - Use proper event testing
-   - Include proper error handling
+
+    - Use proper event listeners
+    - Implement proper event subscribers
+    - Use proper event middleware
+    - Implement proper event broadcasting
+    - Use proper event testing
+    - Include proper error handling
 
 4. Event Management:
-   - Use proper event registration
-   - Implement proper event caching
-   - Use proper event monitoring
-   - Implement proper event logging
-   - Use proper event testing
-   - Include proper documentation
+    - Use proper event registration
+    - Implement proper event caching
+    - Use proper event monitoring
+    - Implement proper event logging
+    - Use proper event testing
+    - Include proper documentation
 
 ## Example
 
@@ -298,7 +302,8 @@ class EventServiceProvider extends ServiceProvider
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating event file structure
 2. Checking for proper event handling
 3. Ensuring proper event registration
-4. Verifying proper event documentation 
+4. Verifying proper event documentation

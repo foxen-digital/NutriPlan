@@ -1,8 +1,9 @@
 ---
-description: Laravel Jobs and Queues Standards
-globs: ["App/Jobs/*.php"]
-alwaysApply: true
+description:
+globs: app/Jobs/*.php
+alwaysApply: false
 ---
+
 # Laravel Jobs and Queues Standards
 
 This rule defines best practices and standards for using Laravel's job and queue system.
@@ -17,33 +18,36 @@ This rule defines best practices and standards for using Laravel's job and queue
 ## Requirements
 
 1. Job Organization:
-   - Place jobs in `App/Jobs` directory
-   - Use descriptive job names
-   - Follow Laravel's job naming conventions
-   - Group related jobs logically
-   - Use proper namespacing
+
+    - Place jobs in `App/Jobs` directory
+    - Use descriptive job names
+    - Follow Laravel's job naming conventions
+    - Group related jobs logically
+    - Use proper namespacing
 
 2. Job Structure:
-   - Make jobs immutable
-   - Use constructor property promotion
-   - Include only necessary data
-   - Use proper type hints
-   - Implement proper interfaces
+
+    - Make jobs immutable
+    - Use constructor property promotion
+    - Include only necessary data
+    - Use proper type hints
+    - Implement proper interfaces
 
 3. Job Implementation:
-   - Keep jobs focused and single-responsibility
-   - Use dependency injection
-   - Handle exceptions gracefully
-   - Use proper logging
-   - Implement proper error handling
-   - Use proper queue configuration
+
+    - Keep jobs focused and single-responsibility
+    - Use dependency injection
+    - Handle exceptions gracefully
+    - Use proper logging
+    - Implement proper error handling
+    - Use proper queue configuration
 
 4. Queue Management:
-   - Use proper queue connections
-   - Implement proper retry logic
-   - Use proper queue priorities
-   - Implement proper timeout handling
-   - Use proper queue middleware
+    - Use proper queue connections
+    - Implement proper retry logic
+    - Use proper queue priorities
+    - Implement proper timeout handling
+    - Use proper queue middleware
 
 ## Example
 
@@ -75,7 +79,7 @@ class ProcessUserAvatar implements ShouldQueue
     public function handle(): void
     {
         $contents = file_get_contents($this->avatarUrl);
-        
+
         Storage::disk($this->disk)->put(
             "avatars/{$this->user->id}.jpg",
             $contents
@@ -130,7 +134,8 @@ class EnsureUserIsActive extends ThrottlesExceptions
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating job class structure
 2. Checking for proper queue implementation
 3. Ensuring proper error handling
-4. Verifying proper middleware usage 
+4. Verifying proper middleware usage

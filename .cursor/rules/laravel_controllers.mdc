@@ -1,8 +1,9 @@
 ---
-description: Laravel Controller Standards
-globs: ["app/Http/Controllers/**/*.php"]
-alwaysApply: true
+description:
+globs: app/Http/Controllers/**/*.php
+alwaysApply: false
 ---
+
 # Laravel Controller Standards
 
 This rule defines best practices and standards for Laravel controllers.
@@ -17,45 +18,48 @@ This rule defines best practices and standards for Laravel controllers.
 ## Requirements
 
 1. Controller Structure:
-   - Use proper namespacing under `App\Http\Controllers`
-   - Follow Laravel's controller naming conventions (PascalCase, suffixed with 'Controller')
-   - Keep controllers focused on single resource/domain
-   - Use constructor property promotion for dependencies
-   - Include proper type declarations for methods
-   - Use proper PHPDoc blocks for methods
-   - Implement proper interfaces (e.g., ResourceController)
+
+    - Use proper namespacing under `App\Http\Controllers`
+    - Follow Laravel's controller naming conventions (PascalCase, suffixed with 'Controller')
+    - Keep controllers focused on single resource/domain
+    - Use constructor property promotion for dependencies
+    - Include proper type declarations for methods
+    - Use proper PHPDoc blocks for methods
+    - Implement proper interfaces (e.g., ResourceController)
 
 2. Controller Methods:
-   - Follow RESTful naming conventions:
-     - index(): Display a listing of the resource
-     - create(): Show the form for creating a new resource
-     - store(): Store a newly created resource
-     - show(): Display the specified resource
-     - edit(): Show the form for editing the resource
-     - update(): Update the specified resource
-     - destroy(): Remove the specified resource
-   - Return consistent response types
-   - Use proper status codes
-   - Implement proper error handling
-   - Keep methods focused and concise
+
+    - Follow RESTful naming conventions:
+        - index(): Display a listing of the resource
+        - create(): Show the form for creating a new resource
+        - store(): Store a newly created resource
+        - show(): Display the specified resource
+        - edit(): Show the form for editing the resource
+        - update(): Update the specified resource
+        - destroy(): Remove the specified resource
+    - Return consistent response types
+    - Use proper status codes
+    - Implement proper error handling
+    - Keep methods focused and concise
 
 3. Request Handling:
-   - Use Form Request classes for validation
-   - Implement proper authorization checks
-   - Use dependency injection for services
-   - Handle file uploads properly
-   - Implement proper request sanitization
-   - Use proper request helpers
-   - Include proper request documentation
+
+    - Use Form Request classes for validation
+    - Implement proper authorization checks
+    - Use dependency injection for services
+    - Handle file uploads properly
+    - Implement proper request sanitization
+    - Use proper request helpers
+    - Include proper request documentation
 
 4. Response Management:
-   - Use proper response types (View, JSON, Redirect)
-   - Implement proper response formatting
-   - Use proper response status codes
-   - Include proper headers when needed
-   - Implement proper error responses
-   - Use proper response transformers
-   - Include proper response documentation
+    - Use proper response types (View, JSON, Redirect)
+    - Implement proper response formatting
+    - Use proper response status codes
+    - Include proper headers when needed
+    - Implement proper error responses
+    - Use proper response transformers
+    - Include proper response documentation
 
 ## Example
 
@@ -165,8 +169,9 @@ class RecipeController extends Controller
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating controller class structure and organization
 2. Checking for proper method naming and return types
 3. Ensuring proper use of Form Requests and Resources
 4. Verifying proper response status codes and formats
-5. Validating proper documentation and PHPDoc blocks 
+5. Validating proper documentation and PHPDoc blocks

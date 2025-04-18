@@ -1,8 +1,9 @@
 ---
-description: Laravel Validation Standards
-globs: ["Http/Controllers/**/*.php", "Http/Requests/**/*.php"]
-alwaysApply: true
+description:
+globs: app/Http/Controllers/**/*.php, app/Http/Requests/**/*.php
+alwaysApply: false
 ---
+
 # Laravel Validation Standards
 
 This rule defines best practices and standards for using Laravel's validation system.
@@ -17,33 +18,36 @@ This rule defines best practices and standards for using Laravel's validation sy
 ## Requirements
 
 1. Form Request Organization:
-   - Place form requests in `App/Http/Requests` directory
-   - Use descriptive request names
-   - Follow Laravel's request naming conventions
-   - Group related requests logically
-   - Use proper namespacing
+
+    - Place form requests in `App/Http/Requests` directory
+    - Use descriptive request names
+    - Follow Laravel's request naming conventions
+    - Group related requests logically
+    - Use proper namespacing
 
 2. Form Request Structure:
-   - Make requests immutable
-   - Use constructor property promotion
-   - Include only necessary data
-   - Use proper type hints
-   - Implement proper interfaces
+
+    - Make requests immutable
+    - Use constructor property promotion
+    - Include only necessary data
+    - Use proper type hints
+    - Implement proper interfaces
 
 3. Validation Rules:
-   - Use proper validation rules
-   - Implement custom validation rules
-   - Use proper validation messages
-   - Implement proper validation attributes
-   - Use proper validation groups
-   - Implement proper validation dependencies
+
+    - Use proper validation rules
+    - Implement custom validation rules
+    - Use proper validation messages
+    - Implement proper validation attributes
+    - Use proper validation groups
+    - Implement proper validation dependencies
 
 4. Validation Management:
-   - Use proper validation registration
-   - Implement proper validation caching
-   - Use proper validation middleware
-   - Implement proper validation testing
-   - Use proper validation documentation
+    - Use proper validation registration
+    - Implement proper validation caching
+    - Use proper validation middleware
+    - Implement proper validation testing
+    - Use proper validation documentation
 
 ## Example
 
@@ -208,7 +212,8 @@ class StoreUserRequestTest extends TestCase
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating form request structure
 2. Checking for proper validation rules
 3. Ensuring proper error handling
-4. Verifying proper testing coverage 
+4. Verifying proper testing coverage

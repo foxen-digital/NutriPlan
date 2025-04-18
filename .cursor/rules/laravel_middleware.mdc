@@ -1,8 +1,9 @@
 ---
-description: Laravel Middleware Standards
-globs: ["App/Http/Middleware/*.php"]
-alwaysApply: true
+description:
+globs: app/Http/Middleware/*.php
+alwaysApply: false
 ---
+
 # Laravel Middleware Standards
 
 This rule defines best practices and standards for using Laravel's middleware system.
@@ -17,33 +18,36 @@ This rule defines best practices and standards for using Laravel's middleware sy
 ## Requirements
 
 1. Middleware Organization:
-   - Place middleware in `App/Http/Middleware` directory
-   - Use descriptive middleware names
-   - Follow Laravel's middleware naming conventions
-   - Group related middleware logically
-   - Use proper namespacing
+
+    - Place middleware in `App/Http/Middleware` directory
+    - Use descriptive middleware names
+    - Follow Laravel's middleware naming conventions
+    - Group related middleware logically
+    - Use proper namespacing
 
 2. Middleware Structure:
-   - Make middleware immutable
-   - Use constructor property promotion
-   - Include only necessary data
-   - Use proper type hints
-   - Implement proper interfaces
+
+    - Make middleware immutable
+    - Use constructor property promotion
+    - Include only necessary data
+    - Use proper type hints
+    - Implement proper interfaces
 
 3. Middleware Implementation:
-   - Keep middleware focused and single-responsibility
-   - Use dependency injection
-   - Handle exceptions gracefully
-   - Use proper logging
-   - Implement proper error handling
-   - Use proper response handling
+
+    - Keep middleware focused and single-responsibility
+    - Use dependency injection
+    - Handle exceptions gracefully
+    - Use proper logging
+    - Implement proper error handling
+    - Use proper response handling
 
 4. Middleware Management:
-   - Use proper middleware registration
-   - Implement proper middleware groups
-   - Use proper middleware priorities
-   - Implement proper middleware testing
-   - Use proper middleware documentation
+    - Use proper middleware registration
+    - Implement proper middleware groups
+    - Use proper middleware priorities
+    - Implement proper middleware testing
+    - Use proper middleware documentation
 
 ## Example
 
@@ -145,7 +149,8 @@ class TrimStrings
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating middleware class structure
 2. Checking for proper middleware implementation
 3. Ensuring proper error handling
-4. Verifying proper registration in bootstrap/app.php 
+4. Verifying proper registration in bootstrap/app.php

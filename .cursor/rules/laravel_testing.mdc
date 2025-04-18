@@ -1,8 +1,9 @@
 ---
-description: USE WHEN creating or modifying PHP tests
-globs: ["tests/**/*Test.php"]
+description:
+globs: tests/**/*Test.php
 alwaysApply: false
 ---
+
 # Laravel Testing Standards
 
 This rule defines the testing standards and best practices for Laravel applications using Pest PHP.
@@ -17,56 +18,60 @@ This rule defines the testing standards and best practices for Laravel applicati
 ## Requirements
 
 1. Global Configuration:
-   - All global test configuration should be in `tests/Pest.php`
-   - Common traits like `RefreshDatabase` should be configured in `Pest.php` using `pest()->extend()`
-   - Global helper functions should be defined in `Pest.php`
-   - Global expectations should be extended in `Pest.php`
-   - DO NOT use `uses()` in individual test files for traits that are already configured in `Pest.php`
+
+    - All global test configuration should be in `tests/Pest.php`
+    - Common traits like `RefreshDatabase` should be configured in `Pest.php` using `pest()->extend()`
+    - Global helper functions should be defined in `Pest.php`
+    - Global expectations should be extended in `Pest.php`
+    - DO NOT use `uses()` in individual test files for traits that are already configured in `Pest.php`
 
 2. Test Organization:
-   - Place tests in appropriate test directories based on type and domain:
-     - Feature/
-       - Api/ (API endpoint tests)
-       - Http/ (Web controller tests)
-       - Console/ (Artisan command tests)
-       - Auth/ (Authentication related tests)
-       - Settings/ (User settings tests)
-     - Unit/
-       - Models/ (Model behavior tests)
-       - Actions/ (Single-responsibility action tests)
-       - Policies/ (Authorization policy tests)
-       - Enums/ (Enum behavior tests)
-       - Services/ (Service class tests)
-       - ValueObjects/ (Value object tests)
-       - Http/ (Request/Response object tests)
-     - Fixtures/ (Test data files and fixtures)
-   - Use descriptive test names that reflect the feature or behavior being tested
-   - Follow the AAA pattern (Arrange, Act, Assert)
-   - Group related tests using test suites
-   - Use datasets for multiple test cases
+
+    - Place tests in appropriate test directories based on type and domain:
+        - Feature/
+            - Api/ (API endpoint tests)
+            - Http/ (Web controller tests)
+            - Console/ (Artisan command tests)
+            - Auth/ (Authentication related tests)
+            - Settings/ (User settings tests)
+        - Unit/
+            - Models/ (Model behavior tests)
+            - Actions/ (Single-responsibility action tests)
+            - Policies/ (Authorization policy tests)
+            - Enums/ (Enum behavior tests)
+            - Services/ (Service class tests)
+            - ValueObjects/ (Value object tests)
+            - Http/ (Request/Response object tests)
+        - Fixtures/ (Test data files and fixtures)
+    - Use descriptive test names that reflect the feature or behavior being tested
+    - Follow the AAA pattern (Arrange, Act, Assert)
+    - Group related tests using test suites
+    - Use datasets for multiple test cases
 
 3. Test Types:
-   - Write unit tests for isolated components (Models, Actions, Value Objects)
-   - Use feature tests for HTTP endpoints and API routes
-   - Implement integration tests for complex features
-   - Use browser tests for JavaScript-heavy features
-   - Write model tests for complex model logic and relationships
+
+    - Write unit tests for isolated components (Models, Actions, Value Objects)
+    - Use feature tests for HTTP endpoints and API routes
+    - Implement integration tests for complex features
+    - Use browser tests for JavaScript-heavy features
+    - Write model tests for complex model logic and relationships
 
 4. Testing Best Practices:
-   - Use factories for test data generation
-   - Mock external services and dependencies
-   - Use database transactions for database tests
-   - Clean up after each test
-   - Use meaningful assertions
-   - Use Pest's expressive syntax
-   - Use fixtures for complex test data scenarios
-   - Keep test data files in the Fixtures directory
+
+    - Use factories for test data generation
+    - Mock external services and dependencies
+    - Use database transactions for database tests
+    - Clean up after each test
+    - Use meaningful assertions
+    - Use Pest's expressive syntax
+    - Use fixtures for complex test data scenarios
+    - Keep test data files in the Fixtures directory
 
 5. Test Documentation:
-   - Write clear test descriptions that explain the business logic being tested
-   - Document test setup requirements including factory states and fixtures
-   - Explain complex test scenarios
-   - Use meaningful variable names in tests
+    - Write clear test descriptions that explain the business logic being tested
+    - Document test setup requirements including factory states and fixtures
+    - Explain complex test scenarios
+    - Use meaningful variable names in tests
 
 ## Example
 
@@ -173,10 +178,11 @@ function createUser(array $attributes = []): App\Models\User
 ## Validation
 
 The IDE will enforce these rules by:
+
 1. Validating test file structure and organization
 2. Checking for proper test directory placement
 3. Ensuring test documentation completeness
 4. Verifying proper use of Pest features
 5. Validating fixture file usage and organization
 6. Checking that global configuration is in `Pest.php`
-7. Warning about duplicate trait usage in individual test files 
+7. Warning about duplicate trait usage in individual test files
