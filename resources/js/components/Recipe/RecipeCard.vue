@@ -195,7 +195,7 @@ const toggleFavorite = () => {
                 v-if="recipe.images?.length"
                 :src="recipe.images[0]"
                 :alt="recipe.title"
-                class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                class="max-h-80 w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
             />
             <img
                 v-else
