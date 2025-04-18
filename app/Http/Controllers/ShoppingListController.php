@@ -27,9 +27,9 @@ class ShoppingListController extends Controller
      * Display a listing of the user's shopping lists
      * GET /shopping-lists
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $shoppingLists = auth()->user()->shoppingLists()->withCount('items')->get();
+        $shoppingLists = $request->user()->shoppingLists()->withCount('items')->get();
 
         return Inertia::render('ShoppingLists/Index', [
             'shoppingLists' => ShoppingListResource::collection($shoppingLists)->toArray(request()),
@@ -55,7 +55,7 @@ class ShoppingListController extends Controller
      */
     public function store(StoreShoppingListRequest $request): RedirectResponse
     {
-        $shoppingList = auth()->user()->shoppingLists()->create($request->validated());
+        $shoppingList = $request->user()->shoppingLists()->create($request->validated());
 
         return redirect()->route('shopping-lists.show', $shoppingList)
             ->with('success', 'Shopping list created successfully.');
