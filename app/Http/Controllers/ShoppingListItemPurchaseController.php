@@ -17,7 +17,7 @@ class ShoppingListItemPurchaseController extends Controller
      * Toggle the purchased status of an item
      * POST /shopping-lists/{shoppingList}/items/{item}/toggle-purchased
      */
-    public function store(ShoppingList $shoppingList, ShoppingListItem $item): RedirectResponse
+    public function __invoke(ShoppingList $shoppingList, ShoppingListItem $item): RedirectResponse
     {
         $this->authorize('update', $shoppingList);
 

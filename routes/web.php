@@ -65,7 +65,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('shopping-lists/{shoppingList}/items', [ShoppingListItemController::class, 'store'])->name('shopping-lists.items.store');
     Route::put('shopping-lists/{shoppingList}/items/{item}', [ShoppingListItemController::class, 'update'])->name('shopping-lists.items.update');
     Route::delete('shopping-lists/{shoppingList}/items/{item}', [ShoppingListItemController::class, 'destroy'])->name('shopping-lists.items.destroy');
-    Route::post('shopping-lists/{shoppingList}/items/{item}/toggle-purchased', [ShoppingListItemPurchaseController::class, 'store'])->name('shopping-lists.items.toggle-purchased');
+    Route::post('shopping-lists/{shoppingList}/items/{item}/toggle-purchased', ShoppingListItemPurchaseController::class)->name('shopping-lists.items.toggle-purchased');
     Route::put('shopping-lists/{shoppingList}/order-items', ShoppingListItemOrderController::class)->name('shopping-lists.items.order');
 });
 
