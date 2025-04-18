@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use Symfony\Component\HttpFoundation\Response;
 
 uses(RefreshDatabase::class);
 
@@ -32,7 +34,7 @@ test('categories index page displays categories with recipe counts', function ()
         ->get(route('categories.index'));
 
     // Assert: Page loads successfully with categories data
-    $response->assertStatus(200);
+    $response->assertStatus(Response::HTTP_OK);
     $response->assertInertia(
         fn (AssertableInertia $page) => $page
         ->component('Categories/Index')
@@ -67,80 +69,83 @@ test('category show page displays recipes filtered by category', function () {
         ->get(route('categories.show', $category));
 
     // Assert: Page loads successfully with filtered recipes
-    $response->assertStatus(200);
+    $response->assertStatus(Response::HTTP_OK);
     $response->assertInertia(
         fn (AssertableInertia $page) => $page
         ->component('Recipes/Index')
         ->has('recipes.data', $categoryRecipes->count())
-        ->has('category')
-        ->where('category.id', $category->id)
+        ->has('category', fn (AssertableInertia $prop) =>
+            $prop->where('id', $category->id)
+                 ->where('name', $category->name)
+                 ->has('id')
+                 ->has('name')
+        )
     );
 });
 
-test('authenticated user can create a new category', function () {
+test('authenticated user can create a new category via API endpoint', function () {
     $user = User::factory()->create();
+    $categoryName = 'New Test Category';
 
     $response = $this
         ->actingAs($user)
-        ->post('/categories', [
-            'name' => 'New Test Category'
+        ->postJson('/categories', [
+            'name' => $categoryName,
         ]);
 
-    $response->assertStatus(200)
+    $response->assertStatus(Response::HTTP_CREATED)
+        ->assertJsonStructure(['id', 'name'])
         ->assertJson([
-            'id' => 1,
-            'name' => 'New Test Category'
+            'name' => $categoryName,
         ]);
 
     $this->assertDatabaseHas('categories', [
-        'name' => 'New Test Category',
-        'is_active' => true
+        'name' => $categoryName,
+        'is_active' => true,
     ]);
+
+    $createdCategory = Category::where('name', $categoryName)->first();
+    $response->assertJson(['id' => $createdCategory->id]);
 });
 
-test('category name must be unique', function () {
+test('category name must be unique via API endpoint', function () {
     $user = User::factory()->create();
     $existingCategory = Category::factory()->create(['name' => 'Existing Category']);
 
     $response = $this
         ->actingAs($user)
-        ->from('/some-page')
-        ->post('/categories', [
-            'name' => 'Existing Category'
+        ->postJson('/categories', [
+            'name' => 'Existing Category',
         ]);
 
-    $response->assertStatus(302)
-        ->assertRedirect('/some-page')
-        ->assertInvalid(['name']);
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonValidationErrors(['name']);
 
     $this->assertDatabaseCount('categories', 1);
 });
 
-test('category name is required', function () {
+test('category name is required via API endpoint', function () {
     $user = User::factory()->create();
 
     $response = $this
         ->actingAs($user)
-        ->from('/some-page')
-        ->post('/categories', [
-            'name' => ''
+        ->postJson('/categories', [
+            'name' => '',
         ]);
 
-    $response->assertStatus(302)
-        ->assertRedirect('/some-page')
-        ->assertInvalid(['name']);
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonValidationErrors(['name']);
 
     $this->assertDatabaseCount('categories', 0);
 });
 
-test('unauthenticated user cannot create a category', function () {
+test('unauthenticated user cannot create a category via API endpoint', function () {
     $response = $this
-        ->post('/categories', [
-            'name' => 'Test Category'
+        ->postJson('/categories', [
+            'name' => 'Test Category',
         ]);
 
-    $response->assertStatus(302)
-        ->assertRedirect('/login');
+    $response->assertStatus(Response::HTTP_UNAUTHORIZED);
 
     $this->assertDatabaseCount('categories', 0);
 });

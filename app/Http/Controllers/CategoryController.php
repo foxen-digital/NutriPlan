@@ -4,21 +4,28 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Models\Recipe;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\Response as InertiaResponse;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class CategoryController extends Controller
 {
-    public function index(): Response
+    /**
+     * Display a listing of the resource, filtered by categories with visible recipes.
+     *
+     * @param Request $request
+     * @return InertiaResponse
+     */
+    public function index(Request $request): InertiaResponse
     {
-        $user = request()->user();
+        $user = $request->user();
 
         $categories = Category::query()
             ->withCount(['recipes' => function (Builder $query) use ($user): void {
@@ -41,26 +48,34 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param StoreCategoryRequest $request
+     * @return JsonResponse
+     */
+    public function store(StoreCategoryRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('categories', 'name')],
-        ]);
-
         $category = Category::query()->create([
-            'name' => $validated['name'],
+            'name' => $request->validated('name'),
             'is_active' => true,
         ]);
 
-        return response()->json([
-            'id' => $category->id,
-            'name' => $category->name,
-        ]);
+        return (new CategoryResource($category))
+            ->response()
+            ->setStatusCode(SymfonyResponse::HTTP_CREATED);
     }
 
-    public function show(Category $category): Response
+    /**
+     * Display the specified resource's recipes.
+     *
+     * @param Category $category
+     * @param Request $request
+     * @return InertiaResponse
+     */
+    public function show(Category $category, Request $request): InertiaResponse
     {
-        $user = request()->user();
+        $user = $request->user();
 
         $recipes = Recipe::query()
             ->whereHas('categories', function (Builder $query) use ($category): void {
@@ -87,7 +102,7 @@ class CategoryController extends Controller
 
         return Inertia::render('Recipes/Index', [
             'recipes' => $recipes,
-            'category' => $category,
+            'category' => new CategoryResource($category),
         ]);
     }
 }

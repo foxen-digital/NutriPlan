@@ -26,6 +26,7 @@ This rule defines best practices and standards for Laravel controllers.
     - Include proper type declarations for methods
     - Use proper PHPDoc blocks for methods
     - Implement proper interfaces (e.g., ResourceController)
+    - Keep controllers slim, by moving business logic into Service classes
 
 2. Controller Methods:
 
@@ -37,6 +38,7 @@ This rule defines best practices and standards for Laravel controllers.
         - edit(): Show the form for editing the resource
         - update(): Update the specified resource
         - destroy(): Remove the specified resource
+    - Single method controllers should be invokable
     - Return consistent response types
     - Use proper status codes
     - Implement proper error handling
