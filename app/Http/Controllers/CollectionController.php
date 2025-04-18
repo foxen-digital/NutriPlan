@@ -42,7 +42,7 @@ class CollectionController extends Controller
 
         $collection->load(['recipes.categories' => function (BelongsToMany $query): void {
             $query->latest();
-        }]);
+        }, 'recipes.user']);
 
         return Inertia::render('Collections/Show', [
             'collection' => $collection,
