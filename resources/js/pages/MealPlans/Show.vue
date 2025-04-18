@@ -139,18 +139,7 @@
         </div>
 
         <!-- Delete Confirmation Modal -->
-        <Dialog :open="showDeleteDialog" @update:open="showDeleteDialog = $event">
-            <DialogContent class="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Delete Meal Plan</DialogTitle>
-                    <DialogDescription> Are you sure you want to delete this meal plan? This action cannot be undone. </DialogDescription>
-                </DialogHeader>
-                <div class="flex items-center justify-end space-x-2 pt-4">
-                    <Button variant="outline" @click="showDeleteDialog = false">Cancel</Button>
-                    <Button variant="destructive" @click="deleteMealPlan">Delete</Button>
-                </div>
-            </DialogContent>
-        </Dialog>
+        <DeleteConfirmationModal :open="showDeleteDialog" @update:open="showDeleteDialog = $event" @confirm="deleteMealPlan" />
 
         <!-- Remove Recipe Confirmation Modal -->
         <Dialog :open="showRemoveRecipeDialog" @update:open="showRemoveRecipeDialog = $event">
@@ -418,6 +407,7 @@
 
 <script setup lang="ts">
 import MealAssignmentCard from '@/components/MealPlan/MealAssignmentCard.vue';
+import DeleteConfirmationModal from '@/components/MealPlan/Modals/DeleteConfirmationModal.vue';
 import RecipeCard from '@/components/MealPlan/RecipeCard.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
