@@ -60,9 +60,17 @@ This document provides an overview of all feature specifications for the NutriPl
 
 This section outlines potential features for future consideration, inspired by user needs and competitor offerings.
 
+### SEARCH!
+* Users need to be able to search their / public recipes by title / ingredient.
+
 ### AI Recipe parsing
 * For sites which do not use structured data for their recipes, we should build an AI based recipe parser to try and extract Ingredients and Instructions (nutrition info / categories if possible?)
 * Use https://github.com/fivefilters/readability.php to extract the text content of teh page
+* send this to an LLM, along with a detailed system message
+* have the LLM return structured data matching what we already get for Ingredients & Instructions
+
+### AI Recipe Parsing from images
+* Allow users to scan / upload recipes from books / magazines / grandma's recipe cards
 * send this to an LLM, along with a detailed system message
 * have the LLM return structured data matching what we already get for Ingredients & Instructions
 
