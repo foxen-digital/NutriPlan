@@ -10,7 +10,7 @@ beforeEach(function () {
     $this->ingredient = Ingredient::factory()->create();
 });
 
-test('resource transforms basic shopping list item correctly', function () {
+it('transforms basic shopping list item correctly', function () {
     // Arrange
     $item = ShoppingListItem::factory()->create([
         'shopping_list_id' => $this->shoppingList->id,
@@ -50,7 +50,7 @@ test('resource transforms basic shopping list item correctly', function () {
         ->and($array['is_purchased'])->toBeFalse();
 });
 
-test('resource includes ingredient relationship when loaded', function () {
+it('includes ingredient relationship when loaded', function () {
     // Arrange
     $item = ShoppingListItem::factory()->create([
         'shopping_list_id' => $this->shoppingList->id,
@@ -71,7 +71,7 @@ test('resource includes ingredient relationship when loaded', function () {
         ->and($array['ingredient']['id'])->toBe($this->ingredient->id);
 });
 
-test('resource excludes ingredient relationship when not loaded', function () {
+it('excludes ingredient relationship when not loaded', function () {
     // Arrange
     $item = ShoppingListItem::factory()->create([
         'shopping_list_id' => $this->shoppingList->id,

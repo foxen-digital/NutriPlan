@@ -10,14 +10,14 @@ use Illuminate\Http\Request;
 // Apply RefreshDatabase trait globally for this file
 uses(RefreshDatabase::class);
 
-test('category resource transforms correctly', function () {
+it('transforms correctly', function () {
     $category = Category::factory()->create([
         'name' => 'Test Category',
         'slug' => 'test-category',
     ]);
 
     $resource = new CategoryResource($category);
-    $request = Request::create('/api/categories', 'GET');
+    $request = Request::create(route('categories.index'), 'GET');
     $transformed = $resource->toArray($request);
 
     $expected = [
@@ -28,10 +28,10 @@ test('category resource transforms correctly', function () {
     expect($transformed)->toEqual($expected);
 });
 
-test('category resource structure is correct', function () {
+it('has correct structure', function () {
     $category = Category::factory()->make(); // No need to save
     $resource = new CategoryResource($category);
-    $request = Request::create('/api/categories', 'GET');
+    $request = Request::create(route('categories.index'), 'GET');
     $transformed = $resource->toArray($request);
 
     expect($transformed)

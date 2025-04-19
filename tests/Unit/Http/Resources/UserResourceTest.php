@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('user resource transforms basic user data correctly', function () {
+it('can transform basic user data correctly', function () {
     $user = User::factory()->create();
 
     $resource = new UserResource($user);
@@ -22,7 +22,7 @@ test('user resource transforms basic user data correctly', function () {
         ->and($array['slug'])->toBe($user->slug);
 });
 
-test('user resource does not include sensitive data', function () {
+it('does not include sensitive data', function () {
     $user = User::factory()->create();
 
     $resource = new UserResource($user);
@@ -39,7 +39,7 @@ test('user resource does not include sensitive data', function () {
         ]);
 });
 
-test('user resource maintains slug from model', function () {
+it('maintains slug from model', function () {
     $user = User::factory()->create();
     $originalSlug = $user->slug;
 
@@ -51,7 +51,7 @@ test('user resource maintains slug from model', function () {
         ->and($array['slug'])->toBe($originalSlug);
 });
 
-test('user resource collection transforms correctly', function () {
+it('transforms collection correctly', function () {
     $users = User::factory()->count(3)->create();
 
     $collection = UserResource::collection($users);
