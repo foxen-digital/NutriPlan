@@ -1,9 +1,0 @@
-# Laravel Frontend Rules
-
-## Icons
-- Use Lucide icons exclusively throughout the application
-- Import icons from `lucide-vue-next` package
-- Use PascalCase for icon component names (e.g., `Heart`, `Settings`, `Menu`)
-- For filled variants, use the `-fill` suffix (e.g., `HeartFill`)
-- Maintain consistent icon sizing across the application
-- Ensure icons are properly aligned with text and other elements 
