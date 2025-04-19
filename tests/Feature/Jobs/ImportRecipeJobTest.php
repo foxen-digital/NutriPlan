@@ -95,3 +95,26 @@ it('handles connection failures and dispatches an error event', function () {
                $event->recipe === null;
     });
 });
+
+it('handles other failures and dispatches an error event', function () {
+    // Arrange
+    $fetchRecipeMock = $this->mock(FetchRecipe::class);
+    $fetchRecipeMock->shouldReceive('handle')
+        ->once()
+        ->with($this->url)
+        ->andThrow(new \RuntimeException('Unexpected error'));
+
+    // Act & Assert
+    $job = new ImportRecipeJob($this->url, $this->user->id);
+
+    expect(fn () => $job->handle($fetchRecipeMock))
+        ->toThrow(\RuntimeException::class);
+
+    // Assert that the event was dispatched with the correct parameters
+    Event::assertDispatched(RecipeImportCompleted::class, function ($event) {
+        return $event->userId === $this->user->id &&
+               $event->status === 'error' &&
+               $event->message === 'Failed to import recipe. Please try again later.' &&
+               $event->recipe === null;
+    });
+});

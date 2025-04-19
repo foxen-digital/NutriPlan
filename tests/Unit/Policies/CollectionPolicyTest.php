@@ -78,3 +78,41 @@ test('delete returns false for non owner', function () {
 
     expect($this->policy->delete($user, $collection))->toBeFalse();
 });
+
+test('restore returns true for collection owner', function () {
+    $user = User::factory()->create();
+    $collection = Collection::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    expect($this->policy->restore($user, $collection))->toBeTrue();
+});
+
+test('restore returns false for non owner', function () {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $collection = Collection::factory()->create([
+        'user_id' => $otherUser->id,
+    ]);
+
+    expect($this->policy->restore($user, $collection))->toBeFalse();
+});
+
+test('forceDelete returns true for collection owner', function () {
+    $user = User::factory()->create();
+    $collection = Collection::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    expect($this->policy->forceDelete($user, $collection))->toBeTrue();
+});
+
+test('forceDelete returns false for non owner', function () {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $collection = Collection::factory()->create([
+        'user_id' => $otherUser->id,
+    ]);
+
+    expect($this->policy->forceDelete($user, $collection))->toBeFalse();
+});
