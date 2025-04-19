@@ -22,7 +22,6 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
-        "genericmilk/docudoodle": "^2.0",
         "larastan/larastan": "^3.2",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.18",
