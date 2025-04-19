@@ -39,6 +39,8 @@ interface RecipeImportEvent {
     recipeUrl: string | URL;
 }
 
+let listenersInitialized = false;
+
 export function useRecipeImport() {
     const { toast } = useToast();
     const page = usePage<CustomPageProps>();
@@ -54,6 +56,11 @@ export function useRecipeImport() {
             // If user is not logged in, don't set up the listeners
             return;
         }
+
+        if (listenersInitialized) {
+            return;
+        }
+        listenersInitialized = true;
 
         // Listen for recipe import completed events on the user's private channel
         window.Echo.private(`user.${userId.value}`).listen('.recipe.import.completed', (e: RecipeImportEvent) => {

@@ -4,7 +4,9 @@ import RecipeCard from '@/components/Recipe/RecipeCard.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { PlusIcon } from 'lucide-vue-next';
+import { PlusIcon, DownloadIcon } from 'lucide-vue-next';
+import ImportRecipeModal from '@/components/Recipe/ImportRecipeModal.vue';
+import { ref } from 'vue';
 
 interface Props {
     recipes: {
@@ -49,6 +51,8 @@ interface Props {
 const { recipes, user, isOwner } = defineProps<Props>();
 
 const pageTitle = isOwner ? 'My Recipes' : `${user.name}'s Recipes`;
+
+const showImportModal = ref(false);
 </script>
 
 <template>
@@ -66,6 +70,10 @@ const pageTitle = isOwner ? 'My Recipes' : `${user.name}'s Recipes`;
                     <Link :href="route('recipes.index')">
                         <Button variant="outline">All Recipes</Button>
                     </Link>
+                    <Button variant="outline" v-if="isOwner" @click="showImportModal = true">
+                        <DownloadIcon class="mr-2 h-4 w-4" />
+                        Import Recipe
+                    </Button>
                     <Link v-if="isOwner" :href="route('recipes.create')">
                         <Button>
                             <PlusIcon class="mr-2 h-4 w-4" />
@@ -103,6 +111,8 @@ const pageTitle = isOwner ? 'My Recipes' : `${user.name}'s Recipes`;
                     <Pagination :links="recipes.links" />
                 </div>
             </div>
+
+            <ImportRecipeModal v-model:open="showImportModal" />
         </div>
     </AppLayout>
 </template>

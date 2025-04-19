@@ -66,15 +66,13 @@ const showImportModal = ref(false);
                     <h1 class="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">Recipes</h1>
                     <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Browse through our collection of delicious recipes</p>
                 </div>
-                <div class="mt-4 flex items-center space-x-4 sm:ml-4 sm:mt-0">
+                <div class="mt-4 space-x-4 sm:ml-auto sm:mt-0 sm:flex-none">
                     <Link :href="route('recipes.by-user', { user: auth.user.slug })" class="inline-flex">
                         <Button variant="outline">
                             <UserIcon class="mr-2 h-4 w-4" />
                             My Recipes
                         </Button>
                     </Link>
-                </div>
-                <div class="mt-4 space-x-4 sm:ml-auto sm:mt-0 sm:flex-none">
                     <Button variant="outline" @click="showImportModal = true">
                         <DownloadIcon class="mr-2 h-4 w-4" />
                         Import Recipe
