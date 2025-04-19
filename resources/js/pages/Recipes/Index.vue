@@ -4,9 +4,15 @@ import ImportRecipeModal from '@/components/Recipe/ImportRecipeModal.vue';
 import RecipeCard from '@/components/Recipe/RecipeCard.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { DownloadIcon, PlusIcon, UserIcon } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { DownloadIcon, MenuIcon, PlusIcon, UserIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Props {
     recipes: {
@@ -54,6 +60,14 @@ interface Props {
 const { recipes, auth } = defineProps<Props>();
 
 const showImportModal = ref(false);
+
+const navigateToMyRecipes = () => {
+    router.visit(route('recipes.by-user', { user: auth.user.slug }));
+};
+
+const navigateToCreate = () => {
+    router.visit(route('recipes.create'));
+};
 </script>
 
 <template>
@@ -66,7 +80,7 @@ const showImportModal = ref(false);
                     <h1 class="text-2xl font-semibold leading-6 text-gray-900 dark:text-white">Recipes</h1>
                     <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Browse through our collection of delicious recipes</p>
                 </div>
-                <div class="mt-4 space-x-4 sm:ml-auto sm:mt-0 sm:flex-none">
+                <div class="mt-4 hidden space-x-4 sm:ml-auto sm:mt-0 sm:flex sm:flex-none">
                     <Link :href="route('recipes.by-user', { user: auth.user.slug })" class="inline-flex">
                         <Button variant="outline">
                             <UserIcon class="mr-2 h-4 w-4" />
@@ -84,9 +98,34 @@ const showImportModal = ref(false);
                         </Button>
                     </Link>
                 </div>
-
-                <ImportRecipeModal v-model:open="showImportModal" />
             </div>
+
+            <!-- Floating Action Button for mobile -->
+            <div class="fixed right-4 top-4 z-10 flex flex-col-reverse gap-2 sm:hidden">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button size="icon" class="h-12 w-12 rounded-full">
+                            <MenuIcon class="h-6 w-6" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem @click="navigateToMyRecipes">
+                            <UserIcon class="mr-2 h-4 w-4" />
+                            My Recipes
+                        </DropdownMenuItem>
+                        <DropdownMenuItem @click="showImportModal = true">
+                            <DownloadIcon class="mr-2 h-4 w-4" />
+                            Import Recipe
+                        </DropdownMenuItem>
+                        <DropdownMenuItem @click="navigateToCreate">
+                            <PlusIcon class="mr-2 h-4 w-4" />
+                            New Recipe
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+
+            <ImportRecipeModal v-model:open="showImportModal" />
 
             <div v-if="recipes.data.length === 0" class="mt-16 text-center">
                 <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">No recipes</h3>
