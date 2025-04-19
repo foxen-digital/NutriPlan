@@ -82,7 +82,7 @@
             "pint --test",
             "npm run format:check"
         ],
-        "test:unit": "pest --parallel --coverage",
+        "test:unit": "pest --parallel --coverage --coverage-html coverage/php",
         "test:types": "phpstan",
         "test:refactor": "rector --dry-run",
         "test": [
