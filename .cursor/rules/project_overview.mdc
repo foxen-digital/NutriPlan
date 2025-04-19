@@ -1,0 +1,141 @@
+---
+description: Comprehensive project overview including tech stack, testing practices, and development guidelines
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Project Overview
+
+This rule provides a comprehensive overview of the project's architecture, tech stack, and development practices.
+
+## Rule Details
+
+- **Name**: Project Overview
+- **Type**: Project Documentation
+- **Scope**: Project-wide
+- **Priority**: High
+
+## Tech Stack
+
+### Backend
+- **Framework**: Laravel / Inertia
+- **Language**: PHP 8.2+
+- **Testing**: Pest PHP
+- **Database**: PostgreSQL (sqlite for development)
+
+### Frontend
+- **Framework**: Vue 3 with Composition API
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **Testing**: Vitest
+- **UI Framework**: Tailwind CSS
+- **State Management**: Pinia
+- **Routing**: Inertia.js
+
+## Development Practices
+
+### Testing Strategy
+
+1. **Backend Testing (Pest PHP)**:
+   - Run tests during development using `vendor/bin/pest`
+   - Use composer scripts for CI/CD pipeline
+   - Follow Laravel Testing Standards (see `@laravel_testing.mdc`)
+   - Key directories:
+     - `tests/Feature/` - API endpoints, web controllers, commands
+     - `tests/Unit/` - Models, Actions, Services
+     - `tests/Fixtures/` - Test data files
+
+2. **Frontend Testing (Vitest)**:
+   - Run tests during development using `npm run test` or `vitest`
+   - Component tests in `__tests__` directories adjacent to components
+   - Follow Frontend Testing Standards (see `laravel_frontend.mdc`)
+   - Test both component rendering and user interactions
+
+### Testing Workflow
+
+1. **Local Development**:
+   - Run Pest tests directly: `vendor/bin/pest`
+   - Run Vitest tests: `npm run test`
+   - Use watch mode for continuous testing: `npm run test:watch`
+
+2. **CI/CD Pipeline**:
+   - Use composer scripts for backend tests
+   - Use npm scripts for frontend tests
+   - Run all tests before deployment
+
+### Key Testing Commands
+
+```bash
+# Backend Tests
+vendor/bin/pest --parallel         # Run all tests
+vendor/bin/pest --filter=testName  # Run specific test
+vendor/bin/pest --group=feature    # Run feature tests
+
+# Frontend Tests
+npm run test                       # Run all tests
+npm run test:watch                 # Run tests in watch mode
+npm run test:coverage              # Generate test coverage
+```
+
+## Project Structure
+
+├── app/
+│ ├── Actions/ # Single-responsibility action classes
+│ ├── Models/ # Eloquent models
+│ ├── Services/ # Business logic services
+│ └── ValueObjects/ # Value objects
+├── resources/
+│ ├── js/
+│ │ ├── Components/ # Vue components
+│ │ ├── Pages/ # Inertia pages
+│ │ └── types/ # TypeScript types
+│ └── css/ # Tailwind styles
+├── tests/
+│ ├── Feature/ # Feature tests
+│ ├── Unit/ # Unit tests
+│ └── Fixtures/ # Test data
+└── vite.config.ts # Vite configuration
+
+## Best Practices
+
+1. **Backend**:
+   - Use service classes for business logic
+   - Keep controllers thin
+   - Use value objects for complex data
+   - Follow SOLID principles
+   - Write comprehensive tests
+
+2. **Frontend**:
+   - Use TypeScript for type safety
+   - Keep components focused
+   - Use composition API
+   - Implement proper error handling
+   - Write component tests
+
+3. **Testing**:
+   - Write tests during development
+   - Use proper test organization
+   - Follow AAA pattern (Arrange, Act, Assert)
+   - Use factories for test data
+   - Mock external services
+
+## Development Workflow
+
+1. **Feature Development**:
+   - Write tests first (TDD)
+   - Implement backend logic
+   - Create frontend components
+   - Test both layers
+   - Refactor as needed
+
+2. **Testing**:
+   - Run tests frequently during development
+   - Use watch mode for continuous testing
+   - Fix failing tests immediately
+   - Maintain high test coverage
+
+3. **Code Review**:
+   - Check test coverage
+   - Verify test organization
+   - Ensure proper error handling
+   - Review code quality
