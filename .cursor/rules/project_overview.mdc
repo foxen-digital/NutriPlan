@@ -44,6 +44,10 @@ This rule provides a comprehensive overview of the project's architecture, tech 
      - `tests/Feature/` - API endpoints, web controllers, commands
      - `tests/Unit/` - Models, Actions, Services
      - `tests/Fixtures/` - Test data files
+   - Structure of our Feature and Unit tests directories should mirror the main app/ structure
+     - `tests/Feature/Http/Controllers`
+     - `tests/Unit/Models`
+     - etc
 
 2. **Frontend Testing (Vitest)**:
    - Run tests during development using `npm run test` or `vitest`
