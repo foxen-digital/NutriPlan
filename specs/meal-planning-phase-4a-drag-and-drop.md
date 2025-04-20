@@ -35,8 +35,24 @@ This phase enhances the meal planning interface by implementing a drag-and-drop 
     *   **Reorder Assignments**: Create a new route `PATCH /meal-plan-days/{meal_plan_day}/reorder-assignments` and corresponding controller action (e.g., `MealPlanDayController@reorderAssignments`). This action should accept an ordered array of `meal_assignment_ids` in the request body. It will iterate through the provided IDs and update the `order` column for each assignment belonging to that day. Ensure authorization checks.
     *   **Create Assignment**: Verify the existing `POST /meal-assignments` (`MealAssignmentController@store`) endpoint can correctly handle creating an assignment with a default serving count (e.g., 1) when initiated via drag-and-drop. It already accepts `meal_plan_day_id` and `meal_plan_recipe_id`.
 3.  **Testing**:
-    *   Write feature tests (Pest) for the new `move` and `reorder` endpoints.
-    *   Ensure existing tests for assignment creation cover the drag-and-drop scenario default.
+    *   **Location**: Place new feature tests in `tests/Feature/Http/Controllers/`. (e.g., `MealAssignmentControllerMoveTest.php`, `MealPlanDayControllerReorderTest.php`).
+    *   **Move Assignment Endpoint (`MealAssignmentController@move`)**: 
+        *   Test that an authenticated user can move an assignment they own to another valid day within the same meal plan.
+        *   Test that the `meal_plan_day_id` is correctly updated.
+        *   Test that the `to_cook` flag is correctly recalculated across all assignments for that recipe (e.g., the first assignment chronologically becomes true, others false).
+        *   Test that an unauthenticated user cannot move an assignment.
+        *   Test that a user cannot move an assignment they don't own.
+        *   Test that an assignment cannot be moved to a day belonging to a different meal plan.
+        *   Use `MealPlan`, `MealPlanDay`, `MealPlanRecipe`, `MealAssignment` factories for setup following AAA pattern.
+    *   **Reorder Assignments Endpoint (`MealPlanDayController@reorderAssignments`)**:
+        *   Test that an authenticated user can reorder assignments within a day they own.
+        *   Test that the `order` column is correctly updated for all affected assignments based on the provided ID list.
+        *   Test that an unauthenticated user cannot reorder assignments.
+        *   Test that a user cannot reorder assignments for a day they don't own.
+        *   Test validation if an invalid `meal_assignment_id` is provided in the list.
+        *   Use factories for setup following AAA pattern.
+    *   **Existing Create Endpoint (`MealAssignmentController@store`)**: 
+        *   Add a test case verifying that creating an assignment via drag-and-drop (simulated request) results in a default `to_cook` flag state (likely true if it's the first instance of that recipe, false otherwise) and a default `order` value.
 
 ### Frontend Requirements (`resources/js/pages/MealPlans/Show.vue`)
 1.  **Dependency**: Ensure `vuedraggable-next` is installed (It is @package.json).
@@ -73,10 +89,4 @@ This phase enhances the meal planning interface by implementing a drag-and-drop 
 ## Testing Criteria
 - Dragging a recipe to a day creates a new assignment with 1 serving (if servings available).
 - Dragging an assignment from Day A to Day B updates its `meal_plan_day_id` correctly in the backend and UI. **Verify that the `to_cook` flags are correctly recalculated across all assignments for that recipe.**
-- Reordering assignments within Day A updates their `order` correctly in the backend and UI.
-- Operations work correctly across devices (desktop and mobile/touch).
-- Visual cues (drop zones, item styling) appear during drag operations.
-- Accessibility requirements for drag and drop interactions are reviewed and addressed as feasible.
-
-## Value Proposition
-This phase significantly improves the user experience of meal planning by making meal assignment organization more intuitive, flexible, and efficient through drag and drop. 
+- Reordering assignments within Day A updates their `order`
