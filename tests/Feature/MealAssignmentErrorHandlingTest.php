@@ -7,18 +7,13 @@ namespace Tests\Feature;
 use App\Models\MealAssignment;
 use App\Models\MealPlan;
 use App\Models\MealPlanDay;
-use App\Models\MealPlanRecipe;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Mockery;
 use RuntimeException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use Illuminate\Database\QueryException;
-use Illuminate\Database\Connection;
 
-function setupTestData(): array {
+function setupTestData(): array
+{
     $user = User::factory()->create();
     $mealPlan = MealPlan::factory()->create(['user_id' => $user->id, 'people_count' => 2]);
     $recipe = Recipe::factory()->create(['servings' => 6]);

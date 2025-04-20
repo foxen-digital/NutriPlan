@@ -18,7 +18,6 @@ use App\Http\Controllers\ShoppingListItemController;
 use App\Http\Controllers\ShoppingListItemPurchaseController;
 use App\Http\Controllers\ShoppingListGenerationController;
 use App\Http\Controllers\ShoppingListItemOrderController;
-use App\Http\Controllers\MealPlanDayController;
 use App\Http\Controllers\MealPlanDayAssignmentOrderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;

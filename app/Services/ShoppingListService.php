@@ -62,7 +62,10 @@ class ShoppingListService
         foreach ($days as $day) {
             // Skip days outside our date range
             $dayDate = Carbon::parse($day->date);
-            if ($dayDate->lt($startDate) || $dayDate->gt($endDate)) {
+            if ($dayDate->lt($startDate)) {
+                continue;
+            }
+            if ($dayDate->gt($endDate)) {
                 continue;
             }
 

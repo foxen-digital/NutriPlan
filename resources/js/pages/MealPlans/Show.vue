@@ -124,7 +124,7 @@
                                         >
                                             <template #item="{ element: assignment }">
                                                 <MealAssignmentCard
-                                                    :key="assignment.id" 
+                                                    :key="assignment.id"
                                                     :assignment="assignment"
                                                     @edit="editMealAssignment"
                                                     @remove="removeMealAssignment"
@@ -233,8 +233,8 @@ import DeleteConfirmationModal from '@/components/MealPlan/Modals/DeleteConfirma
 import EditMealAssignmentModal from '@/components/MealPlan/Modals/EditMealAssignmentModal.vue';
 import EditRecipeScaleFactorModal from '@/components/MealPlan/Modals/EditRecipeScaleFactorModal.vue';
 import GenerateShoppingListModal from '@/components/MealPlan/Modals/GenerateShoppingListModal.vue';
-import RemoveRecipeModal from '@/components/MealPlan/Modals/RemoveRecipeModal.vue';
 import RemoveMealAssignmentModal from '@/components/MealPlan/Modals/RemoveMealAssignmentModal.vue';
+import RemoveRecipeModal from '@/components/MealPlan/Modals/RemoveRecipeModal.vue';
 import RecipeCard from '@/components/MealPlan/RecipeCard.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -434,27 +434,31 @@ const handleRecipeAdded = () => {
 };
 
 function handleMealReorder(event: any, day: MealPlanDay) {
-    const orderedAssignmentIds = day.meal_assignments.map(assignment => assignment.id);
+    const orderedAssignmentIds = day.meal_assignments.map((assignment) => assignment.id);
 
-    router.patch(route('meal-plan-days.assignments.reorder', { meal_plan_day: day.id }), {
-        assignment_ids: orderedAssignmentIds,
-    }, {
-        preserveScroll: true,
-        preserveState: true,
-        onError: (errors) => {
-            console.error('Error reordering meals:', errors);
-            router.reload({ only: ['mealPlan'] });
+    router.patch(
+        route('meal-plan-days.assignments.reorder', { meal_plan_day: day.id }),
+        {
+            assignment_ids: orderedAssignmentIds,
         },
-        onSuccess: () => {
-            console.log('Meal order updated successfully.');
-        }
-    });
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onError: (errors) => {
+                console.error('Error reordering meals:', errors);
+                router.reload({ only: ['mealPlan'] });
+            },
+            onSuccess: () => {
+                console.log('Meal order updated successfully.');
+            },
+        },
+    );
 }
 </script>
 
 <style scoped>
 .ghost {
-  opacity: 0.5;
-  background: #c8ebfb;
+    opacity: 0.5;
+    background: #c8ebfb;
 }
 </style>

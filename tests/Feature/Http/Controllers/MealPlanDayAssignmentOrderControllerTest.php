@@ -62,7 +62,7 @@ test('authenticated owner can reorder meal assignments', function () {
                 'order' => $index
             ]);
     }
-    
+
     // Get the IDs directly from our created assignments
     $currentIds = collect($assignments)->pluck('id')->toArray();
     $shuffledIds = $currentIds;
@@ -101,10 +101,10 @@ test('cannot reorder assignments with an ID not belonging to the day', function 
                 'order' => $index
             ]);
     }
-    
+
     // Get the IDs directly from our created assignments
     $currentIds = collect($assignments)->pluck('id')->toArray();
-    
+
     // Create a different meal plan and day to avoid uniqueness issues
     $otherMealPlan = MealPlan::factory()->recycle($this->user)->create();
     $otherMealPlanDay = MealPlanDay::factory()
@@ -119,11 +119,11 @@ test('cannot reorder assignments with an ID not belonging to the day', function 
             'meal_plan_day_id' => $otherMealPlanDay->id,
             'meal_plan_recipe_id' => $this->mealPlanRecipes->first()->id,
             'order' => 0
-        ]); 
+        ]);
 
     // Prepare the list with one ID replaced by the one from the other day
     $invalidIds = $currentIds;
-    $invalidIds[1] = $otherAssignment->id; 
+    $invalidIds[1] = $otherAssignment->id;
 
     // Act: Send the PATCH request
     $response = $this->actingAs($this->user)
@@ -144,7 +144,7 @@ test('cannot reorder assignments with an incomplete list for the day', function 
                 'order' => $index
             ]);
     }
-    
+
     // Get the IDs directly from our created assignments and remove one
     $incompleteIds = collect($assignments)->pluck('id')->slice(0, -1)->toArray();
 
@@ -167,7 +167,7 @@ test('unauthenticated user cannot reorder assignments', function () {
                 'order' => $index
             ]);
     }
-    
+
     // Get the IDs directly from our created assignments
     $ids = collect($assignments)->pluck('id')->toArray();
 
@@ -189,10 +189,10 @@ test('user cannot reorder assignments on a meal plan they do not own', function 
                 'order' => $index
             ]);
     }
-    
+
     // Get the IDs directly from our created assignments
     $ids = collect($assignments)->pluck('id')->toArray();
-    
+
     // Arrange: Create another user
     $otherUser = User::factory()->create();
 
@@ -205,30 +205,30 @@ test('user cannot reorder assignments on a meal plan they do not own', function 
 });
 
 test('validation fails if assignment_ids is null', function () {
-     // Act: Send the PATCH request
-     $response = $this->actingAs($this->user)
-        ->patch($this->route, ['assignment_ids' => null]);
+    // Act: Send the PATCH request
+    $response = $this->actingAs($this->user)
+       ->patch($this->route, ['assignment_ids' => null]);
 
-     // Assert: Check for validation error
-     $response->assertSessionHasErrors('assignment_ids');
+    // Assert: Check for validation error
+    $response->assertSessionHasErrors('assignment_ids');
 });
 
 test('validation fails if assignment_ids is not an array', function () {
-     // Act: Send the PATCH request
-     $response = $this->actingAs($this->user)
-        ->patch($this->route, ['assignment_ids' => 'string']);
+    // Act: Send the PATCH request
+    $response = $this->actingAs($this->user)
+       ->patch($this->route, ['assignment_ids' => 'string']);
 
-     // Assert: Check for validation error
-     $response->assertSessionHasErrors('assignment_ids');
+    // Assert: Check for validation error
+    $response->assertSessionHasErrors('assignment_ids');
 });
 
 test('validation fails if assignment_ids is an empty array', function () {
-     // Act: Send the PATCH request
-     $response = $this->actingAs($this->user)
-        ->patch($this->route, ['assignment_ids' => []]);
+    // Act: Send the PATCH request
+    $response = $this->actingAs($this->user)
+       ->patch($this->route, ['assignment_ids' => []]);
 
-     // Assert: Check for validation error
-     $response->assertSessionHasErrors('assignment_ids');
+    // Assert: Check for validation error
+    $response->assertSessionHasErrors('assignment_ids');
 });
 
 test('validation fails if assignment_ids contains non-integer', function () {
@@ -242,10 +242,10 @@ test('validation fails if assignment_ids contains non-integer', function () {
                 'order' => $index
             ]);
     }
-    
+
     // Get the IDs directly from our created assignments
     $ids = collect($assignments)->pluck('id')->toArray();
-    
+
     // Replace one ID with a non-integer
     $ids[1] = 'not-an-integer'; // Replace one with invalid data
 
@@ -262,10 +262,10 @@ test('debug: check meal plan day assignments', function () {
     $dbAssignments = DB::table('meal_assignments')
         ->where('meal_plan_day_id', $this->mealPlanDay->id)
         ->get();
-    
+
     dump('Assignments in DB:', $dbAssignments->toArray());
     dump('Assignment IDs in beforeEach:', $this->assignments->pluck('id')->toArray());
-    
+
     // This test doesn't assert anything, it's for debugging only
     expect(true)->toBeTrue();
-}); 
+});

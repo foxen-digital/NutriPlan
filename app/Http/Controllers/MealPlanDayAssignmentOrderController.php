@@ -14,17 +14,13 @@ class MealPlanDayAssignmentOrderController extends Controller
 {
     /**
      * Handle the incoming request to reorder meal assignments for a day.
-     *
-     * @param ReorderMealPlanDayAssignmentsRequest $request
-     * @param MealPlanDay $mealPlanDay
-     * @return RedirectResponse
      */
     public function __invoke(ReorderMealPlanDayAssignmentsRequest $request, MealPlanDay $mealPlanDay): RedirectResponse
     {
         $assignmentIds = array_map('intval', $request->validated('assignment_ids'));
 
         // Use a transaction to ensure atomicity when updating orders
-        DB::transaction(function () use ($assignmentIds) {
+        DB::transaction(function () use ($assignmentIds): void {
             foreach ($assignmentIds as $index => $assignmentId) {
                 MealAssignment::where('id', $assignmentId)
                     ->update(['order' => $index]);

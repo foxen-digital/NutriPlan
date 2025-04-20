@@ -17,17 +17,17 @@ class ReorderMealPlanDayAssignmentsRequest extends FormRequest
     public function authorize(): bool
     {
         $mealPlanDay = $this->route('meal_plan_day');
-        
+
         // For unit tests, we might have the mealPlanDay set directly as a property
-        if (!$mealPlanDay && isset($this->mealPlanDay)) {
+        if (!$mealPlanDay && (property_exists($this, 'mealPlanDay') && $this->mealPlanDay !== null)) {
             $mealPlanDay = $this->mealPlanDay;
         }
-        
+
         // If we can't get the meal plan day, deny authorization
         if (!$mealPlanDay) {
             return false;
         }
-        
+
         return $this->user()->can('update', $mealPlanDay->mealPlan);
     }
 
@@ -52,7 +52,7 @@ class ReorderMealPlanDayAssignmentsRequest extends FormRequest
     public function after(): array
     {
         return [
-            function () {
+            function (): void {
                 $this->validateAssignmentIds();
             }
         ];
@@ -66,25 +66,25 @@ class ReorderMealPlanDayAssignmentsRequest extends FormRequest
     protected function validateAssignmentIds(): void
     {
         $mealPlanDay = $this->route('meal_plan_day');
-        
+
         // For unit tests, we might have the mealPlanDay set directly as a property
-        if (!$mealPlanDay && isset($this->mealPlanDay)) {
+        if (!$mealPlanDay && (property_exists($this, 'mealPlanDay') && $this->mealPlanDay !== null)) {
             $mealPlanDay = $this->mealPlanDay;
         }
-        
+
         // If we can't get the meal plan day, fail validation
         if (!$mealPlanDay) {
             throw ValidationException::withMessages([
                 'meal_plan_day' => 'The meal plan day is required.',
             ]);
         }
-        
+
         $requestedAssignmentIds = array_map('intval', $this->validated('assignment_ids'));
-        
+
         // Fetch all assignment IDs belonging to this meal plan day
         $actualAssignmentIdsOnDay = MealAssignment::where('meal_plan_day_id', $mealPlanDay->id)
             ->pluck('id')
-            ->map(fn($id) => (int) $id)
+            ->map(fn ($id): int => (int) $id)
             ->toArray();
 
         // Validate that we have the correct number of assignments
@@ -99,11 +99,11 @@ class ReorderMealPlanDayAssignmentsRequest extends FormRequest
         $sortedActual = $actualAssignmentIdsOnDay;
         sort($sortedRequested);
         sort($sortedActual);
-        
+
         if ($sortedRequested !== $sortedActual) {
             throw ValidationException::withMessages([
                 'assignment_ids' => 'One or more assignment IDs are incorrect for the specified meal plan day.',
             ]);
         }
     }
-} 
+}

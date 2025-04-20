@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import Pagination from '@/components/Pagination.vue';
+import ImportRecipeModal from '@/components/Recipe/ImportRecipeModal.vue';
 import RecipeCard from '@/components/Recipe/RecipeCard.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { PlusIcon, DownloadIcon } from 'lucide-vue-next';
-import ImportRecipeModal from '@/components/Recipe/ImportRecipeModal.vue';
+import { DownloadIcon, PlusIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface Props {

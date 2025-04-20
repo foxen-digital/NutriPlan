@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Mockery;
+
 use function Pest\Laravel\actingAs;
 
 beforeEach(function () {

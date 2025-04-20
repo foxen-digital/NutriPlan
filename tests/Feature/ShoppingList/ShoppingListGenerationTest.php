@@ -12,8 +12,6 @@ use App\Models\MealPlanDay;
 use App\Models\MealPlanRecipe;
 use App\Models\Recipe;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
 test('user can generate shopping list from meal plan', function () {
     // Create a user and a meal plan

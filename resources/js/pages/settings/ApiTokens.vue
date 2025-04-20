@@ -205,9 +205,7 @@ const copyTokenToClipboard = () => {
                 <DialogContent class="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Delete API Token</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to delete this API token? This action cannot be undone.
-                        </DialogDescription>
+                        <DialogDescription> Are you sure you want to delete this API token? This action cannot be undone. </DialogDescription>
                     </DialogHeader>
                     <DialogFooter class="sm:justify-end">
                         <Button variant="outline" @click="showDeleteConfirmDialog = false">Cancel</Button>

@@ -30,16 +30,11 @@ class MealPlanDayFactory extends Factory
 
     /**
      * Set a specific day number.
-     *
-     * @param int $dayNumber
-     * @return self
      */
     public function withDayNumber(int $dayNumber): self
     {
-        return $this->state(function (array $attributes) use ($dayNumber) {
-            return [
-                'day_number' => $dayNumber,
-            ];
-        });
+        return $this->state(fn(array $attributes): array => [
+            'day_number' => $dayNumber,
+        ]);
     }
 }

@@ -36,9 +36,7 @@ const getRecipeTitle = (assignment: MealAssignment | null): string => {
         <DialogContent class="sm:max-w-md">
             <DialogHeader>
                 <DialogTitle>Remove Meal Assignment</DialogTitle>
-                <DialogDescription>
-                    Are you sure you want to remove "{{ getRecipeTitle(assignment) }}" from this day?
-                </DialogDescription>
+                <DialogDescription> Are you sure you want to remove "{{ getRecipeTitle(assignment) }}" from this day? </DialogDescription>
             </DialogHeader>
             <div class="flex items-center justify-end space-x-2 pt-4">
                 <Button variant="outline" @click="closeModal">Cancel</Button>
@@ -46,4 +44,4 @@ const getRecipeTitle = (assignment: MealAssignment | null): string => {
             </div>
         </DialogContent>
     </Dialog>
-</template> 
+</template>

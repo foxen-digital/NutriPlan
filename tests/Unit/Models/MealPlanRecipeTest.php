@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\MealPlan;
-use App\Models\MealPlanRecipe;
 use App\Models\Recipe;
 use App\Models\User;
 
@@ -14,12 +13,12 @@ beforeEach(function () {
     $this->recipe = Recipe::factory()->create([
         'servings' => 6,
     ]);
-    
+
     // Create the pivot record
     $this->mealPlan->recipes()->attach($this->recipe->id, [
         'scale_factor' => 1.5,
     ]);
-    
+
     $this->mealPlanRecipe = $this->mealPlan->recipes()
         ->where('recipe_id', $this->recipe->id)
         ->first()
