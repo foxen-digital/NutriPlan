@@ -26,13 +26,21 @@ class RecipeController extends Controller
     public function index(Request $request, RecipeIndexService $recipeService): Response
     {
         $user = $request->user();
-        $filters = $request->only(['category', 'show_mine']);
+        $filters = $request->only(['category', 'show_mine', 'search_term', 'search_mode']);
         
+        // Ensure search_term is null if empty string to prevent unnecessary filtering
+        if (isset($filters['search_term']) && trim($filters['search_term']) === '') {
+            $filters['search_term'] = null;
+        }
+
         $recipes = $recipeService->getRecipes($user, $filters);
         
+        // Append all query parameters (including pagination, category, show_mine, search) to pagination links
+        $recipes->appends($request->query());
+
         return Inertia::render('Recipes/Index', [
             'recipes' => $recipes,
-            'filter' => $filters,
+            'filter' => $filters, // Pass all filters including search
         ]);
     }
 

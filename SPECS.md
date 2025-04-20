@@ -25,6 +25,7 @@ This document provides an overview of all feature specifications for the NutriPl
 | Sanctum API Tokens | Backend & Frontend for managing Personal Access Tokens | ✅ | [View Spec](specs/feature-sanctum-api-tokens.md) |
 | Recipe Import API | API endpoint for triggering imports via extensions/apps | ✅ | [View Spec](specs/feature-recipe-import-api.md) |
 | Browser Extensions Core | Chrome/Firefox extensions for triggering recipe imports | ✅ | [View Spec](specs/feature-browser-extensions-core.md) |
+| Recipe Search | Allow users to search recipes by name/description or ingredients | ⏳ | [View Spec](specs/feature-recipe-search.md) |
 | Web Share Target | Alternative to browser extensions for mobile, allowing mobiles users to 'share' a page directly to NutriPlan| 🔮 | [View Spec](specs/feature-web-share.md) |
 | Meal Planning | Create and manage meal plans with recipes | 🚧 | [View Spec](specs/meal-planning.md) |
 

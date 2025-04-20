@@ -56,6 +56,24 @@ class RecipeIndexService
      */
     private function applyFilters(Builder $query, array $filters, User $user): void
     {
+        // Apply search filter first
+        if (isset($filters['search_term']) && $filters['search_term']) {
+            $searchTerm = $filters['search_term'];
+            $searchMode = $filters['search_mode'] ?? 'name_description';
+
+            if ($searchMode === 'name_description') {
+                $query->where(function (Builder $subQuery) use ($searchTerm): void {
+                    $subQuery->where('title', 'LIKE', "%{$searchTerm}%")
+                             ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+                });
+            } elseif ($searchMode === 'ingredient') {
+                $query->whereHas('ingredients', function (Builder $subQuery) use ($searchTerm): void {
+                    // Assuming the Ingredient model has a 'name' column
+                    $subQuery->where('ingredients.name', 'LIKE', "%{$searchTerm}%");
+                });
+            }
+        }
+
         // Filter by category
         if (isset($filters['category'])) {
             $query->whereHas('categories', function (Builder|BelongsToMany $query) use ($filters): void {

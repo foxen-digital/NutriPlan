@@ -510,3 +510,108 @@ test('owner can view full details of their imported recipe', function () {
         ->where('hideDetails', false)
     );
 });
+
+test('recipe index filters by search term in name/description', function () {
+    $recipe1 = Recipe::factory()->create(['title' => 'Special Chicken Soup', 'is_public' => true]);
+    $recipe2 = Recipe::factory()->create(['description' => 'A lovely chicken pie', 'is_public' => true]);
+    $recipe3 = Recipe::factory()->create(['title' => 'Beef Stew', 'is_public' => true]);
+
+    $response = actingAs($this->user)
+        ->get(route('recipes.index', ['search_term' => 'chicken', 'search_mode' => 'name_description']));
+
+    $response->assertOk();
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
+        ->component('Recipes/Index')
+        ->has('recipes.data', 2)
+        ->where('recipes.data.0.id', $recipe1->id)
+        ->where('recipes.data.1.id', $recipe2->id)
+        ->where('filter.search_term', 'chicken')
+        ->where('filter.search_mode', 'name_description')
+    );
+});
+
+test('recipe index filters by search term in ingredients', function () {
+    $ingredient1 = Ingredient::factory()->create(['name' => 'Chicken Breast']);
+    $ingredient2 = Ingredient::factory()->create(['name' => 'Carrot']);
+
+    $recipe1 = Recipe::factory()->create(['title' => 'Chicken and Carrot Dish', 'is_public' => true]);
+    $recipe1->ingredients()->attach($ingredient1, ['amount' => '1', 'unit' => 'piece']);
+    $recipe1->ingredients()->attach($ingredient2, ['amount' => '2', 'unit' => 'piece']);
+
+    $recipe2 = Recipe::factory()->create(['title' => 'Carrot Cake', 'is_public' => true]);
+    $recipe2->ingredients()->attach($ingredient2, ['amount' => '3', 'unit' => 'large']);
+
+    $recipe3 = Recipe::factory()->create(['title' => 'Simple Salad', 'is_public' => true]);
+
+    $response = actingAs($this->user)
+        ->get(route('recipes.index', ['search_term' => 'carrot', 'search_mode' => 'ingredient']));
+
+    $response->assertOk();
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
+        ->component('Recipes/Index')
+        ->has('recipes.data', 2)
+        ->where('recipes.data.0.id', $recipe1->id)
+        ->where('recipes.data.1.id', $recipe2->id)
+        ->where('filter.search_term', 'carrot')
+        ->where('filter.search_mode', 'ingredient')
+    );
+});
+
+test('recipe index pagination links include search parameters', function () {
+    Recipe::factory()->count(15)->create(['title' => 'Searchable Recipe', 'is_public' => true]);
+
+    $response = actingAs($this->user)
+        ->get(route('recipes.index', ['search_term' => 'Searchable', 'search_mode' => 'name_description']));
+
+    $response->assertOk();
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
+        ->component('Recipes/Index')
+        ->has('recipes.data', 12)
+        ->has('recipes.next_page_url')
+        ->where('recipes.next_page_url', fn (string $url) => 
+            str_contains($url, 'page=2') && 
+            str_contains($url, 'search_term=Searchable') &&
+            str_contains($url, 'search_mode=name_description')
+        )
+    );
+});
+
+test('recipe index returns correct filter props', function () {
+    actingAs($this->user)
+        ->get(route('recipes.index', [
+            'category' => 1,
+            'show_mine' => true,
+            'search_term' => 'test search',
+            'search_mode' => 'ingredient'
+        ]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('filter', [
+                'category' => '1',
+                'show_mine' => '1',
+                'search_term' => 'test search',
+                'search_mode' => 'ingredient'
+            ])
+        );
+});
+
+test('empty search term is treated as null', function () {
+    // Arrange
+    $recipe1 = Recipe::factory()->create(['title' => 'Recipe One', 'is_public' => true]);
+    $recipe2 = Recipe::factory()->create(['title' => 'Recipe Two', 'is_public' => true]);
+
+    // Act: Perform GET request with empty search_term
+    $response = actingAs($this->user)
+        ->get(route('recipes.index', ['search_term' => '']));
+
+    // Assert: All recipes should be returned, and filter prop should reflect null search_term
+    $response->assertOk();
+    $response->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Recipes/Index')
+        ->has('recipes.data', 2)
+        ->where('filter.search_term', null)
+        ->etc()
+    );
+});

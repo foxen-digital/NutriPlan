@@ -1,6 +1,16 @@
 
-### SEARCH!
+### Recipe Search
 * Users need to be able to search their / public recipes by title / ingredient.
+* search icon next to action buttons on recipe.index page (NOT in floating button on mobile)
+  * clicking the icon opens a modal
+    * Text input for search term
+    * Two radios:
+      * `Seach name / description`
+      * `Search by ingredient`
+    * Cancel / Search buttons
+  * Re-use existing RecipeController@index method
+    * Add filtering base on $request->has('search_term') & $request->search_mode
+    * apply current `show_mine` filtering (So filter for search first)
 
 ### 'To Cook mode'
 * Add a toggle (switch) on the Recipe Show page, on mobile devices (including tablets).

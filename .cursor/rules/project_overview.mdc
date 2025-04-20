@@ -1,6 +1,6 @@
 ---
-description: Comprehensive project overview including tech stack, testing practices, and development guidelines
-globs: ["**/*"]
+description:
+globs:
 alwaysApply: true
 ---
 
@@ -20,7 +20,7 @@ This rule provides a comprehensive overview of the project's architecture, tech 
 ### Backend
 - **Framework**: Laravel 12 / Inertia
 - **Language**: PHP 8.2+
-- **Testing**: Pest PHP
+- **Testing**: Pest PHP **IMPORTANT**
 - **Database**: PostgreSQL (sqlite for development)
 
 ### Frontend
