@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\ShoppingList;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreShoppingListItemRequest;
 use App\Http\Requests\UpdateShoppingListItemRequest;
 use App\Models\ShoppingList;

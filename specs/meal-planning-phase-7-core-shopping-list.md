@@ -135,7 +135,7 @@ class ShoppingListItem extends Model
 
 ### Controllers
 
-#### ShoppingListController (`App\Http\Controllers\ShoppingListController`)
+#### ShoppingListController (`App\Http\Controllers\ShoppingList\ShoppingListController`)
 Handles the core CRUD operations for shopping lists.
 
 ```php
@@ -210,7 +210,7 @@ class ShoppingListController extends Controller
 }
 ```
 
-#### ShoppingListItemController (`App\Http\Controllers\ShoppingListItemController`)
+#### ShoppingListItemController (`App\Http\Controllers\ShoppingList\ShoppingListItemController`)
 Handles CRUD operations for *custom* shopping list items in this phase.
 
 ```php
@@ -262,7 +262,7 @@ class ShoppingListItemController extends Controller
 }
 ```
 
-#### ShoppingListItemPurchaseController (`App\Http\Controllers\ShoppingListItemPurchaseController`)
+#### ShoppingListItemPurchaseController (`App\Http\Controllers\ShoppingList\ShoppingListItemPurchaseController`)
 Handles the purchase status of shopping list items.
 
 ```php

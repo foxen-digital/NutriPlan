@@ -34,7 +34,7 @@ ADD COLUMN `order` INT UNSIGNED NULL DEFAULT 0 AFTER category; -- Or appropriate
 
 ### Controllers
 
-#### ShoppingListItemOrderController (`App\\Http\\Controllers\\ShoppingListItemOrderController`)
+#### ShoppingListItemOrderController (`App\\Http\\Controllers\\ShoppingList\\ShoppingListItemOrderController`)
 *(New Controller)*
 ```php
 <?php

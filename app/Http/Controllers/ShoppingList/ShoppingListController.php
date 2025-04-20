@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\ShoppingList;
 
-use Inertia\Inertia;
-use Inertia\Response;
-use App\Models\ShoppingList;
-use App\Services\ShoppingListService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use App\Http\Resources\ShoppingListResource;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreShoppingListRequest;
 use App\Http\Requests\UpdateShoppingListRequest;
+use App\Http\Resources\ShoppingListResource;
+use App\Models\ShoppingList;
+use App\Services\ShoppingListService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ShoppingListController extends Controller
 {

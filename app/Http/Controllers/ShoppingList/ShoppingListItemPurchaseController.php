@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\ShoppingList;
 
+use App\Http\Controllers\Controller;
 use App\Models\ShoppingList;
 use App\Models\ShoppingListItem;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;

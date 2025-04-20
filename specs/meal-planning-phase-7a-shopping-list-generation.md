@@ -94,7 +94,7 @@ class ShoppingListService
 
 ### Controllers
 
-#### ShoppingListGenerationController (`App\Http\Controllers\ShoppingListGenerationController`)
+#### ShoppingListGenerationController (`App\Http\Controllers\ShoppingList\ShoppingListGenerationController`)
 Handles the generation requests.
 
 ```php
