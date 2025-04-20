@@ -18,6 +18,8 @@ use App\Http\Controllers\ShoppingListItemController;
 use App\Http\Controllers\ShoppingListItemPurchaseController;
 use App\Http\Controllers\ShoppingListGenerationController;
 use App\Http\Controllers\ShoppingListItemOrderController;
+use App\Http\Controllers\MealPlanDayController;
+use App\Http\Controllers\MealPlanDayAssignmentOrderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\MealPlan;
@@ -68,6 +70,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::delete('shopping-lists/{shoppingList}/items/{item}', [ShoppingListItemController::class, 'destroy'])->name('shopping-lists.items.destroy');
     Route::post('shopping-lists/{shoppingList}/items/{item}/toggle-purchased', ShoppingListItemPurchaseController::class)->name('shopping-lists.items.toggle-purchased');
     Route::put('shopping-lists/{shoppingList}/order-items', ShoppingListItemOrderController::class)->name('shopping-lists.items.order');
+
+    // Meal Assignments
+    Route::post('/meal-assignments', [MealAssignmentController::class, 'store'])->name('meal-assignments.store');
+    Route::put('/meal-assignments/{meal_assignment}', [MealAssignmentController::class, 'update'])->name('meal-assignments.update');
+    Route::delete('/meal-assignments/{meal_assignment}', [MealAssignmentController::class, 'destroy'])->name('meal-assignments.destroy');
+    Route::patch('/meal-plan-days/{meal_plan_day}/assignments/order', MealPlanDayAssignmentOrderController::class)
+        ->name('meal-plan-days.assignments.reorder');
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {

@@ -24,7 +24,22 @@ class MealPlanDayFactory extends Factory
     {
         return [
             'meal_plan_id' => MealPlan::factory(),
-            'day_number' => $this->faker->unique()->numberBetween(1, 7), // Default to 7 days, adjust if needed
+            'day_number' => $this->faker->unique()->numberBetween(1, 14), // Support both 7-day and 14-day meal plans
         ];
+    }
+
+    /**
+     * Set a specific day number.
+     *
+     * @param int $dayNumber
+     * @return self
+     */
+    public function withDayNumber(int $dayNumber): self
+    {
+        return $this->state(function (array $attributes) use ($dayNumber) {
+            return [
+                'day_number' => $dayNumber,
+            ];
+        });
     }
 }

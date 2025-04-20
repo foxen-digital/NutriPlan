@@ -109,20 +109,32 @@
                                     </h3>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">{{ day.date }}</p>
 
-                                    <!-- Meal Assignments -->
+                                    <!-- START: Wrap Meal Assignments with draggable -->
                                     <div class="mt-6 flex-grow space-y-2">
-                                        <div v-if="day.meal_assignments?.length" class="space-y-4">
-                                            <MealAssignmentCard
-                                                v-for="assignment in day.meal_assignments"
-                                                :key="assignment.id"
-                                                :assignment="assignment"
-                                                @edit="editMealAssignment"
-                                                @remove="removeMealAssignment"
-                                                @toggled="handleToCookToggled"
-                                            />
-                                        </div>
-                                        <div v-else class="text-sm text-gray-500 dark:text-gray-400">No meals assigned</div>
+                                        <draggable
+                                            v-if="day.meal_assignments?.length"
+                                            v-model="day.meal_assignments"
+                                            :item-key="(assignment: MealAssignment) => assignment.id"
+                                            tag="div"
+                                            class="space-y-4"
+                                            group="meal-assignments"
+                                            :animation="150"
+                                            ghost-class="ghost"
+                                            @update="handleMealReorder($event, day)"
+                                        >
+                                            <template #item="{ element: assignment }">
+                                                <MealAssignmentCard
+                                                    :key="assignment.id" 
+                                                    :assignment="assignment"
+                                                    @edit="editMealAssignment"
+                                                    @remove="removeMealAssignment"
+                                                    @toggled="handleToCookToggled"
+                                                />
+                                            </template>
+                                        </draggable>
+                                        <div v-else class="pt-4 text-sm text-gray-500 dark:text-gray-400">No meals assigned</div>
                                     </div>
+                                    <!-- END: Wrap Meal Assignments with draggable -->
                                 </div>
                                 <!-- Add Meal Button (always rendered if day exists) -->
                                 <div class="mt-2">
@@ -235,6 +247,7 @@ import { Head, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { CopyIcon, MenuIcon, PlusIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+import draggable from 'vuedraggable';
 
 interface RecipeWithPivot extends Recipe {
     pivot: {
@@ -279,14 +292,15 @@ const daysWithDates = computed(() => {
         return [];
     }
     const startDate = new Date(props.mealPlan.start_date);
-    // Adjust for timezone offset to avoid date shifting
     startDate.setMinutes(startDate.getMinutes() + startDate.getTimezoneOffset());
 
     return props.mealPlan.days.map((day) => {
         const dayDate = new Date(startDate);
         dayDate.setDate(startDate.getDate() + day.day_number - 1);
+        const sortedAssignments = day.meal_assignments?.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) || [];
         return {
             ...day,
+            meal_assignments: sortedAssignments,
             date: dayDate.toLocaleDateString('en-US', {
                 weekday: 'short',
                 month: 'short',
@@ -324,11 +338,9 @@ const handleUpdateRecipeScaleFactor = (recipe: RecipeWithPivot, newScaleFactor: 
     console.log('Updating scale factor for:', recipe.title, 'to:', newScaleFactor);
     showEditRecipeModal.value = false;
 
-    // First remove the recipe
     router.delete(route('meal-plans.remove-recipe', [props.mealPlan.id, recipe.slug]), {
         preserveScroll: true,
         onSuccess: () => {
-            // Then add it back with the new scale factor
             axios
                 .post(route('meal-plans.add-recipe'), {
                     meal_plan_id: props.mealPlan.id,
@@ -337,7 +349,6 @@ const handleUpdateRecipeScaleFactor = (recipe: RecipeWithPivot, newScaleFactor: 
                 })
                 .then(() => {
                     recipeToEdit.value = null;
-                    // Refresh the meal plan data
                     router.reload({ only: ['mealPlan'] });
                 })
                 .catch((error) => {
@@ -392,11 +403,9 @@ async function confirmRemoveMealAssignment() {
 }
 
 function handleToCookToggled(updatedAssignment: MealAssignment): void {
-    // Find the day that contains this assignment
     const day = props.mealPlan.days?.find((d) => d.meal_assignments.some((a) => a.id === updatedAssignment.id));
 
     if (day) {
-        // Find and update the assignment in the day
         const index = day.meal_assignments.findIndex((a) => a.id === updatedAssignment.id);
         if (index !== -1) {
             day.meal_assignments[index].to_cook = updatedAssignment.to_cook;
@@ -415,14 +424,37 @@ const showGenerateShoppingListModal = () => {
     isGenerateShoppingListModalOpen.value = true;
 };
 
-// Add a computed property to check if there are any meals to cook
 const hasMealsToCook = computed(() => {
     if (!props.mealPlan.days) return false;
-    // Check if any day has at least one meal assignment marked as "to cook"
     return props.mealPlan.days.some((day) => day.meal_assignments && day.meal_assignments.some((assignment) => assignment.to_cook));
 });
 
 const handleRecipeAdded = () => {
     router.reload({ only: ['mealPlan'] });
 };
+
+function handleMealReorder(event: any, day: MealPlanDay) {
+    const orderedAssignmentIds = day.meal_assignments.map(assignment => assignment.id);
+
+    router.patch(route('meal-plan-days.assignments.reorder', { meal_plan_day: day.id }), {
+        assignment_ids: orderedAssignmentIds,
+    }, {
+        preserveScroll: true,
+        preserveState: true,
+        onError: (errors) => {
+            console.error('Error reordering meals:', errors);
+            router.reload({ only: ['mealPlan'] });
+        },
+        onSuccess: () => {
+            console.log('Meal order updated successfully.');
+        }
+    });
+}
 </script>
+
+<style scoped>
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
+</style>

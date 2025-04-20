@@ -32,7 +32,7 @@ This phase enhances the meal planning interface by implementing a drag-and-drop 
     *   Add an `order` (integer) column to the `meal_assignments` table to manage display order within a day. Assign based on creation time initially.
 2.  **API Endpoints**:
     *   **Move Assignment**: Create a new route `PATCH /meal-assignments/{meal_assignment}/move` and corresponding controller action (`MealAssignmentController@move`). This action should accept a `new_meal_plan_day_id` in the request body and update the assignment's `meal_plan_day_id`. **After updating the day, it must query all assignments for the same recipe within the plan, order them by day, and update their `to_cook` flags so only the first chronological one is true.** Ensure authorization checks.
-    *   **Reorder Assignments**: Create a new route `PATCH /meal-plan-days/{meal_plan_day}/reorder-assignments` and corresponding controller action (e.g., `MealPlanDayController@reorderAssignments`). This action should accept an ordered array of `meal_assignment_ids` in the request body. It will iterate through the provided IDs and update the `order` column for each assignment belonging to that day. Ensure authorization checks.
+    *   **Reorder Assignments**: Create a new route `PATCH /meal-plan-days/{meal_plan_day}/reorder-assignments` and corresponding controller action (e.g., `MealPlanDayAssignmentOrderController@__invoke`). This action should accept an ordered array of `meal_assignment_ids` in the request body. It will iterate through the provided IDs and update the `order` column for each assignment belonging to that day. Ensure authorization checks.
     *   **Create Assignment**: Verify the existing `POST /meal-assignments` (`MealAssignmentController@store`) endpoint can correctly handle creating an assignment with a default serving count (e.g., 1) when initiated via drag-and-drop. It already accepts `meal_plan_day_id` and `meal_plan_recipe_id`.
 3.  **Testing**:
     *   **Location**: Place new feature tests in `tests/Feature/Http/Controllers/`. (e.g., `MealAssignmentControllerMoveTest.php`, `MealPlanDayControllerReorderTest.php`).
@@ -44,7 +44,7 @@ This phase enhances the meal planning interface by implementing a drag-and-drop 
         *   Test that a user cannot move an assignment they don't own.
         *   Test that an assignment cannot be moved to a day belonging to a different meal plan.
         *   Use `MealPlan`, `MealPlanDay`, `MealPlanRecipe`, `MealAssignment` factories for setup following AAA pattern.
-    *   **Reorder Assignments Endpoint (`MealPlanDayController@reorderAssignments`)**:
+    *   **Reorder Assignments Endpoint (`MealPlanDayAssignmentOrderController@__invoke`)**:
         *   Test that an authenticated user can reorder assignments within a day they own.
         *   Test that the `order` column is correctly updated for all affected assignments based on the provided ID list.
         *   Test that an unauthenticated user cannot reorder assignments.

@@ -18,7 +18,7 @@ This rule provides a comprehensive overview of the project's architecture, tech 
 ## Tech Stack
 
 ### Backend
-- **Framework**: Laravel / Inertia
+- **Framework**: Laravel 12 / Inertia
 - **Language**: PHP 8.2+
 - **Testing**: Pest PHP
 - **Database**: PostgreSQL (sqlite for development)
