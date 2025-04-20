@@ -187,3 +187,129 @@ test('user profile page links are generated correctly from recipe cards', functi
         return $page;
     });
 });
+
+test('filters user recipes by search term in title/description', function () {
+    // Arrange
+    $user = User::factory()->create();
+    $recipe1 = Recipe::factory()->create(['title' => 'User Special Soup', 'user_id' => $user->id, 'is_public' => true]);
+    $recipe2 = Recipe::factory()->create(['description' => 'A lovely user pie', 'user_id' => $user->id, 'is_public' => true]);
+    $recipe3 = Recipe::factory()->create(['title' => 'User Beef Stew', 'user_id' => $user->id, 'is_public' => true]);
+    Recipe::factory()->create(); // Another user's recipe
+
+    // Act
+    $response = $this->actingAs($user)
+        ->get(route('recipes.by-user', ['user' => $user->slug, 'search_term' => 'user', 'search_mode' => 'name_description']));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(
+        fn (Assert $page) => $page
+        ->component('Recipes/UserRecipes')
+        ->has('recipes.data', 3) // All 3 of the user's recipes match
+        ->where('filter.search_term', 'user')
+        ->where('filter.search_mode', 'name_description')
+    );
+
+    // Act again with different term
+    $response = $this->actingAs($user)
+        ->get(route('recipes.by-user', ['user' => $user->slug, 'search_term' => 'Soup', 'search_mode' => 'name_description']));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(
+        fn (Assert $page) => $page
+        ->component('Recipes/UserRecipes')
+        ->has('recipes.data', 1)
+        ->where('recipes.data.0.id', $recipe1->id)
+        ->where('filter.search_term', 'Soup')
+    );
+});
+
+test('filters user recipes by search term in ingredients', function () {
+    // Arrange
+    $user = User::factory()->create();
+    $ingredient1 = \App\Models\Ingredient::factory()->create(['name' => 'Chicken']);
+    $ingredient2 = \App\Models\Ingredient::factory()->create(['name' => 'Celery']);
+
+    $recipe1 = Recipe::factory()->create(['user_id' => $user->id, 'title' => 'User Chicken Soup', 'is_public' => true]);
+    $recipe1->ingredients()->attach([$ingredient1->id, $ingredient2->id]);
+
+    $recipe2 = Recipe::factory()->create(['user_id' => $user->id, 'title' => 'User Celery Salad', 'is_public' => true]);
+    $recipe2->ingredients()->attach($ingredient2);
+
+    $recipe3 = Recipe::factory()->create(['user_id' => $user->id, 'title' => 'User Beef', 'is_public' => true]);
+    Recipe::factory()->hasAttached($ingredient1)->create(); // Another user's chicken recipe
+
+    // Act
+    $response = $this->actingAs($user)
+        ->get(route('recipes.by-user', ['user' => $user->slug, 'search_term' => 'celery', 'search_mode' => 'ingredient']));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(
+        fn (Assert $page) => $page
+        ->component('Recipes/UserRecipes')
+        ->has('recipes.data', 2)
+        ->where('recipes.data.0.id', $recipe1->id)
+        ->where('recipes.data.1.id', $recipe2->id)
+        ->where('filter.search_term', 'celery')
+        ->where('filter.search_mode', 'ingredient')
+    );
+});
+
+test('user recipe pagination links include search parameters', function () {
+    // Arrange
+    $user = User::factory()->create();
+    Recipe::factory()->count(15)->create(['user_id' => $user->id, 'title' => 'User Searchable', 'is_public' => true]);
+
+    // Act
+    $response = $this->actingAs($user)
+        ->get(route('recipes.by-user', [
+            'user' => $user->slug,
+            'search_term' => 'Searchable',
+            'search_mode' => 'name_description'
+        ]));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(
+        fn (Assert $page) => $page
+        ->component('Recipes/UserRecipes')
+        ->has('recipes.data', 12)
+        ->has('recipes.next_page_url')
+        ->where(
+            'recipes.next_page_url',
+            fn (string $url) =>
+            str_contains($url, 'page=2') &&
+            str_contains($url, 'search_term=Searchable') &&
+            str_contains($url, 'search_mode=name_description')
+        )
+    );
+});
+
+test('user recipes returns correct filter props including search', function () {
+    // Arrange
+    $user = User::factory()->create();
+    $category = \App\Models\Category::factory()->create();
+
+    // Act
+    $response = $this->actingAs($user)
+        ->get(route('recipes.by-user', [
+            'user' => $user->slug,
+            'category' => $category->id,
+            'search_term' => 'my search',
+            'search_mode' => 'ingredient'
+        ]));
+
+    // Assert
+    $response->assertOk();
+    $response->assertInertia(
+        fn (Assert $page) => $page
+        ->where('filter', [
+            'category' => (string)$category->id,
+            'search_term' => 'my search',
+            'search_mode' => 'ingredient',
+            'target_user_id' => $user->id,
+        ])
+    );
+});

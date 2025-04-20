@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Recipe;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Services\RecipeIndexService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,43 +15,29 @@ class UserRecipeController extends Controller
     /**
      * Display a listing of the recipes for a specific user.
      */
-    public function index(Request $request, User $user): Response
+    public function index(Request $request, User $user, RecipeIndexService $recipeService): Response
     {
         $currentUser = $request->user();
         $isOwner = $currentUser->id === $user->id;
 
-        // Build the query to get recipes
-        $query = Recipe::query()
-            ->with(['user', 'categories' => function (Builder|BelongsToMany $query): void {
-                $query->withCount('recipes');
-            }])
-            ->where('user_id', $user->id)
-            ->latest();
+        // Prepare filters for the service
+        $filters = $request->only(['category', 'search_term', 'search_mode']);
+        $filters['target_user_id'] = $user->id; // Add the target user ID
 
-        // Filter by category if provided in the request
-        if ($request->has('category')) {
-            $categoryId = $request->input('category');
-            $query->whereHas('categories', function (Builder|BelongsToMany $query) use ($categoryId): void {
-                $query->where('categories.id', $categoryId);
-            });
+        // Ensure search_term is null if empty string
+        if (isset($filters['search_term']) && trim($filters['search_term']) === '') {
+            $filters['search_term'] = null;
         }
 
-        // Handle visibility: if not the recipe owner, only show public recipes
-        if (!$isOwner) {
-            $query->where('is_public', true);
-        }
+        // Get recipes using the service
+        $recipes = $recipeService->getRecipes($currentUser, $filters);
 
-        $recipes = $query->paginate(12)->withQueryString();
-
-        // Add is_favorited flag to each recipe
-        $recipes->getCollection()->transform(function (Recipe $recipe) use ($currentUser): Recipe {
-            $recipe->is_favorited = $currentUser->favorites()->where('recipe_id', $recipe->id)->exists();
-            return $recipe;
-        });
+        // Append all query parameters
+        $recipes->appends($request->query());
 
         return Inertia::render('Recipes/UserRecipes', [
             'recipes' => $recipes,
-            'filter' => $request->only(['category']),
+            'filter' => $filters, // Pass all filters including search and target_user_id
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,

@@ -15,27 +15,24 @@ class RecipeIndexService
     /**
      * Get filtered and paginated recipes.
      *
-     * @param User $user The current user
-     * @param array $filters Filters to apply (category, show_mine)
-     * @return LengthAwarePaginator
+     * @param User $authenticatedUser The currently authenticated user viewing the recipes.
+     * @param array $filters Filters to apply (category, show_mine, search_term, search_mode, target_user_id)
      */
-    public function getRecipes(User $user, array $filters = []): LengthAwarePaginator
+    public function getRecipes(User $authenticatedUser, array $filters = []): LengthAwarePaginator
     {
         $query = $this->buildBaseQuery();
 
-        $this->applyFilters($query, $filters, $user);
+        $this->applyFilters($query, $filters, $authenticatedUser);
 
         $recipes = $query->paginate(12);
 
-        $this->addIsFavoritedFlag($recipes, $user);
+        $this->addIsFavoritedFlag($recipes, $authenticatedUser);
 
         return $recipes;
     }
 
     /**
      * Build the base query for recipes.
-     *
-     * @return Builder
      */
     private function buildBaseQuery(): Builder
     {
@@ -48,16 +45,11 @@ class RecipeIndexService
 
     /**
      * Apply filters to the query.
-     *
-     * @param Builder $query
-     * @param array $filters
-     * @param User $user
-     * @return void
      */
-    private function applyFilters(Builder $query, array $filters, User $user): void
+    private function applyFilters(Builder $query, array $filters, User $authenticatedUser): void
     {
         // Apply search filter first
-        if (isset($filters['search_term']) && $filters['search_term']) {
+        if (!empty($filters['search_term'])) {
             $searchTerm = $filters['search_term'];
             $searchMode = $filters['search_mode'] ?? 'name_description';
 
@@ -68,42 +60,48 @@ class RecipeIndexService
                 });
             } elseif ($searchMode === 'ingredient') {
                 $query->whereHas('ingredients', function (Builder $subQuery) use ($searchTerm): void {
-                    // Assuming the Ingredient model has a 'name' column
                     $subQuery->where('ingredients.name', 'LIKE', "%{$searchTerm}%");
                 });
             }
         }
 
         // Filter by category
-        if (isset($filters['category'])) {
+        if (!empty($filters['category'])) {
             $query->whereHas('categories', function (Builder|BelongsToMany $query) use ($filters): void {
                 $query->where('categories.id', $filters['category']);
             });
         }
 
-        // Filter by user's own recipes
-        if (isset($filters['show_mine']) && $filters['show_mine']) {
-            $query->where('user_id', $user->id);
+        // Determine the target user ID and apply filters based on it and viewer permissions
+        $targetUserId = $filters['target_user_id'] ?? null;
+
+        if ($targetUserId) {
+            // Viewing a specific user's profile
+            $query->where('user_id', $targetUserId);
+            // If the viewer is not the owner of the profile, only show public recipes
+            if ($authenticatedUser->id !== (int)$targetUserId) {
+                $query->where('is_public', true);
+            }
+        } elseif (!empty($filters['show_mine'])) {
+            // Viewing "My Recipes" specifically (show_mine=true)
+            $query->where('user_id', $authenticatedUser->id);
         } else {
-            // Only show public recipes or user's own recipes
-            $query->where(function (Builder $query) use ($user): void {
-                $query->where('is_public', true)
-                    ->orWhere('user_id', $user->id);
+            // Default view (index page without specific user or show_mine=true)
+            // Show public recipes OR the authenticated user's own recipes
+            $query->where(function (Builder $subQuery) use ($authenticatedUser): void {
+                $subQuery->where('is_public', true)
+                         ->orWhere('user_id', $authenticatedUser->id);
             });
         }
     }
 
     /**
      * Add is_favorited flag to recipes.
-     *
-     * @param LengthAwarePaginator $recipes
-     * @param User $user
-     * @return void
      */
-    private function addIsFavoritedFlag(LengthAwarePaginator $recipes, User $user): void
+    private function addIsFavoritedFlag(LengthAwarePaginator $recipes, User $authenticatedUser): void
     {
-        $recipes->getCollection()->transform(function (Recipe $recipe) use ($user): Recipe {
-            $recipe->is_favorited = $user->favorites()->where('recipe_id', $recipe->id)->exists();
+        $recipes->getCollection()->transform(function (Recipe $recipe) use ($authenticatedUser): Recipe {
+            $recipe->is_favorited = $authenticatedUser->favorites()->where('recipe_id', $recipe->id)->exists();
             return $recipe;
         });
     }
