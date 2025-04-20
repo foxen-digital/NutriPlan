@@ -112,15 +112,17 @@
                                     <!-- START: Wrap Meal Assignments with draggable -->
                                     <div class="mt-6 flex-grow space-y-2">
                                         <draggable
-                                            v-if="day.meal_assignments?.length"
                                             v-model="day.meal_assignments"
                                             :item-key="(assignment: MealAssignment) => assignment.id"
                                             tag="div"
-                                            class="space-y-4"
-                                            group="meal-assignments"
+                                            class="space-y-4 draggable-container"
+                                            :group="{ name: 'meal-assignments', put: ['meal-assignments'] }"
                                             :animation="150"
                                             ghost-class="ghost"
+                                            drag-over-class="drag-over"
                                             @update="handleMealReorder($event, day)"
+                                            @add="handleMealAdded($event, day)"
+                                            @remove="handleMealRemoved"
                                         >
                                             <template #item="{ element: assignment }">
                                                 <MealAssignmentCard
@@ -131,8 +133,14 @@
                                                     @toggled="handleToCookToggled"
                                                 />
                                             </template>
+                                            <!-- Placeholder when no assignments: ensures drop target exists -->
+                                            <div
+                                                v-show="!day.meal_assignments || day.meal_assignments.length === 0"
+                                                class="pt-4 text-sm text-gray-500 dark:text-gray-400"
+                                            >
+                                                No meals assigned
+                                            </div>
                                         </draggable>
-                                        <div v-else class="pt-4 text-sm text-gray-500 dark:text-gray-400">No meals assigned</div>
                                     </div>
                                     <!-- END: Wrap Meal Assignments with draggable -->
                                 </div>
@@ -454,6 +462,33 @@ function handleMealReorder(event: any, day: MealPlanDay) {
         },
     );
 }
+
+function handleMealAdded(event: any, targetDay: MealPlanDay) {
+    // Only process if this is a move between days (not a reorder within the same day)
+    if (event.from !== event.to) {
+        const assignment = event.item.__draggable_context.element as MealAssignment;
+        
+        // Call the move endpoint
+        axios.patch(route('meal-assignments.move', assignment.id), {
+            new_meal_plan_day_id: targetDay.id
+        })
+        .then(() => {
+            console.log('Meal assignment moved successfully');
+            // Refresh the meal plan data
+            router.reload({ only: ['mealPlan'] });
+        })
+        .catch((error) => {
+            console.error('Error moving meal assignment:', error);
+            // Refresh to restore original state on error
+            router.reload({ only: ['mealPlan'] });
+        });
+    }
+}
+
+function handleMealRemoved(event: any) {
+    // No specific action needed for remove - the add handler takes care of the move
+    console.log('Meal removed from day', event.from.__draggable_context.index);
+}
 </script>
 
 <style scoped>
@@ -461,4 +496,9 @@ function handleMealReorder(event: any, day: MealPlanDay) {
     opacity: 0.5;
     background: #c8ebfb;
 }
+
+.drag-over {
+    @apply bg-blue-100 dark:bg-blue-900/50 rounded-md p-2; /* Example styling */
+}
+
 </style>

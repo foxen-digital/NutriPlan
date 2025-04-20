@@ -19,6 +19,7 @@ use App\Http\Controllers\ShoppingListItemPurchaseController;
 use App\Http\Controllers\ShoppingListGenerationController;
 use App\Http\Controllers\ShoppingListItemOrderController;
 use App\Http\Controllers\MealPlanDayAssignmentOrderController;
+use App\Http\Controllers\MealAssignmentMoveController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\MealPlan;
@@ -83,6 +84,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/meal-assignments/{mealAssignment}', [MealAssignmentController::class, 'update'])->name('meal-assignments.update');
     Route::delete('/meal-assignments/{mealAssignment}', [MealAssignmentController::class, 'destroy'])->name('meal-assignments.destroy');
     Route::post('/meal-assignments/{mealAssignment}/toggle-cook', [MealAssignmentController::class, 'toggleToCook'])->name('meal-assignments.toggle-cook');
+    Route::patch('/meal-assignments/{mealAssignment}/move', MealAssignmentMoveController::class)->name('meal-assignments.move');
 });
 
 // Demo Routes
