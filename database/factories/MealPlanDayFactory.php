@@ -33,7 +33,7 @@ class MealPlanDayFactory extends Factory
      */
     public function withDayNumber(int $dayNumber): self
     {
-        return $this->state(fn(array $attributes): array => [
+        return $this->state(fn (array $attributes): array => [
             'day_number' => $dayNumber,
         ]);
     }

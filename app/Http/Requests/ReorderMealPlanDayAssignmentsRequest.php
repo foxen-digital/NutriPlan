@@ -84,7 +84,7 @@ class ReorderMealPlanDayAssignmentsRequest extends FormRequest
         // Fetch all assignment IDs belonging to this meal plan day
         $actualAssignmentIdsOnDay = MealAssignment::where('meal_plan_day_id', $mealPlanDay->id)
             ->pluck('id')
-            ->map(fn ($id): int => (int) $id)
+            ->map(fn (mixed $id): int => (int) $id)
             ->toArray();
 
         // Validate that we have the correct number of assignments
