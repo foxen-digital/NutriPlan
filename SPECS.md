@@ -47,7 +47,7 @@ This document provides an overview of all feature specifications for the NutriPl
 | Phase 11: Barcode Scanning | Add items to shopping list via barcode scanning (Mobile) | ✅ | [View Spec](specs/meal-planning-phase-7x-barcode-scanning.md) |
 | Phase 12: Nutritional Summaries | Show nutritional totals per day or week | 🔮 | [View Spec](specs/meal-planning-phase-8-nutritional-summaries.md) |
 | Phase 13: Cooking Notifications | Reminders for meals flagged "to cook" | 🔮 | [View Spec](specs/meal-planning-phase-9-cooking-notifications.md) |
-| Phase 14: Drag and Drop Interface | Implement drag-and-drop interface for meal assignments | ⏳ | [View Spec](specs/meal-planning-phase-4a-drag-and-drop.md) |
+| Phase 14: Drag and Drop Interface | Implement drag-and-drop interface for meal assignments | ✅ | [View Spec](specs/meal-planning-phase-4a-drag-and-drop.md) |
 | Phase 15: Mobile Optimization | Fully optimize the experience for mobile devices | 🔮 | [View Spec](specs/meal-planning-phase-6-mobile-optimization.md) |
 
 ## Status Legend
