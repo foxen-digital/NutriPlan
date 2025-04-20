@@ -22,16 +22,16 @@ class RecipeIndexService
     public function getRecipes(User $user, array $filters = []): LengthAwarePaginator
     {
         $query = $this->buildBaseQuery();
-        
+
         $this->applyFilters($query, $filters, $user);
-        
+
         $recipes = $query->paginate(12);
-        
+
         $this->addIsFavoritedFlag($recipes, $user);
-        
+
         return $recipes;
     }
-    
+
     /**
      * Build the base query for recipes.
      *
@@ -45,7 +45,7 @@ class RecipeIndexService
             }])
             ->latest();
     }
-    
+
     /**
      * Apply filters to the query.
      *
@@ -92,7 +92,7 @@ class RecipeIndexService
             });
         }
     }
-    
+
     /**
      * Add is_favorited flag to recipes.
      *
@@ -107,4 +107,4 @@ class RecipeIndexService
             return $recipe;
         });
     }
-} 
+}

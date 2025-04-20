@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import Pagination from '@/components/Pagination.vue';
 import ImportRecipeModal from '@/components/Recipe/ImportRecipeModal.vue';
 import RecipeCard from '@/components/Recipe/RecipeCard.vue';
@@ -7,9 +6,10 @@ import RecipeSearchModal from '@/components/Recipe/RecipeSearchModal.vue';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppLayout from '@/layouts/AppLayout.vue';
+import type { RecipeFilters } from '@/types/recipes';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { DownloadIcon, MenuIcon, PlusIcon, SearchIcon, UserIcon, XCircleIcon } from 'lucide-vue-next';
-import type { RecipeFilters } from '@/types/recipes';
+import { computed, ref } from 'vue';
 
 interface Props {
     recipes: {
@@ -68,16 +68,16 @@ const navigateToCreate = () => {
 
 const clearSearch = () => {
     const queryParams = { ...route().params };
-    delete queryParams.search_term
-    delete queryParams.search_mode
-    delete queryParams.page
+    delete queryParams.search_term;
+    delete queryParams.search_mode;
+    delete queryParams.page;
 
     router.get(route('recipes.index'), queryParams, {
         preserveState: true,
         preserveScroll: true,
         replace: true,
-    })
-}
+    });
+};
 </script>
 
 <template>
@@ -91,7 +91,7 @@ const clearSearch = () => {
                     <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Browse through our collection of delicious recipes</p>
                 </div>
                 <div class="mt-4 hidden space-x-4 sm:ml-auto sm:mt-0 sm:flex sm:flex-none">
-                    <Button variant="outline" @click="showSearchModal = true" class="px-2 rounded-full">
+                    <Button variant="outline" @click="showSearchModal = true" class="rounded-full px-2">
                         <SearchIcon class="h-4 w-4" />
                     </Button>
                     <Link :href="route('recipes.by-user', { user: props.auth.user.slug })" class="inline-flex">
@@ -145,9 +145,15 @@ const clearSearch = () => {
             <RecipeSearchModal v-model:open="showSearchModal" :current-filters="currentFilters" />
 
             <div v-if="currentFilters.search_term" class="my-4 flex items-center justify-center">
-                <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                <span
+                    class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                >
                     Searching for: "{{ currentFilters.search_term }}"
-                    <button @click="clearSearch" type="button" class="ml-2 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-500 focus:bg-gray-500 focus:text-white focus:outline-none dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:bg-gray-600">
+                    <button
+                        @click="clearSearch"
+                        type="button"
+                        class="ml-2 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-500 focus:bg-gray-500 focus:text-white focus:outline-none dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:bg-gray-600"
+                    >
                         <span class="sr-only">Remove search</span>
                         <XCircleIcon class="h-3 w-3" />
                     </button>
@@ -159,9 +165,7 @@ const clearSearch = () => {
                 <p v-if="!currentFilters.search_term" class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new recipe</p>
                 <p v-else class="mt-1 text-sm text-gray-500 dark:text-gray-400">Try broadening your search criteria.</p>
                 <div class="mt-6">
-                    <Button v-if="currentFilters.search_term" variant="outline" @click="clearSearch">
-                        Clear Search
-                    </Button>
+                    <Button v-if="currentFilters.search_term" variant="outline" @click="clearSearch"> Clear Search </Button>
                     <Link v-else :href="route('recipes.create')">
                         <Button>
                             <PlusIcon class="mr-2 h-4 w-4" />

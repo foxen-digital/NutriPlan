@@ -11,4 +11,4 @@ export interface RecipeFilters {
     // Add other potential filters here
 }
 
-// Add other recipe-related types as needed 
+// Add other recipe-related types as needed

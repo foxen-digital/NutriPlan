@@ -571,8 +571,10 @@ test('recipe index pagination links include search parameters', function () {
         ->component('Recipes/Index')
         ->has('recipes.data', 12)
         ->has('recipes.next_page_url')
-        ->where('recipes.next_page_url', fn (string $url) => 
-            str_contains($url, 'page=2') && 
+        ->where(
+            'recipes.next_page_url',
+            fn (string $url) =>
+            str_contains($url, 'page=2') &&
             str_contains($url, 'search_term=Searchable') &&
             str_contains($url, 'search_mode=name_description')
         )
@@ -587,7 +589,8 @@ test('recipe index returns correct filter props', function () {
             'search_term' => 'test search',
             'search_mode' => 'ingredient'
         ]))
-        ->assertInertia(fn (AssertableInertia $page) => $page
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
             ->where('filter', [
                 'category' => '1',
                 'show_mine' => '1',
@@ -608,7 +611,8 @@ test('empty search term is treated as null', function () {
 
     // Assert: All recipes should be returned, and filter prop should reflect null search_term
     $response->assertOk();
-    $response->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
         ->component('Recipes/Index')
         ->has('recipes.data', 2)
         ->where('filter.search_term', null)
