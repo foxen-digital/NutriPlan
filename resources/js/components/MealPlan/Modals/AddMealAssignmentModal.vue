@@ -17,6 +17,7 @@ interface Props {
         value: string;
         label: string;
     }>;
+    peopleCount: number;
 }
 
 const props = defineProps<Props>();
@@ -79,7 +80,7 @@ const addMealAssignment = async () => {
                     <InputError :message="form.errors.meal_plan_recipe_id" class="mt-2" />
                 </div>
                 <div>
-                    <Label for="servings">Servings</Label>
+                    <Label for="servings">Servings (for {{ peopleCount }})</Label>
                     <Input id="servings" v-model="form.servings" type="number" step="1" min="1" max="20" class="mt-1 block w-full" />
                     <InputError :message="form.errors.servings" class="mt-2" />
                 </div>

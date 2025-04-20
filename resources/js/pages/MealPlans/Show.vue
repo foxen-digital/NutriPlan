@@ -71,6 +71,7 @@
                             v-for="recipe in mealPlan.recipes"
                             :key="recipe.id"
                             :recipe="recipe"
+                            :people-count="mealPlan.people_count"
                             @edit="editRecipeInPlan"
                             @remove="confirmRemoveRecipe"
                         />
@@ -185,6 +186,7 @@
             :open="showAssignMealModal"
             :meal-plan-day="selectedDay"
             :available-recipes="availableRecipes"
+            :people-count="mealPlan.people_count"
             @update:open="showAssignMealModal = $event"
             @meal-added="router.reload({ only: ['mealPlan'] })"
         />

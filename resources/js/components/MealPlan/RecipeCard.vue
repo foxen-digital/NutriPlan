@@ -34,7 +34,7 @@
         <p class="text-sm text-gray-500 dark:text-gray-400">
             Scale Factor: {{ formatScaleFactor(recipe.pivot.scale_factor) }}x ({{ calculatedServings }} servings)
             <span class="ml-2 text-green-600 dark:text-green-400">
-                • {{ formatScaleFactor(recipe.pivot.servings_available) }} available servings
+                • {{ formatScaleFactor(recipe.pivot.servings_available) }} available meals (for {{ peopleCount }})
             </span>
         </p>
     </div>
@@ -58,6 +58,7 @@ interface RecipeWithPivot extends Recipe {
 
 const props = defineProps<{
     recipe: RecipeWithPivot;
+    peopleCount: number;
 }>();
 
 defineEmits<{
