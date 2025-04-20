@@ -76,6 +76,7 @@
                     >
                         <template #item="{ element: recipe }">
                             <RecipeCard
+                                class="cursor-move"
                                 :key="recipe.id"
                                 :recipe="recipe"
                                 :people-count="mealPlan.people_count"
@@ -133,6 +134,7 @@
                                         >
                                             <template #item="{ element: assignment }">
                                                 <MealAssignmentCard
+                                                    class="cursor-move"
                                                     :key="assignment.id"
                                                     :assignment="assignment"
                                                     @edit="editMealAssignment"
