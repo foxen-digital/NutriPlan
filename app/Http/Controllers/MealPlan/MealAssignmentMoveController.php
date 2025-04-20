@@ -18,10 +18,6 @@ class MealAssignmentMoveController extends Controller
     use RecalculatesToCookFlags;
     /**
      * Move a meal assignment to a different day.
-     *
-     * @param Request $request
-     * @param MealAssignment $mealAssignment
-     * @return JsonResponse
      */
     public function __invoke(Request $request, MealAssignment $mealAssignment): JsonResponse
     {

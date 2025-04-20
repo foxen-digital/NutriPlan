@@ -11,7 +11,6 @@ trait RecalculatesToCookFlags
      * Recalculate to_cook flags for all assignments of the same recipe.
      *
      * @param MealAssignment $mealAssignment The assignment that was just moved (used to identify recipe and plan)
-     * @return void
      */
     private function recalculateToCookFlags(MealAssignment $mealAssignment): void
     {
@@ -28,7 +27,7 @@ trait RecalculatesToCookFlags
             ->get();
 
         // Mark only the first assignment as to_cook, rest as false
-        DB::transaction(function () use ($relatedAssignments) {
+        DB::transaction(function () use ($relatedAssignments): void {
             foreach ($relatedAssignments as $index => $assignmentToUpdate) {
                 // Fetch the model instance to ensure we have a proper Eloquent model
                 $assignmentModel = MealAssignment::find($assignmentToUpdate->id);

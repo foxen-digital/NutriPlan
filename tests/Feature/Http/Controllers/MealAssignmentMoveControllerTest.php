@@ -27,17 +27,17 @@ class MealAssignmentMoveControllerTest extends TestCase
             'meal_plan_id' => $mealPlan->id,
             'recipe_id' => $recipe->id
         ]);
-        
+
         $day1 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 1
         ]);
-        
+
         $day2 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 2
         ]);
-        
+
         $assignment = MealAssignment::factory()->create([
             'meal_plan_day_id' => $day1->id,
             'meal_plan_recipe_id' => $mealPlanRecipe->id,
@@ -69,12 +69,12 @@ class MealAssignmentMoveControllerTest extends TestCase
             'meal_plan_id' => $mealPlan->id,
             'recipe_id' => $recipe->id
         ]);
-        
+
         $day1 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 1
         ]);
-        
+
         $day3 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 3
@@ -95,12 +95,12 @@ class MealAssignmentMoveControllerTest extends TestCase
 
         // Assert: to_cook should still be true
         $response->assertOk();
-        
+
         $this->assertDatabaseHas('meal_assignments', [
             'id' => $assignment->id,
             'meal_plan_day_id' => $day1->id
         ]);
-        
+
         $assignment->refresh();
         $this->assertTrue($assignment->to_cook);
     }
@@ -115,29 +115,29 @@ class MealAssignmentMoveControllerTest extends TestCase
             'meal_plan_id' => $mealPlan->id,
             'recipe_id' => $recipe->id
         ]);
-        
+
         $day1 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 1
         ]);
-        
+
         $day2 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 2
         ]);
-        
+
         $day3 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 3
         ]);
-        
+
         // First assignment on day 1 - to_cook = true (the earliest, so should be to_cook=true)
         $assignment1 = MealAssignment::factory()->create([
             'meal_plan_day_id' => $day1->id,
             'meal_plan_recipe_id' => $mealPlanRecipe->id,
             'to_cook' => true
         ]);
-        
+
         // Second assignment for same recipe on day 3 - to_cook = false
         $assignment2 = MealAssignment::factory()->create([
             'meal_plan_day_id' => $day3->id,
@@ -153,22 +153,22 @@ class MealAssignmentMoveControllerTest extends TestCase
 
         // Assert
         $response->assertOk();
-        
+
         // Refresh both assignments
         $assignment1->refresh();
         $assignment2->refresh();
-        
+
         // Assignment1 moved to day2 but is still the first chronologically, so to_cook should be true
         $this->assertEquals($day2->id, $assignment1->meal_plan_day_id);
         $this->assertTrue($assignment1->to_cook);
         $this->assertFalse($assignment2->to_cook);
-        
+
         // Now move assignment1 to day 3 (after assignment2's day), which should flip the to_cook flags
         $response = $this->actingAs($user)
             ->patch(route('meal-assignments.move', $assignment1), [
                 'new_meal_plan_day_id' => $day3->id
             ]);
-            
+
         // This should fail with 422 due to unique constraint
         $response->assertStatus(422);
     }
@@ -180,22 +180,22 @@ class MealAssignmentMoveControllerTest extends TestCase
         $mealPlan1 = MealPlan::factory()->create(['user_id' => $user->id]);
         $mealPlan2 = MealPlan::factory()->create(['user_id' => $user->id]);
         $recipe = Recipe::factory()->create(['user_id' => $user->id]);
-        
+
         $mealPlanRecipe = MealPlanRecipe::factory()->create([
             'meal_plan_id' => $mealPlan1->id,
             'recipe_id' => $recipe->id
         ]);
-        
+
         $day1 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan1->id,
             'day_number' => 1
         ]);
-        
+
         $day2 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan2->id, // Different meal plan
             'day_number' => 1
         ]);
-        
+
         $assignment = MealAssignment::factory()->create([
             'meal_plan_day_id' => $day1->id,
             'meal_plan_recipe_id' => $mealPlanRecipe->id,
@@ -223,22 +223,22 @@ class MealAssignmentMoveControllerTest extends TestCase
         $otherUser = User::factory()->create();
         $mealPlan = MealPlan::factory()->create(['user_id' => $owner->id]);
         $recipe = Recipe::factory()->create(['user_id' => $owner->id]);
-        
+
         $mealPlanRecipe = MealPlanRecipe::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'recipe_id' => $recipe->id
         ]);
-        
+
         $day1 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 1
         ]);
-        
+
         $day2 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 2
         ]);
-        
+
         $assignment = MealAssignment::factory()->create([
             'meal_plan_day_id' => $day1->id,
             'meal_plan_recipe_id' => $mealPlanRecipe->id,
@@ -265,22 +265,22 @@ class MealAssignmentMoveControllerTest extends TestCase
         $user = User::factory()->create();
         $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
         $recipe = Recipe::factory()->create(['user_id' => $user->id]);
-        
+
         $mealPlanRecipe = MealPlanRecipe::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'recipe_id' => $recipe->id
         ]);
-        
+
         $day1 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 1
         ]);
-        
+
         $day2 = MealPlanDay::factory()->create([
             'meal_plan_id' => $mealPlan->id,
             'day_number' => 2
         ]);
-        
+
         $assignment = MealAssignment::factory()->create([
             'meal_plan_day_id' => $day1->id,
             'meal_plan_recipe_id' => $mealPlanRecipe->id,
@@ -299,4 +299,4 @@ class MealAssignmentMoveControllerTest extends TestCase
             'meal_plan_day_id' => $day1->id // Not changed
         ]);
     }
-} 
+}

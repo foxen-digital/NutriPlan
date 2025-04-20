@@ -45,4 +45,4 @@ class MealAssignmentPolicy
         // The specific meal plan ownership will be checked in the controller
         return true;
     }
-} 
+}

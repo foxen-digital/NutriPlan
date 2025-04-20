@@ -71,7 +71,7 @@
                         :list="mealPlan.recipes"
                         :item-key="(recipe: RecipeWithPivot) => recipe.id"
                         tag="div"
-                        class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 recipes-list"
+                        class="recipes-list grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
                         :group="{ name: 'recipes', pull: 'clone', put: false }"
                     >
                         <template #item="{ element: recipe }">
@@ -124,7 +124,7 @@
                                             v-model="day.meal_assignments"
                                             :item-key="(assignment: MealAssignment) => assignment.id"
                                             tag="div"
-                                            class="space-y-4 draggable-container"
+                                            class="draggable-container space-y-4"
                                             :group="{ name: 'meal-assignments', put: ['recipes', 'meal-assignments'] }"
                                             :animation="150"
                                             ghost-class="ghost"
@@ -484,33 +484,35 @@ function handleMealAdded(event: any, targetDay: MealPlanDay) {
                 router.reload({ only: ['mealPlan'] });
                 return;
             }
-            
-            axios.post(route('meal-assignments.store'), {
-                meal_plan_day_id: targetDay.id,
-                meal_plan_recipe_id: recipe.pivot.id,
-                servings: 1,
-                to_cook: false,
-            })
-            .then(() => {
-                router.reload({ only: ['mealPlan'] });
-            })
-            .catch((error) => {
-                alert('Error adding meal assignment: ' + (error.response?.data?.message || error));
-                router.reload({ only: ['mealPlan'] });
-            });
+
+            axios
+                .post(route('meal-assignments.store'), {
+                    meal_plan_day_id: targetDay.id,
+                    meal_plan_recipe_id: recipe.pivot.id,
+                    servings: 1,
+                    to_cook: false,
+                })
+                .then(() => {
+                    router.reload({ only: ['mealPlan'] });
+                })
+                .catch((error) => {
+                    alert('Error adding meal assignment: ' + (error.response?.data?.message || error));
+                    router.reload({ only: ['mealPlan'] });
+                });
         } else {
             // Otherwise move an existing assignment between days
             const assignment = element as MealAssignment;
-            axios.patch(route('meal-assignments.move', assignment.id), {
-                new_meal_plan_day_id: targetDay.id,
-            })
-            .then(() => {
-                router.reload({ only: ['mealPlan'] });
-            })
-            .catch((error) => {
-                alert('Error moving meal assignment: ' + (error.response?.data?.message || error));
-                router.reload({ only: ['mealPlan'] });
-            });
+            axios
+                .patch(route('meal-assignments.move', assignment.id), {
+                    new_meal_plan_day_id: targetDay.id,
+                })
+                .then(() => {
+                    router.reload({ only: ['mealPlan'] });
+                })
+                .catch((error) => {
+                    alert('Error moving meal assignment: ' + (error.response?.data?.message || error));
+                    router.reload({ only: ['mealPlan'] });
+                });
         }
     }
 }
@@ -523,7 +525,6 @@ function handleMealAdded(event: any, targetDay: MealPlanDay) {
 }
 
 .drag-over {
-    @apply bg-blue-100 dark:bg-blue-900/50 rounded-md p-2; /* Example styling */
+    @apply rounded-md bg-blue-100 p-2 dark:bg-blue-900/50; /* Example styling */
 }
-
 </style>
