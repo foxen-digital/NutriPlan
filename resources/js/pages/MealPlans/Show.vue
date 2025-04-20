@@ -484,11 +484,12 @@ function handleMealAdded(event: any, targetDay: MealPlanDay) {
                 router.reload({ only: ['mealPlan'] });
                 return;
             }
+            
             axios.post(route('meal-assignments.store'), {
                 meal_plan_day_id: targetDay.id,
                 meal_plan_recipe_id: recipe.pivot.id,
                 servings: 1,
-                to_cook: true,
+                to_cook: false,
             })
             .then(() => {
                 router.reload({ only: ['mealPlan'] });

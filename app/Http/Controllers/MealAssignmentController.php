@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Concerns\RecalculatesToCookFlags;
 use App\Models\MealPlanDay;
 use Illuminate\Http\Request;
 use App\Models\MealAssignment;
@@ -16,6 +17,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class MealAssignmentController extends Controller
 {
+    use RecalculatesToCookFlags;
+
     /**
      * Store a newly created resource in storage.
      *
@@ -57,43 +60,23 @@ class MealAssignmentController extends Controller
               ->with('mealPlanDay')
               ->get();
 
-            // Determine to_cook value based on day numbers
-            if ($validated['to_cook']) {
-                // If explicitly set, use that value
-                $toCook = $validated['to_cook'];
-            } elseif ($existingAssignments->isEmpty()) {
-                // If not set, determine based on day numbers
-                // This is the first assignment of this recipe, mark it to cook
-                $toCook = true;
-            } else {
-                // Compare the day number of the new assignment with existing ones
-                $newDayNumber = $mealPlanDay->day_number;
-                $earliestExistingDayNumber = $existingAssignments->min(fn (MealAssignment $assignment) => $assignment->mealPlanDay->day_number);
-                // Set to_cook=true only if this is the earliest day
-                $toCook = $newDayNumber < $earliestExistingDayNumber;
-                // If this is the new earliest day, update other assignments
-                if ($toCook) {
-                    foreach ($existingAssignments as $assignment) {
-                        if ($assignment->to_cook) {
-                            $assignment->to_cook = false;
-                            $assignment->save();
-                        }
-                    }
-                }
-            }
-
             // Create the assignment
             $assignment = new MealAssignment([
                 'meal_plan_day_id' => $validated['meal_plan_day_id'],
                 'meal_plan_recipe_id' => $validated['meal_plan_recipe_id'],
                 'servings' => $validated['servings'],
-                'to_cook' => $toCook
+                'to_cook' => $validated['to_cook']
             ]);
             $assignment->save();
 
             // Update available servings
             $mealPlanRecipe->servings_available -= $validated['servings'];
             $mealPlanRecipe->save();
+
+            if (!$validated['to_cook']) {
+                // If this assignment is not to cook, recalculate to_cook flags for all assignments
+                $this->recalculateToCookFlags($assignment);
+            }
 
             DB::commit();
 
