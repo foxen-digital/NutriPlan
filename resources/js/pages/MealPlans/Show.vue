@@ -200,6 +200,15 @@
             @assignment-updated="router.reload({ only: ['mealPlan'] })"
         />
         <!-- END: Edit Meal Assignment Modal -->
+
+        <!-- START: Remove Meal Assignment Modal -->
+        <RemoveMealAssignmentModal
+            :open="showRemoveAssignmentDialog"
+            :assignment="assignmentToRemove"
+            @update:open="showRemoveAssignmentDialog = $event"
+            @confirm="confirmRemoveMealAssignment"
+        />
+        <!-- END: Remove Meal Assignment Modal -->
     </AppLayout>
 </template>
 
@@ -213,6 +222,7 @@ import EditMealAssignmentModal from '@/components/MealPlan/Modals/EditMealAssign
 import EditRecipeScaleFactorModal from '@/components/MealPlan/Modals/EditRecipeScaleFactorModal.vue';
 import GenerateShoppingListModal from '@/components/MealPlan/Modals/GenerateShoppingListModal.vue';
 import RemoveRecipeModal from '@/components/MealPlan/Modals/RemoveRecipeModal.vue';
+import RemoveMealAssignmentModal from '@/components/MealPlan/Modals/RemoveMealAssignmentModal.vue';
 import RecipeCard from '@/components/MealPlan/RecipeCard.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -261,6 +271,8 @@ const selectedDay = ref<MealPlanDay | null>(null);
 const selectedAssignment = ref<MealAssignment | null>(null);
 const isCopyModalOpen = ref(false);
 const isGenerateShoppingListModalOpen = ref(false);
+const showRemoveAssignmentDialog = ref(false);
+const assignmentToRemove = ref<MealAssignment | null>(null);
 
 const daysWithDates = computed(() => {
     if (!props.mealPlan.days || !props.mealPlan.start_date) {
@@ -357,11 +369,25 @@ function editMealAssignment(assignment: MealAssignment) {
     showEditAssignmentModal.value = true;
 }
 
-async function removeMealAssignment(assignment: MealAssignment) {
-    if (!confirm('Are you sure you want to remove this meal assignment?')) return;
+function removeMealAssignment(assignment: MealAssignment) {
+    assignmentToRemove.value = assignment;
+    showRemoveAssignmentDialog.value = true;
+}
 
-    await router.delete(route('meal-assignments.destroy', assignment.id), {
+async function confirmRemoveMealAssignment() {
+    if (!assignmentToRemove.value) return;
+
+    await router.delete(route('meal-assignments.destroy', assignmentToRemove.value.id), {
         preserveScroll: true,
+        onSuccess: () => {
+            showRemoveAssignmentDialog.value = false;
+            assignmentToRemove.value = null;
+            router.reload({ only: ['mealPlan'] });
+        },
+        onError: (errors) => {
+            console.error('Error removing meal assignment:', errors);
+            showRemoveAssignmentDialog.value = false;
+        },
     });
 }
 

@@ -67,15 +67,9 @@ const submitTokenForm = () => {
     });
 };
 
-const deleteToken = (id: number) => {
-    if (confirm('Are you sure you want to delete this token?')) {
-        useForm({}).delete(route('settings.tokens.destroy', id), {
-            preserveScroll: true,
-        });
-    }
-};
-
 const showCreateDialog = ref(false);
+const showDeleteConfirmDialog = ref(false);
+const tokenToDeleteId = ref<number | null>(null);
 
 const formattedDate = (dateString: string | null) => {
     if (!dateString) return 'Never';
@@ -83,6 +77,30 @@ const formattedDate = (dateString: string | null) => {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
+    });
+};
+
+// Renamed original deleteToken to trigger modal
+const requestDeleteToken = (id: number) => {
+    tokenToDeleteId.value = id;
+    showDeleteConfirmDialog.value = true;
+};
+
+// New function to handle actual deletion after confirmation
+const confirmDeleteToken = () => {
+    if (tokenToDeleteId.value === null) return;
+
+    useForm({}).delete(route('settings.tokens.destroy', tokenToDeleteId.value), {
+        preserveScroll: true,
+        onSuccess: () => {
+            showDeleteConfirmDialog.value = false; // Close dialog on success
+            tokenToDeleteId.value = null;
+        },
+        onError: () => {
+            // Handle error if needed, e.g., show a notification
+            showDeleteConfirmDialog.value = false; // Close dialog even on error
+            tokenToDeleteId.value = null;
+        },
     });
 };
 
@@ -170,7 +188,7 @@ const copyTokenToClipboard = () => {
                                 <TableCell>{{ formattedDate(token.created_at) }}</TableCell>
                                 <TableCell>{{ formattedDate(token.last_used_at) }}</TableCell>
                                 <TableCell class="text-right">
-                                    <Button variant="destructive" size="sm" @click="deleteToken(token.id)"> Delete </Button>
+                                    <Button variant="destructive" size="sm" @click="requestDeleteToken(token.id)"> Delete </Button>
                                 </TableCell>
                             </TableRow>
                         </TableBody>
@@ -181,6 +199,22 @@ const copyTokenToClipboard = () => {
                     <p class="text-muted-foreground">You have not created any API tokens yet.</p>
                 </div>
             </div>
+
+            <!-- Delete Token Confirmation Dialog -->
+            <Dialog v-model:open="showDeleteConfirmDialog">
+                <DialogContent class="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Delete API Token</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete this API token? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter class="sm:justify-end">
+                        <Button variant="outline" @click="showDeleteConfirmDialog = false">Cancel</Button>
+                        <Button variant="destructive" @click="confirmDeleteToken">Delete Token</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </SettingsLayout>
     </AppLayout>
 </template>
