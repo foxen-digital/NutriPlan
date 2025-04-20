@@ -11,6 +11,7 @@ use App\Models\MealPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Actions\DeleteRecipeAction;
+use App\Services\RecipeIndexService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\Recipe\CreateRecipeRequest;
@@ -22,45 +23,16 @@ class RecipeController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Request $request): Response
+    public function index(Request $request, RecipeIndexService $recipeService): Response
     {
         $user = $request->user();
-        $query = Recipe::query()
-            ->with(['user:id,name,slug', 'categories' => function (Builder|BelongsToMany $query): void {
-                $query->withCount('recipes');
-            }])
-            ->latest();
-
-        // Filter by category if provided in the request
-        if ($request->has('category')) {
-            $categoryId = $request->input('category');
-            $query->whereHas('categories', function (Builder|BelongsToMany $query) use ($categoryId): void {
-                $query->where('categories.id', $categoryId);
-            });
-        }
-
-        // Filter by user's own recipes if show_mine is true
-        if ($request->boolean('show_mine')) {
-            $query->where('user_id', $user->id);
-        } else {
-            // Only show public recipes or user's own recipes
-            $query->where(function (Builder $query) use ($user): void {
-                $query->where('is_public', true)
-                    ->orWhere('user_id', $user->id);
-            });
-        }
-
-        $recipes = $query->paginate(12);
-
-        // Add is_favorited flag to each recipe
-        $recipes->getCollection()->transform(function (Recipe $recipe) use ($user): Recipe {
-            $recipe->is_favorited = $user->favorites()->where('recipe_id', $recipe->id)->exists();
-            return $recipe;
-        });
-
+        $filters = $request->only(['category', 'show_mine']);
+        
+        $recipes = $recipeService->getRecipes($user, $filters);
+        
         return Inertia::render('Recipes/Index', [
             'recipes' => $recipes,
-            'filter' => $request->only(['category', 'show_mine']),
+            'filter' => $filters,
         ]);
     }
 
