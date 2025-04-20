@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\MealPlan;
 
-use App\Models\MealPlanDay;
-use App\Models\MealAssignment;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ReorderMealPlanDayAssignmentsRequest;
-use Illuminate\Support\Facades\DB;
+use App\Models\MealAssignment;
+use App\Models\MealPlanDay;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 
 class MealPlanDayAssignmentOrderController extends Controller
 {

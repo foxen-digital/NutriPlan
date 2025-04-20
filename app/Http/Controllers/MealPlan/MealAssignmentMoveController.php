@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\MealPlan;
 
-use App\Models\MealPlanDay;
-use Illuminate\Http\Request;
-use App\Models\MealAssignment;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 use App\Concerns\RecalculatesToCookFlags;
+use App\Http\Controllers\Controller;
+use App\Models\MealAssignment;
+use App\Models\MealPlanDay;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class MealAssignmentMoveController extends Controller

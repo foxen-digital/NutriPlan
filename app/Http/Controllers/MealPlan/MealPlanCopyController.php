@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\MealPlan;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\MealPlanCopyRequest;
 use App\Models\MealPlan;
 use App\Services\MealPlanCopyService;

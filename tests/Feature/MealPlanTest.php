@@ -95,7 +95,7 @@ test('edit method returns null', function () {
     $user = User::factory()->create();
     $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
 
-    $controller = app(\App\Http\Controllers\MealPlanController::class);
+    $controller = app(\App\Http\Controllers\MealPlan\MealPlanController::class);
     $result = $controller->edit((string) $mealPlan->id);
 
     expect($result)->toBeNull();
@@ -105,7 +105,7 @@ test('update method returns null', function () {
     $user = User::factory()->create();
     $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
 
-    $controller = app(\App\Http\Controllers\MealPlanController::class);
+    $controller = app(\App\Http\Controllers\MealPlan\MealPlanController::class);
     $request = new \Illuminate\Http\Request();
     $result = $controller->update($request, (string) $mealPlan->id);
 

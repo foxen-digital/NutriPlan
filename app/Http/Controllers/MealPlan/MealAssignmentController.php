@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\MealPlan;
 
 use App\Concerns\RecalculatesToCookFlags;
-use App\Models\MealPlanDay;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\MealAssignment;
+use App\Models\MealPlanDay;
 use App\Models\MealPlanRecipe;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class MealAssignmentController extends Controller
 {
