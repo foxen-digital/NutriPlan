@@ -66,16 +66,24 @@
                         </Button>
                     </div>
 
-                    <div v-if="mealPlan.recipes && mealPlan.recipes.length > 0" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        <RecipeCard
-                            v-for="recipe in mealPlan.recipes"
-                            :key="recipe.id"
-                            :recipe="recipe"
-                            :people-count="mealPlan.people_count"
-                            @edit="editRecipeInPlan"
-                            @remove="confirmRemoveRecipe"
-                        />
-                    </div>
+                    <draggable
+                        v-if="mealPlan.recipes && mealPlan.recipes.length > 0"
+                        :list="mealPlan.recipes"
+                        :item-key="(recipe: RecipeWithPivot) => recipe.id"
+                        tag="div"
+                        class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 recipes-list"
+                        :group="{ name: 'recipes', pull: 'clone', put: false }"
+                    >
+                        <template #item="{ element: recipe }">
+                            <RecipeCard
+                                :key="recipe.id"
+                                :recipe="recipe"
+                                :people-count="mealPlan.people_count"
+                                @edit="editRecipeInPlan"
+                                @remove="confirmRemoveRecipe"
+                            />
+                        </template>
+                    </draggable>
                     <div v-else class="rounded-md bg-gray-50 p-4 dark:bg-gray-800">
                         <p class="text-center text-gray-700 dark:text-gray-300">
                             No recipes added to this meal plan yet. Click "Add Recipe" to get started.
@@ -116,13 +124,12 @@
                                             :item-key="(assignment: MealAssignment) => assignment.id"
                                             tag="div"
                                             class="space-y-4 draggable-container"
-                                            :group="{ name: 'meal-assignments', put: ['meal-assignments'] }"
+                                            :group="{ name: 'meal-assignments', put: ['recipes', 'meal-assignments'] }"
                                             :animation="150"
                                             ghost-class="ghost"
                                             drag-over-class="drag-over"
                                             @update="handleMealReorder($event, day)"
                                             @add="handleMealAdded($event, day)"
-                                            @remove="handleMealRemoved"
                                         >
                                             <template #item="{ element: assignment }">
                                                 <MealAssignmentCard
@@ -464,30 +471,45 @@ function handleMealReorder(event: any, day: MealPlanDay) {
 }
 
 function handleMealAdded(event: any, targetDay: MealPlanDay) {
-    // Only process if this is a move between days (not a reorder within the same day)
+    // Only process when an item is moved between different lists
     if (event.from !== event.to) {
-        const assignment = event.item.__draggable_context.element as MealAssignment;
-        
-        // Call the move endpoint
-        axios.patch(route('meal-assignments.move', assignment.id), {
-            new_meal_plan_day_id: targetDay.id
-        })
-        .then(() => {
-            console.log('Meal assignment moved successfully');
-            // Refresh the meal plan data
-            router.reload({ only: ['mealPlan'] });
-        })
-        .catch((error) => {
-            console.error('Error moving meal assignment:', error);
-            // Refresh to restore original state on error
-            router.reload({ only: ['mealPlan'] });
-        });
+        const element = event.item.__draggable_context.element;
+        // If it's a recipe clone (has pivot data), create a new assignment
+        if (element && 'pivot' in element) {
+            const recipe = element as RecipeWithPivot;
+            if (recipe.pivot.servings_available <= 0) {
+                alert('No servings available for this recipe.');
+                router.reload({ only: ['mealPlan'] });
+                return;
+            }
+            axios.post(route('meal-assignments.store'), {
+                meal_plan_day_id: targetDay.id,
+                meal_plan_recipe_id: recipe.pivot.id,
+                servings: 1,
+                to_cook: true,
+            })
+            .then(() => {
+                router.reload({ only: ['mealPlan'] });
+            })
+            .catch((error) => {
+                alert('Error adding meal assignment: ' + (error.response?.data?.message || error));
+                router.reload({ only: ['mealPlan'] });
+            });
+        } else {
+            // Otherwise move an existing assignment between days
+            const assignment = element as MealAssignment;
+            axios.patch(route('meal-assignments.move', assignment.id), {
+                new_meal_plan_day_id: targetDay.id,
+            })
+            .then(() => {
+                router.reload({ only: ['mealPlan'] });
+            })
+            .catch((error) => {
+                alert('Error moving meal assignment: ' + (error.response?.data?.message || error));
+                router.reload({ only: ['mealPlan'] });
+            });
+        }
     }
-}
-
-function handleMealRemoved(event: any) {
-    // No specific action needed for remove - the add handler takes care of the move
-    console.log('Meal removed from day', event.from.__draggable_context.index);
 }
 </script>
 
