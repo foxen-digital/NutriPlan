@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { BookOpen, CalendarDays, Copy, Heart, Import, ShoppingCart } from 'lucide-vue-next';
+import { Motion, useInView } from 'motion-v';
+import { ref } from 'vue';
+
+const featureSection = ref(null);
+// Use a bottom margin to detect when features section enters from the bottom
+const inView = useInView(featureSection, {
+    amount: 'some',
+    margin: '400px 0px 0px 0px', // Large top margin to trigger as section approaches top
+    once: true, // Only trigger once
+});
 
 const features = [
     {
@@ -39,10 +49,15 @@ const features = [
         icon: Copy,
     },
 ];
+
+// Calculate delay based on index for staggered animation
+const getDelay = (index: number): number => {
+    return 0.15 * index;
+};
 </script>
 
 <template>
-    <section id="features" class="bg-gray-50 py-24 dark:bg-gray-900 sm:py-32">
+    <section id="features" ref="featureSection" class="bg-gray-50 py-24 dark:bg-gray-900 sm:py-32">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
             <div class="mx-auto max-w-2xl lg:text-center">
                 <h2 class="text-base font-semibold leading-7 text-indigo-600 dark:text-indigo-400">Your Culinary Command Center</h2>
@@ -53,7 +68,20 @@ const features = [
             </div>
             <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
                 <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-                    <div v-for="feature in features" :key="feature.name" class="flex flex-col">
+                    <Motion
+                        v-for="(feature, index) in features"
+                        :key="feature.name"
+                        :initial="{ opacity: 0, rotateY: 90, scale: 0.8 }"
+                        :animate="inView ? { opacity: 1, rotateY: 0, scale: 1 } : { opacity: 0, rotateY: 90, scale: 0.8 }"
+                        :transition="{
+                            type: 'spring',
+                            stiffness: 50,
+                            damping: 15,
+                            delay: getDelay(index),
+                            duration: 0.7,
+                        }"
+                        class="perspective-element flex flex-col"
+                    >
                         <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900 dark:text-white">
                             <component :is="feature.icon" class="h-5 w-5 flex-none text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
                             {{ feature.name }}
@@ -61,9 +89,16 @@ const features = [
                         <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600 dark:text-gray-300">
                             <p class="flex-auto">{{ feature.description }}</p>
                         </dd>
-                    </div>
+                    </Motion>
                 </dl>
             </div>
         </div>
     </section>
 </template>
+
+<style scoped>
+.perspective-element {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+</style>
