@@ -51,6 +51,12 @@
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
+
+                    <!-- Cook Mode Toggle (Desktop) -->
+                    <div v-if="isWakeLockSupported" class="flex items-center gap-2" data-test="cook-mode-toggle">
+                        <Switch v-model:checked="isCookModeEnabled" @update:checked="toggleCookMode" data-test="cook-mode-switch" />
+                        <span class="text-sm text-gray-700 dark:text-gray-300"> Keep Screen Awake </span>
+                    </div>
                 </div>
             </div>
 
@@ -75,6 +81,11 @@
                             <PlusIcon class="mr-2 h-4 w-4" />
                             Add to Meal Plan
                         </DropdownMenuItem>
+                        <!-- Cook Mode Toggle (Mobile) -->
+                        <DropdownMenuItem v-if="isWakeLockSupported" @click="toggleCookMode" data-test="cook-mode-toggle-mobile">
+                            <CoffeeIcon :class="['mr-2 h-4 w-4', { 'fill-current': isCookModeEnabled }]" />
+                            {{ isCookModeEnabled ? 'Disable Cook Mode' : 'Enable Cook Mode' }}
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
 
@@ -88,6 +99,15 @@
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
+
+                <!-- Cook Mode Indicator (Mobile) -->
+                <div
+                    v-if="isWakeLockSupported && isCookModeEnabled"
+                    class="fixed bottom-4 left-4 z-10 rounded-full bg-amber-500 p-2 text-white shadow-lg"
+                    data-test="cook-mode-indicator"
+                >
+                    <CoffeeIcon class="h-6 w-6" />
+                </div>
             </div>
 
             <div class="mt-8 overflow-hidden bg-white p-6 shadow-xl dark:bg-gray-800 sm:rounded-lg">
@@ -265,13 +285,34 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Recipe } from '@/types/recipe';
 import { Head, Link, router } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ClockIcon, ExternalLinkIcon, HeartIcon, MenuIcon, PencilIcon, PlusIcon, UsersIcon, UtensilsIcon } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { ClockIcon, CoffeeIcon, ExternalLinkIcon, HeartIcon, MenuIcon, PencilIcon, PlusIcon, UsersIcon, UtensilsIcon } from 'lucide-vue-next';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import VueMarkdownRender from 'vue-markdown-render';
+
+// TypeScript interface for WakeLockSentinel
+interface WakeLockSentinel {
+    released: boolean;
+    release(): Promise<void>;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject): void;
+}
+
+// TypeScript interface for WakeLock API
+interface WakeLock {
+    request(type: 'screen'): Promise<WakeLockSentinel>;
+}
+
+// Extend the Navigator interface to include wakeLock
+declare global {
+    interface Navigator {
+        wakeLock?: WakeLock;
+    }
+}
 
 const props = defineProps<{
     recipe: Recipe & { is_favorited?: boolean };
@@ -286,6 +327,95 @@ const props = defineProps<{
 
 const isFavorited = ref(props.recipe.is_favorited || false);
 const showMealPlanMenu = ref(false);
+
+// Cook Mode / Wake Lock functionality
+const isWakeLockSupported = ref(false);
+const isCookModeEnabled = ref(false);
+const wakeLock = ref<WakeLockSentinel | null>(null);
+
+// Check if wake lock API is supported
+onMounted(() => {
+    // Check if the browser supports the Wake Lock API
+    isWakeLockSupported.value =
+        true ||
+        ('wakeLock' in navigator &&
+            // Additional check to focus on mobile/tablet devices (optional)
+            (window.innerWidth <= 1024 || 'ontouchstart' in window));
+
+    // Set up visibility change event listener
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+});
+
+// Clean up event listeners and release wake lock on component unmount
+onBeforeUnmount(() => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    releaseWakeLock();
+});
+
+// Toggle cook mode and handle wake lock
+const toggleCookMode = async (state?: boolean) => {
+    // If state is explicitly provided, use it, otherwise toggle the current state
+    const newState = state !== undefined ? state : !isCookModeEnabled.value;
+
+    if (newState) {
+        try {
+            // Request a screen wake lock
+            if (navigator.wakeLock) {
+                wakeLock.value = await navigator.wakeLock.request('screen');
+
+                // Set the state to enabled if successful
+                isCookModeEnabled.value = true;
+
+                // Add released event listener to handle external wake lock releases
+                const handleRelease = () => {
+                    // Only update UI if the component is still mounted
+                    isCookModeEnabled.value = false;
+                    wakeLock.value = null;
+                };
+
+                wakeLock.value.addEventListener('release', handleRelease);
+
+                console.log('Wake lock enabled');
+            }
+        } catch (error) {
+            // Handle errors (e.g., permission denied, unsupported, etc.)
+            console.error('Failed to enable wake lock:', error);
+            isCookModeEnabled.value = false;
+        }
+    } else {
+        // Disable cook mode by releasing the wake lock
+        releaseWakeLock();
+    }
+};
+
+// Release wake lock if it exists
+const releaseWakeLock = async () => {
+    if (wakeLock.value) {
+        try {
+            await wakeLock.value.release();
+            wakeLock.value = null;
+        } catch (error) {
+            console.error('Failed to release wake lock:', error);
+        } finally {
+            isCookModeEnabled.value = false;
+        }
+    }
+};
+
+// Handle visibility changes (e.g., user switches tabs or apps)
+const handleVisibilityChange = async () => {
+    // If the page becomes visible again and cook mode was enabled
+    if (document.visibilityState === 'visible' && isCookModeEnabled.value && !wakeLock.value && navigator.wakeLock) {
+        // Re-request the wake lock
+        try {
+            wakeLock.value = await navigator.wakeLock.request('screen');
+            console.log('Wake lock re-acquired after visibility change');
+        } catch (error) {
+            console.error('Failed to re-acquire wake lock:', error);
+            isCookModeEnabled.value = false;
+        }
+    }
+};
 
 // Check if the text is markdown
 const isMarkdown = (text: string): boolean => {

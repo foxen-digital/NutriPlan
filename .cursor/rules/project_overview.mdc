@@ -1,12 +1,11 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: true
 ---
-
 # Project Overview
 
-This rule provides a comprehensive overview of the project's architecture, tech stack, and development practices.
+Comprehensive guide to project architecture, tech stack, and development practices.
 
 ## Rule Details
 
@@ -21,10 +20,10 @@ This rule provides a comprehensive overview of the project's architecture, tech 
 - **Framework**: Laravel 12 / Inertia
 - **Language**: PHP 8.2+
 - **Testing**: Pest PHP **IMPORTANT**
-- **Database**: PostgreSQL (sqlite for development)
+- **Database**: PostgreSQL (dev: sqlite)
 
 ### Frontend
-- **Framework**: Vue 3 with Composition API
+- **Framework**: Vue 3 (Composition API)
 - **Language**: TypeScript
 - **Build Tool**: Vite
 - **Testing**: Vitest
@@ -36,110 +35,101 @@ This rule provides a comprehensive overview of the project's architecture, tech 
 
 ### Testing Strategy
 
-1. **Backend Testing (Pest PHP)**:
-   - Run tests during development using `vendor/bin/pest`
-   - Use composer scripts for CI/CD pipeline
-   - Follow Laravel Testing Standards (see `@laravel_testing.mdc`)
-   - Key directories:
-     - `tests/Feature/` - API endpoints, web controllers, commands
-     - `tests/Unit/` - Models, Actions, Services
-     - `tests/Fixtures/` - Test data files
-   - Structure of our Feature and Unit tests directories should mirror the main app/ structure
-     - `tests/Feature/Http/Controllers`
-     - `tests/Unit/Models`
-     - etc
+- **Backend (Pest PHP)**:
+    - Run during dev: `vendor/bin/pest`
+    - CI/CD: Use composer scripts
+    - Standards: See `@laravel_testing.mdc`
+    - Key Dirs: `tests/Feature/` (APIs, Controllers, Commands), `tests/Unit/` (Models, Actions, Services), `tests/Fixtures/` (Test data)
+    - Structure: Mirror `app/` structure (e.g., `tests/Feature/Http/Controllers`, `tests/Unit/Models`)
 
-2. **Frontend Testing (Vitest)**:
-   - Run tests during development using `npm run test` or `vitest`
-   - Component tests in `__tests__` directories adjacent to components
-   - Follow Frontend Testing Standards (see `laravel_frontend.mdc`)
-   - Test both component rendering and user interactions
+- **Frontend (Vitest)**:
+    - Run during dev: `npm run test` or `vitest`
+    - Location: `__tests__` directories adjacent to components
+    - Standards: See `laravel_frontend.mdc`
+    - Scope: Test component rendering and user interactions
 
 ### Testing Workflow
 
-1. **Local Development**:
-   - Run Pest tests directly: `vendor/bin/pest`
-   - Run Vitest tests: `npm run test`
-   - Use watch mode for continuous testing: `npm run test:watch`
-
-2. **CI/CD Pipeline**:
-   - Use composer scripts for backend tests
-   - Use npm scripts for frontend tests
-   - Run all tests before deployment
+- **Local Development**:
+    - Run Pest: `vendor/bin/pest`
+    - Run Vitest: `npm run test`
+    - Watch mode: `npm run test:watch`
+- **CI/CD Pipeline**:
+    - Use composer scripts (backend) & npm scripts (frontend)
+    - Run all tests before deployment
 
 ### Key Testing Commands
 
 ```bash
-# Backend Tests
-vendor/bin/pest --parallel         # Run all tests
+# Backend Tests (Pest)
+vendor/bin/pest --parallel         # Run all tests in parallel
 vendor/bin/pest --filter=testName  # Run specific test
-vendor/bin/pest --group=feature    # Run feature tests
+vendor/bin/pest --group=feature    # Run specific group (e.g., feature)
 
-# Frontend Tests
+# Frontend Tests (Vitest)
 npm run test                       # Run all tests
 npm run test:watch                 # Run tests in watch mode
-npm run test:coverage              # Generate test coverage
+npm run test:coverage              # Generate test coverage report
 ```
 
 ## Project Structure
 
 ├── app/
-│ ├── Actions/ # Single-responsibility action classes
-│ ├── Models/ # Eloquent models
-│ ├── Services/ # Business logic services
-│ └── ValueObjects/ # Value objects
+│ ├── Actions/       # Single-responsibility action classes
+│ ├── Models/        # Eloquent models
+│ ├── Services/      # Business logic services
+│ └── ValueObjects/  # Value objects
 ├── resources/
 │ ├── js/
-│ │ ├── Components/ # Vue components
-│ │ ├── Pages/ # Inertia pages
-│ │ └── types/ # TypeScript types
-│ └── css/ # Tailwind styles
+│ │ ├── Components/  # Vue components
+│ │ ├── Pages/       # Inertia pages
+│ │ └── types/       # TypeScript types
+│ └── css/           # Tailwind styles entry point
 ├── tests/
-│ ├── Feature/ # Feature tests
-│ ├── Unit/ # Unit tests
-│ └── Fixtures/ # Test data
-└── vite.config.ts # Vite configuration
+│ ├── Feature/       # Feature tests (Pest)
+│ ├── Unit/          # Unit tests (Pest)
+│ └── Fixtures/      # Test data files
+└── vite.config.ts   # Vite configuration
+
+(Note: Frontend component tests reside in __tests__ dirs within resources/js/Components)
 
 ## Best Practices
 
-1. **Backend**:
-   - Use service classes for business logic
-   - Keep controllers thin
-   - Use value objects for complex data
-   - Follow SOLID principles
-   - Write comprehensive tests
+- **Backend**:
+  - Thin controllers; use Services/Actions for logic
+  - Value Objects for complex data types
+  - Follow SOLID principles
+  - Write comprehensive Pest tests
 
-2. **Frontend**:
-   - Use TypeScript for type safety
-   - Keep components focused
-   - Use composition API
-   - Implement proper error handling
-   - Write component tests
+- **Frontend**:
+  - TypeScript for type safety
+  - Focused components (Composition API)
+  - Proper error handling
+  - Write Vitest component tests
 
-3. **Testing**:
-   - Write tests during development
-   - Use proper test organization
-   - Follow AAA pattern (Arrange, Act, Assert)
-   - Use factories for test data
-   - Mock external services
+- **Testing**:
+  - Write tests during development (TDD preferred)
+  - Use AAA pattern (Arrange, Act, Assert)
+  - Use factories for test data generation
+  - Mock external services/dependencies
+  - Maintain clear test organization
 
 ## Development Workflow
 
-1. **Feature Development**:
-   - Write tests first (TDD)
-   - Implement backend logic
-   - Create frontend components
-   - Test both layers
-   - Refactor as needed
+-  **Feature Development**:
+  - Write tests first (TDD)
+  - Implement backend logic (Models, Actions, Services)
+  - Create/update frontend components (Vue/TS)
+  - Test integration between layers
+  - Refactor as needed
 
-2. **Testing**:
-   - Run tests frequently during development
-   - Use watch mode for continuous testing
-   - Fix failing tests immediately
-   - Maintain high test coverage
+- **Testing**:
+  - Run tests frequently (use watch mode locally)
+  - Fix failing tests immediately
+  - Strive for high test coverage
 
-3. **Code Review**:
-   - Check test coverage
-   - Verify test organization
-   - Ensure proper error handling
-   - Review code quality
+- **Code Review**:
+  - Verify test coverage and quality
+  - Check test organization and AAA pattern
+  - Ensure proper error handling
+  - Review code quality and adherence to practices
