@@ -102,12 +102,12 @@ const clearSearch = () => {
                     </Link>
                     <Button variant="outline" @click="showImportModal = true">
                         <DownloadIcon class="mr-2 h-4 w-4" />
-                        Import Recipe
+                        Import
                     </Button>
                     <Link :href="route('recipes.create')">
-                        <Button>
+                        <Button variant="outline">
                             <PlusIcon class="mr-2 h-4 w-4" />
-                            New Recipe
+                            New
                         </Button>
                     </Link>
                 </div>
