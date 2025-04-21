@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookmarkIcon, BookOpen, CalendarIcon, Folder, HeartIcon, LayoutGrid, ShoppingBasketIcon, Tag } from 'lucide-vue-next';
+import { BookmarkIcon, BookOpen, CalendarIcon, HeartIcon, LayoutGrid, ShoppingBasketIcon, Tag } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -43,13 +43,8 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Github Repo',
-        href: 'https://github.com/mrdth/NutriPlan',
-        icon: Folder,
-    },
-    {
         title: 'Documentation',
-        href: 'https://github.com/mrdth/NutriPlan',
+        href: '#',
         icon: BookOpen,
     },
 ];
