@@ -1,8 +1,3 @@
-### 'To Cook mode'
-* Add a toggle (switch) on the Recipe Show page, on mobile devices (including tablets).
-* When enabled request a wakelock to keep screen active
-* When disabled, clear the wakelock
-
 ### AI Recipe parsing
 * For sites which do not use structured data for their recipes, we should build an AI based recipe parser to try and extract Ingredients and Instructions (nutrition info / categories if possible?)
 * Use https://github.com/fivefilters/readability.php to extract the text content of teh page

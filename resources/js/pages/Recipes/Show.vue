@@ -337,7 +337,7 @@ const wakeLock = ref<WakeLockSentinel | null>(null);
 onMounted(() => {
     // Check if the browser supports the Wake Lock API
     isWakeLockSupported.value =
-        true ||
+        import.meta.env.VITE_APP_DEBUG ||
         ('wakeLock' in navigator &&
             // Additional check to focus on mobile/tablet devices (optional)
             (window.innerWidth <= 1024 || 'ontouchstart' in window));
