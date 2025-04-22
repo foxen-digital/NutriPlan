@@ -54,7 +54,7 @@ const draw = {
                                         :custom="1"
                                     ></motion.path>
                                 </motion.svg>
-                                <span class="relative">modern kitchen</span></span
+                                <span class="relative">Modern Kitchen</span></span
                             >
                         </h1>
 
