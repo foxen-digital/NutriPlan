@@ -1,4 +1,4 @@
-# Meal Planning - Phase 6: Mobile Optimization
+# Meal Planning - Phase 15: Mobile Optimization
 
 ## Overview
 This phase focuses on optimizing the meal planning experience specifically for mobile devices, ensuring the feature is fully functional and provides an excellent user experience on smartphones and tablets.

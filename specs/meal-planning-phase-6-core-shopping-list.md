@@ -1,4 +1,4 @@
-# Meal Planning - Phase 7: Core Shopping List Management
+# Meal Planning - Phase 6: Core Shopping List Management
 
 ## Overview
 This phase establishes the foundational functionality for shopping lists. Users will be able to create empty lists, manually add, edit, and remove custom items, and track purchased items. This phase focuses on manual list management without integration into meal plan generation.

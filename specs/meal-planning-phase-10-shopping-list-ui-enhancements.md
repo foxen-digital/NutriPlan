@@ -1,4 +1,4 @@
-# Meal Planning - Phase 7d: Shopping List UI Enhancements
+# Meal Planning - Phase 10: Shopping List UI Enhancements
 
 ## Overview
 This phase introduces UI enhancements for the shopping list, focusing on reordering and filtering capabilities.

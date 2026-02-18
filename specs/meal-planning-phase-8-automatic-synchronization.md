@@ -1,4 +1,4 @@
-# Meal Planning - Phase 7b: Limited Shopping List Synchronization (On New Meal Addition)
+# Meal Planning - Phase 8: Limited Shopping List Synchronization (On New Meal Addition)
 
 ## Overview
 This phase implements a limited automatic synchronization for generated shopping lists. Shopping lists will automatically update to include ingredients **only when a new meal assignment is created** within the list's date range and marked as "to cook".

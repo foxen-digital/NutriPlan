@@ -1,4 +1,4 @@
-# Meal Planning - Phase 9: Cooking Notifications
+# Meal Planning - Phase 13: Cooking Notifications
 
 ## Overview
 This phase will add a notification system to remind users about upcoming meals they need to prepare from their meal plans, helping them stay organized and ensuring they don't forget to prepare scheduled meals.

@@ -1,4 +1,4 @@
-# Meal Planning - Phase 4b: "To Cook" Flags
+# Meal Planning - Phase 4: "To Cook" Flags
 
 ## Overview
 This phase introduces "to cook" flags to help users identify which specific meal instances need preparation within their meal plan.

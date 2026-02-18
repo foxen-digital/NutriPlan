@@ -1,4 +1,4 @@
-# Meal Planning - Phase 8: Nutritional Summaries
+# Meal Planning - Phase 12: Nutritional Summaries
 
 ## Overview
 This phase will add the ability to view aggregated nutritional information across meal plans, helping users track their nutritional intake over days or weeks and make more informed dietary decisions.

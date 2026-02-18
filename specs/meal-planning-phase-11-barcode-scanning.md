@@ -1,4 +1,4 @@
-# Meal Planning - Phase 7x: Barcode Scanning Integration
+# Meal Planning - Phase 11: Barcode Scanning Integration
 
 ## Overview
 This phase details the potential integration of barcode scanning functionality, allowing users to add items to their shopping list by scanning product barcodes using their mobile device.

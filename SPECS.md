@@ -38,18 +38,18 @@ This document provides an overview of all feature specifications for the NutriPl
 | Phase 3a: Meal Tracking | Calculate and track available meals for recipes in a plan | ✅ | [View Spec](specs/meal-planning-phase-3a-meal-tracking.md) |
 | Phase 3b: Day Structure | Create day-based organization for meal plans | ✅ | [View Spec](specs/meal-planning-phase-3b-day-structure.md) |
 | Phase 3c: Meal Assignments | Assign recipe servings to specific days within the plan | ✅ | [View Spec](specs/meal-planning-phase-3c-meal-assignments.md) |
-| Phase 4: "To Cook" Flags | Implement cooking flags for meal assignments | ✅ | [View Spec](specs/meal-planning-phase-4b-to-cook-flags.md) |
+| Phase 4: "To Cook" Flags | Implement cooking flags for meal assignments | ✅ | [View Spec](specs/meal-planning-phase-4-to-cook-flags.md) |
 | Phase 5: Plan Copying | Enable copying existing plans to create new ones | ✅ | [View Spec](specs/meal-planning-phase-5-plan-copying.md) |
-| Phase 6: Core Shopping List | Create/manage empty lists, add custom items, track purchase status | ✅ | [View Spec](specs/meal-planning-phase-7-core-shopping-list.md) |
-| Phase 7: Shopping List Generation | Generate shopping lists automatically from meal plans | ✅ | [View Spec](specs/meal-planning-phase-7a-shopping-list-generation.md) |
-| Phase 8: Shopping List Sync | Automatically update lists when meal plans change | ⏳ | [View Spec](specs/meal-planning-phase-7b-automatic-synchronization.md) |
-| Phase 9: Shopping List Unit Conversion | Add unit conversion logic for ingredient consolidation | ⏳ | [View Spec](specs/meal-planning-phase-7c-enhancements.md) |
-| Phase 10: Shopping List UI Enhancements | Add drag & drop reordering and filtering/sorting | ✅ | [View Spec](specs/meal-planning-phase-7d-shopping-list-ui-enhancements.md) |
-| Phase 11: Barcode Scanning | Add items to shopping list via barcode scanning (Mobile) | ✅ | [View Spec](specs/meal-planning-phase-7x-barcode-scanning.md) |
-| Phase 12: Nutritional Summaries | Show nutritional totals per day or week | 🔮 | [View Spec](specs/meal-planning-phase-8-nutritional-summaries.md) |
-| Phase 13: Cooking Notifications | Reminders for meals flagged "to cook" | 🔮 | [View Spec](specs/meal-planning-phase-9-cooking-notifications.md) |
-| Phase 14: Drag and Drop Interface | Implement drag-and-drop interface for meal assignments | ✅ | [View Spec](specs/meal-planning-phase-4a-drag-and-drop.md) |
-| Phase 15: Mobile Optimization | Fully optimize the experience for mobile devices | 🔮 | [View Spec](specs/meal-planning-phase-6-mobile-optimization.md) |
+| Phase 6: Core Shopping List | Create/manage empty lists, add custom items, track purchase status | ✅ | [View Spec](specs/meal-planning-phase-6-core-shopping-list.md) |
+| Phase 7: Shopping List Generation | Generate shopping lists automatically from meal plans | ✅ | [View Spec](specs/meal-planning-phase-7-shopping-list-generation.md) |
+| Phase 8: Shopping List Sync | Automatically update lists when meal plans change | ⏳ | [View Spec](specs/meal-planning-phase-8-automatic-synchronization.md) |
+| Phase 9: Shopping List Unit Conversion | Add unit conversion logic for ingredient consolidation | ⏳ | [View Spec](specs/meal-planning-phase-9-enhancements.md) |
+| Phase 10: Shopping List UI Enhancements | Add drag & drop reordering and filtering/sorting | ✅ | [View Spec](specs/meal-planning-phase-10-shopping-list-ui-enhancements.md) |
+| Phase 11: Barcode Scanning | Add items to shopping list via barcode scanning (Mobile) | ✅ | [View Spec](specs/meal-planning-phase-11-barcode-scanning.md) |
+| Phase 12: Nutritional Summaries | Show nutritional totals per day or week | 🔮 | [View Spec](specs/meal-planning-phase-12-nutritional-summaries.md) |
+| Phase 13: Cooking Notifications | Reminders for meals flagged "to cook" | 🔮 | [View Spec](specs/meal-planning-phase-13-cooking-notifications.md) |
+| Phase 14: Drag and Drop Interface | Implement drag-and-drop interface for meal assignments | ✅ | [View Spec](specs/meal-planning-phase-14-drag-and-drop.md) |
+| Phase 15: Mobile Optimization | Fully optimize the experience for mobile devices | 🔮 | [View Spec](specs/meal-planning-phase-15-mobile-optimization.md) |
 
 ## Status Legend
 - ✅ Complete

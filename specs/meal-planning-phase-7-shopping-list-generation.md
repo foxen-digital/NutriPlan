@@ -1,4 +1,4 @@
-# Meal Planning - Phase 7a: Shopping List Generation
+# Meal Planning - Phase 7: Shopping List Generation
 
 ## Overview
 This phase builds upon the core shopping list functionality (Phase 7) by adding the ability to automatically generate shopping lists based on scheduled meals within a Meal Plan. It includes consolidating ingredients from multiple recipes.

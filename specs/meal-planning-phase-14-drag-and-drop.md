@@ -1,4 +1,4 @@
-# Meal Planning - Phase 4a: Drag and Drop Interface
+# Meal Planning - Phase 14: Drag and Drop Interface
 
 ## Overview
 This phase enhances the meal planning interface by implementing a drag-and-drop system for adding recipes to days and organizing meal assignments.

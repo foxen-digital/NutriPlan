@@ -1,4 +1,4 @@
-# Meal Planning - Phase 7c: Shopping List Unit Conversion
+# Meal Planning - Phase 9: Shopping List Unit Conversion
 
 ## Overview
 This phase introduces backend enhancements for the shopping list, focusing on unit conversion.
