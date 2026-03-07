@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount } from '@vue/test-utils';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 // Use require to import flush-promises without TS errors
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -43,8 +43,7 @@ describe('Wake Lock / Cook Mode Functionality', () => {
 
             onMounted(() => {
                 // Check if the browser supports the Wake Lock API
-                isWakeLockSupported.value = 'wakeLock' in window.navigator &&
-                    (window.innerWidth <= 1024 || 'ontouchstart' in window);
+                isWakeLockSupported.value = 'wakeLock' in window.navigator && (window.innerWidth <= 1024 || 'ontouchstart' in window);
 
                 // Set up visibility change event listener
                 document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -93,7 +92,7 @@ describe('Wake Lock / Cook Mode Functionality', () => {
                 releaseWakeLock,
                 handleVisibilityChange,
             };
-        }
+        },
     });
 
     beforeEach(() => {
@@ -103,7 +102,7 @@ describe('Wake Lock / Cook Mode Functionality', () => {
         // Mock wakeLock API
         Object.defineProperty(window.navigator, 'wakeLock', {
             value: mockWakeLock,
-            configurable: true
+            configurable: true,
         });
 
         // Reset mocks
@@ -229,4 +228,4 @@ describe('Wake Lock / Cook Mode Functionality', () => {
 
         expect(mockWakeLock.request).toHaveBeenCalledWith('screen');
     });
-}); 
+});

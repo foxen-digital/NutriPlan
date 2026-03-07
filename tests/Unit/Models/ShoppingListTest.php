@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\MealPlan;
 use App\Models\ShoppingList;
 use App\Models\ShoppingListItem;
 use App\Models\User;
@@ -117,4 +118,51 @@ test('shopping list dates are properly cast', function () {
         ->end_date->toBeInstanceOf(Carbon\Carbon::class)
         ->and($list->start_date->toDateString())->toBe($startDate->toDateString())
         ->and($list->end_date->toDateString())->toBe($endDate->toDateString());
+});
+
+test('shopping list belongs to a meal plan', function () {
+    // Arrange
+    $mealPlan = MealPlan::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    // Act
+    $this->shoppingList->update(['meal_plan_id' => $mealPlan->id]);
+
+    // Assert
+    expect($this->shoppingList->mealPlan)
+        ->toBeInstanceOf(MealPlan::class)
+        ->and($this->shoppingList->mealPlan->id)->toBe($mealPlan->id);
+});
+
+test('shopping list meal plan relationship is nullable', function () {
+    // Assert - shopping list created without meal_plan_id
+    expect($this->shoppingList->meal_plan_id)->toBeNull()
+        ->and($this->shoppingList->mealPlan)->toBeNull();
+});
+
+test('shopping list meal plan id must reference a valid meal plan', function () {
+    expect(fn () => ShoppingList::factory()->create([
+        'user_id' => $this->user->id,
+        'meal_plan_id' => 999999,
+    ]))->toThrow(\Illuminate\Database\QueryException::class);
+});
+
+test('shopping list can be created with a meal plan', function () {
+    // Arrange
+    $mealPlan = MealPlan::factory()->create([
+        'user_id' => $this->user->id,
+    ]);
+
+    // Act
+    $list = ShoppingList::factory()->create([
+        'user_id' => $this->user->id,
+        'meal_plan_id' => $mealPlan->id,
+    ]);
+
+    // Assert
+    expect($list)
+        ->meal_plan_id->toBe($mealPlan->id)
+        ->mealPlan->toBeInstanceOf(MealPlan::class)
+        ->mealPlan->id->toBe($mealPlan->id);
 });

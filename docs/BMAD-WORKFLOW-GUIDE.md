@@ -91,11 +91,10 @@ Since you have **draft PRDs** for new features, follow this path:
 For each story in the sprint plan:
 
 1. **Create Story** `/bmad-bmm-create-story` - Prepare story with context
-2. **Validate Story** `/bmad-bmm-validate-story` - Confirm story readiness
-3. **Dev Story** `/bmad-bmm-dev-story` - Implement story and tests
-4. **Code Review** `/bmad-bmm-code-review` - Review implementation
-5. **If issues found → Back to Dev Story**
-6. **If approved → Next Story or Epic Retrospective**
+2. **Dev Story** `/bmad-bmm-dev-story` - Implement story and tests
+3. **Code Review** `/bmad-bmm-code-review` - Review implementation
+4. **If issues found → Back to Dev Story**
+5. **If approved → Next Story or Epic Retrospective**
 
 #### Optional: QA Automation
 
