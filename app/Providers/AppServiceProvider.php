@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Models\MealAssignment;
+use App\Observers\MealAssignmentObserver;
 use App\Services\Clients\OpenAiClient;
 use App\Services\IngredientNormalizationService;
 use App\Services\IngredientParser;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +37,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register model observers
+        MealAssignment::observe(MealAssignmentObserver::class);
+
         // No mass assignment protection at all.
         Model::unguard();
 

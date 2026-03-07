@@ -92,7 +92,7 @@ For each story in the sprint plan:
 
 1. **Create Story** `/bmad-bmm-create-story` - Prepare story with context
 2. **Dev Story** `/bmad-bmm-dev-story` - Implement story and tests
-3. **Code Review** `/bmad-bmm-code-review` - Review implementation
+3. **Code Review** `/bmad-bmm-code-review` - Review implementation (Use different LLM if possible)
 4. **If issues found → Back to Dev Story**
 5. **If approved → Next Story or Epic Retrospective**
 
