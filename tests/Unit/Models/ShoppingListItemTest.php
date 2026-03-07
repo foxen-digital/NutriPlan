@@ -15,6 +15,7 @@ test('shopping list item has correct fillable attributes', function () {
 
     // Assert
     expect($item->getFillable())->toBe([
+        'ingredient_id',
         'name',
         'quantity',
         'unit',
