@@ -82,12 +82,12 @@
             "pint --test",
             "npm run format:check"
         ],
-        "test:unit": "pest --parallel --coverage --coverage-html coverage/php",
+        "test:php": "pest --parallel --coverage --coverage-html coverage/php",
         "test:types": "phpstan",
         "test:refactor": "rector --dry-run",
         "test": [
             "@test:type-coverage",
-            "@test:unit",
+            "@test:php",
             "npm run test:coverage",
             "@test:lint",
             "@test:refactor"
