@@ -96,7 +96,7 @@ test('observer does not trigger service on meal assignment update', function () 
     $mealPlanDay = $data['mealPlanDay'];
 
     // Create without triggering observer to fully isolate the update assertion
-    $assignment = MealAssignment::withoutObservers(function () use ($mealPlanDay, $mealPlanRecipe) {
+    $assignment = MealAssignment::withoutEvents(function () use ($mealPlanDay, $mealPlanRecipe) {
         $mealPlanRecipe->servings_available -= 1.0;
         $mealPlanRecipe->save();
 
@@ -126,7 +126,7 @@ test('observer does not trigger service on meal assignment delete', function () 
     $mealPlanDay = $data['mealPlanDay'];
 
     // Create without triggering observer to fully isolate the delete assertion
-    $assignment = MealAssignment::withoutObservers(function () use ($mealPlanDay, $mealPlanRecipe) {
+    $assignment = MealAssignment::withoutEvents(function () use ($mealPlanDay, $mealPlanRecipe) {
         $mealPlanRecipe->servings_available -= 1.0;
         $mealPlanRecipe->save();
 
