@@ -2,6 +2,7 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { ToastProvider, ToastRegistry, ToastViewport } from '@/components/ui/toast';
 import { useRecipeImport } from '@/composables/useRecipeImport';
+import { useShoppingListSync } from '@/composables/useShoppingListSync';
 import { onMounted, ref } from 'vue';
 
 interface Props {
@@ -16,8 +17,12 @@ onMounted(() => {
     isOpen.value = localStorage.getItem('sidebar') !== 'false';
 
     // Initialize Echo listeners for real-time recipe import notifications
-    const { initializeListeners } = useRecipeImport();
-    initializeListeners();
+    const { initializeListeners: initializeRecipeImport } = useRecipeImport();
+    initializeRecipeImport();
+
+    // Initialize Echo listeners for shopping list update notifications
+    const { initializeListeners: initializeShoppingListSync } = useShoppingListSync();
+    initializeShoppingListSync();
 });
 
 const handleSidebarChange = (open: boolean) => {
