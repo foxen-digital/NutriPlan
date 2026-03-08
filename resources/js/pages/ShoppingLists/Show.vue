@@ -22,6 +22,24 @@
                 </div>
             </div>
 
+            <!-- Help Text: Auto-sync behavior explanation -->
+            <div
+                v-if="shoppingList.meal_plan_id !== null"
+                class="mt-4 rounded-md border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30"
+            >
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <InfoIcon class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                            When you add new meals to your plan, ingredients are automatically added to existing shopping lists for that plan.
+                            Ingredients are never automatically removed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Floating Action Button for mobile -->
             <div class="fixed right-4 top-4 z-10 flex flex-col-reverse gap-2 sm:hidden">
                 <DropdownMenu>
@@ -395,6 +413,7 @@ import {
     EyeIcon,
     EyeOffIcon,
     GripVertical,
+    InfoIcon,
     MenuIcon,
     PencilIcon,
     PlusIcon,
@@ -423,6 +442,7 @@ interface ShoppingList {
     id: number;
     name: string;
     user_id: number;
+    meal_plan_id: number | null;
     created_at: string;
     updated_at: string;
     items: ShoppingListItem[];

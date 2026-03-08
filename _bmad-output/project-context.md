@@ -152,7 +152,7 @@ The `@typescript-eslint/no-explicit-any: 'off'` rule allows intentional `any` wh
 #### Naming Conventions
 - **PHP classes**: PascalCase (`RecipeSearchController`)
 - **PHP methods**: camelCase (`getUserRecipes`)
-- **PHP variables**: snake_case (`$recipe_id`)
+- **PHP variables**: camelCase (`$recipeId`)
 - **Vue components**: PascalCase (`RecipeCard.vue`)
 - **Vue props/methods**: camelCase
 - **Component files**: PascalCase (`RecipeCard.vue`)

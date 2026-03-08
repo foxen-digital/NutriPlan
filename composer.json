@@ -23,6 +23,7 @@
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.2",
+        "laravel/boost": "^2.2",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.18",
         "laravel/sail": "^1.41",
@@ -82,12 +83,12 @@
             "pint --test",
             "npm run format:check"
         ],
-        "test:unit": "pest --parallel --coverage --coverage-html coverage/php",
+        "test:php": "pest --parallel --coverage --coverage-html coverage/php",
         "test:types": "phpstan",
         "test:refactor": "rector --dry-run",
         "test": [
             "@test:type-coverage",
-            "@test:unit",
+            "@test:php",
             "npm run test:coverage",
             "@test:lint",
             "@test:refactor"
