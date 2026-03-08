@@ -24,7 +24,7 @@
 
             <!-- Help Text: Auto-sync behavior explanation -->
             <div
-                :v-if="shoppingList.meal_plan_id"
+                v-if="shoppingList.meal_plan_id !== null"
                 class="mt-4 rounded-md border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30"
             >
                 <div class="flex">
@@ -442,7 +442,7 @@ interface ShoppingList {
     id: number;
     name: string;
     user_id: number;
-    meal_plan_id?: boolean;
+    meal_plan_id: number | null;
     created_at: string;
     updated_at: string;
     items: ShoppingListItem[];

@@ -71,8 +71,14 @@ class UpdateShoppingListJob implements ShouldQueue
         // Get ingredients with pivot data
         $ingredients = $recipe->ingredients;
 
-        // Compute starting order once to avoid N+1 queries in the loop
+        // Compute starting order once
         $maxOrder = $this->shoppingList->items()->max('order') ?? 0;
+
+        // Eager load existing items to avoid N+1 queries in the loop
+        // Key by "ingredient_id:unit" for O(1) lookup
+        $existingItems = $this->shoppingList->items()
+            ->get(['id', 'ingredient_id', 'unit', 'quantity'])
+            ->keyBy(fn ($item) => "{$item->ingredient_id}:{$item->unit}");
 
         // Process each ingredient
         foreach ($ingredients as $ingredient) {
@@ -83,11 +89,8 @@ class UpdateShoppingListJob implements ShouldQueue
                 continue;
             }
 
-            // Check if item exists with matching ingredient_id and unit
-            $existingItem = $this->shoppingList->items()
-                ->where('ingredient_id', $ingredient->id)
-                ->where('unit', $pivot->unit)
-                ->first();
+            $lookupKey = "{$ingredient->id}:{$pivot->unit}";
+            $existingItem = $existingItems->get($lookupKey);
 
             if ($existingItem) {
                 // Increment quantity and touch timestamp
