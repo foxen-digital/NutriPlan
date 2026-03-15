@@ -8,7 +8,7 @@ This phase builds upon the core shopping list functionality (Phase 7) by adding 
 - Meal Planning Feature (Specifically Meal Plan, Recipe, Ingredient, and Meal Assignment models and data)
 
 ## Leads To
-- Phase 7b: Automatic Meal Plan Synchronization
+- Phase 8: Automatic Meal Plan Synchronization
 
 ## Core Functionality
 

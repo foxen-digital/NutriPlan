@@ -99,4 +99,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(ShoppingList::class);
     }
+
+    public function isAdmin(): bool
+    {
+        return in_array($this->email, config('auth.admin_emails'));
+    }
 }
