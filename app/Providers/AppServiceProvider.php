@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\MealAssignment;
+use App\Models\User;
 use App\Observers\MealAssignmentObserver;
 use App\Services\Clients\OpenAiClient;
 use App\Services\IngredientNormalizationService;
@@ -12,6 +13,7 @@ use App\Services\IngredientParser;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -50,8 +52,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Since this is a performance concern only, don't halt
         // production for violations.
-        Model::preventLazyLoading(!$this->app->isProduction());
+        Model::preventLazyLoading(! $this->app->isProduction());
 
         JsonResource::withoutWrapping();
+
+        Gate::define('viewPulse', function (User $user) {
+            return $user->isAdmin();
+        });
     }
 }
