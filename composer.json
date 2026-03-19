@@ -17,6 +17,7 @@
         "laravel/pulse": "^1.7",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
+        "mrdth/laravel-model-settings": "^1.2",
         "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-sluggable": "^3.7",
         "tightenco/ziggy": "^2.4"
