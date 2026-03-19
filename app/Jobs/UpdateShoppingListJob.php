@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Events\ShoppingListUpdated;
 use App\Models\MealAssignment;
 use App\Models\ShoppingList;
+use App\Models\ShoppingListItem;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -78,7 +79,7 @@ class UpdateShoppingListJob implements ShouldQueue
         // Key by "ingredient_id:unit" for O(1) lookup
         $existingItems = $this->shoppingList->items()
             ->get(['id', 'ingredient_id', 'unit', 'quantity'])
-            ->keyBy(fn ($item) => "{$item->ingredient_id}:{$item->unit}");
+            ->keyBy(fn (ShoppingListItem $item) => "{$item->ingredient_id}:{$item->unit}");
 
         // Process each ingredient
         foreach ($ingredients as $ingredient) {
