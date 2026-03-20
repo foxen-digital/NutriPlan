@@ -111,8 +111,11 @@ class User extends Authenticatable
 
     public function unitSystem(): UnitSystem
     {
-        return UnitSystem::from(
-            $this->getSetting(UnitConversionService::UNIT_SYSTEM_SETTING, UnitSystem::Metric->value)
+        $storedValue = $this->getSetting(
+            UnitConversionService::UNIT_SYSTEM_SETTING,
+            UnitSystem::Metric->value
         );
+
+        return UnitSystem::tryFrom($storedValue) ?? UnitSystem::Metric;
     }
 }
