@@ -169,7 +169,6 @@ The `@typescript-eslint/no-explicit-any: 'off'` rule allows intentional `any` wh
 - **Main branch**: `main` - all PRs target this branch
 - **Feature branches**: Use Conventional Branch naming (feature/, bugfix/, hotfix/, chore/, etc)
 - **Commit messages**: Conventional Commits preferred, shorter messages ok for small changes
-- **Co-author attribution**: Include when AI-assisted: "Co-Authored-By: ..."
 
 #### Local Development
 - **Run `composer dev`** to start all services (server, queue, logs, vite)
