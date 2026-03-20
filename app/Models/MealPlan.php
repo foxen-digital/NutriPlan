@@ -11,6 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property int $people_count
+ * @property int $duration
+ * @property Carbon $start_date
+ * @property Carbon $end_date
+ */
 class MealPlan extends Model
 {
     use HasFactory;
@@ -28,6 +36,8 @@ class MealPlan extends Model
 
     /**
      * Get the user that owns the meal plan.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -36,6 +46,8 @@ class MealPlan extends Model
 
     /**
      * Get the recipes for the meal plan.
+     *
+     * @return BelongsToMany<Recipe, $this, MealPlanRecipe>
      */
     public function recipes(): BelongsToMany
     {
@@ -47,6 +59,8 @@ class MealPlan extends Model
 
     /**
      * Get the days for the meal plan.
+     *
+     * @return HasMany<MealPlanDay, $this>
      */
     public function days(): HasMany
     {

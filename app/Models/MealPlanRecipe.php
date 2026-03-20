@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
+/**
+ * @property int $id
+ * @property int $meal_plan_id
+ * @property int $recipe_id
+ * @property float $scale_factor
+ * @property float $servings_available
+ * @property Recipe|null $recipe
+ * @property MealPlan|null $mealPlan
+ */
 class MealPlanRecipe extends Pivot
 {
     use HasFactory;
@@ -59,6 +68,8 @@ class MealPlanRecipe extends Pivot
 
     /**
      * Get the meal plan that owns the pivot.
+     *
+     * @return BelongsTo<MealPlan, $this>
      */
     public function mealPlan(): BelongsTo
     {
@@ -67,6 +78,8 @@ class MealPlanRecipe extends Pivot
 
     /**
      * Get the recipe that owns the pivot.
+     *
+     * @return BelongsTo<Recipe, $this>
      */
     public function recipe(): BelongsTo
     {

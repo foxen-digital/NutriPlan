@@ -23,7 +23,7 @@ class RecipeImportCompleted implements ShouldBroadcast
      * @param int $userId The ID of the user to notify
      * @param string $status The status of the import ('success' or 'error')
      * @param string $message User-friendly status message
-     * @param int|null $recipeId The ID of the successfully imported recipe (nullable)
+     * @param Recipe|null $recipe The successfully imported recipe (nullable)
      */
     public function __construct(
         public readonly int $userId,

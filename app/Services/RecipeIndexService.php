@@ -7,7 +7,6 @@ namespace App\Services;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class RecipeIndexService
@@ -37,7 +36,7 @@ class RecipeIndexService
     private function buildBaseQuery(): Builder
     {
         return Recipe::query()
-            ->with(['user:id,name,slug', 'categories' => function (Builder|BelongsToMany $query): void {
+            ->with(['user:id,name,slug', 'categories' => function ($query): void {
                 $query->withCount('recipes');
             }])
             ->latest();
@@ -67,7 +66,7 @@ class RecipeIndexService
 
         // Filter by category
         if (!empty($filters['category'])) {
-            $query->whereHas('categories', function (Builder|BelongsToMany $query) use ($filters): void {
+            $query->whereHas('categories', function (Builder $query) use ($filters): void {
                 $query->where('categories.id', $filters['category']);
             });
         }

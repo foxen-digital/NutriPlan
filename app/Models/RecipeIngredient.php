@@ -9,17 +9,28 @@ use App\ValueObjects\Measurement;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
+/**
+ * @property float|null $amount
+ * @property string|MeasurementUnit|null $unit
+ * @property string|null $description
+ */
 class RecipeIngredient extends Pivot
 {
     protected $casts = [
         'amount' => 'float',
     ];
 
+    /**
+     * @return BelongsTo<Recipe, $this>
+     */
     public function recipe(): BelongsTo
     {
         return $this->belongsTo(Recipe::class);
     }
 
+    /**
+     * @return BelongsTo<Ingredient, $this>
+     */
     public function ingredient(): BelongsTo
     {
         return $this->belongsTo(Ingredient::class);

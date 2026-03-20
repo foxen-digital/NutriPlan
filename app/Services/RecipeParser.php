@@ -239,6 +239,7 @@ class RecipeParser
                         $this->images[] = $values[0];
                     }
                 }
+                // @phpstan-ignore-next-line - Safety check for unexpected array type
             } elseif (is_array($item)) {
                 throw new Exception("Handle image items are array of strings");
             } elseif (Str::contains($item, ["http://", "https://"])) {

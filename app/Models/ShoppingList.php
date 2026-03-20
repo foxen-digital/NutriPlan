@@ -35,11 +35,17 @@ class ShoppingList extends Model
         'end_date' => 'date',
     ];
 
+    /**
+     * @return HasMany<ShoppingListItem, $this>
+     */
     public function items(): HasMany
     {
         return $this->hasMany(ShoppingListItem::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -48,7 +54,7 @@ class ShoppingList extends Model
     /**
      * Get the meal plan that owns the shopping list.
      *
-     * @return BelongsTo<MealPlan, ShoppingList>
+     * @return BelongsTo<MealPlan, $this>
      */
     public function mealPlan(): BelongsTo
     {

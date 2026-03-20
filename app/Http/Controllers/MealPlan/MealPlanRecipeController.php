@@ -7,6 +7,7 @@ namespace App\Http\Controllers\MealPlan;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMealPlanRecipeRequest;
 use App\Models\MealPlan;
+use App\Models\MealPlanRecipe;
 use App\Models\Recipe;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -33,11 +34,11 @@ class MealPlanRecipeController extends Controller
             ]);
 
             // Calculate available servings
-            $mealPlanRecipe = $mealPlan->recipes()->where('recipe_id', $recipeId)->first();
-            if ($mealPlanRecipe) {
-                $mealPlanRecipe->pivot->calculateAvailableServings();
-                $mealPlanRecipe->pivot->save();
-            }
+            $mealPlanRecipe = $mealPlan->recipes()->where('recipe_id', $recipeId)->firstOrFail();
+            /** @var MealPlanRecipe $pivot */
+            $pivot = $mealPlanRecipe->pivot;
+            $pivot->calculateAvailableServings();
+            $pivot->save();
         }
 
         return response()->json([

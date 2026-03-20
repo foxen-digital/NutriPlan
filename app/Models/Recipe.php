@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\MeasurementUnit;
 use App\ValueObjects\Measurement;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ * @property bool $is_favorited
+ * @property RecipeIngredient $pivot
+ */
 class Recipe extends Model
 {
     use HasFactory;
@@ -48,16 +53,25 @@ class Recipe extends Model
         return $this->url !== null && $this->url !== '';
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsToMany<Category, $this>
+     */
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class);
     }
 
+    /**
+     * @return BelongsToMany<Ingredient, $this, RecipeIngredient>
+     */
     public function ingredients(): BelongsToMany
     {
         return $this->belongsToMany(Ingredient::class)
@@ -65,16 +79,25 @@ class Recipe extends Model
             ->using(RecipeIngredient::class);
     }
 
+    /**
+     * @return BelongsToMany<Collection, $this>
+     */
     public function collections(): BelongsToMany
     {
         return $this->belongsToMany(Collection::class);
     }
 
+    /**
+     * @return HasOne<NutritionInformation, $this>
+     */
     public function nutritionInformation(): HasOne
     {
         return $this->hasOne(NutritionInformation::class);
     }
 
+    /**
+     * @return BelongsToMany<User, $this>
+     */
     public function favoritedBy(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'recipe_user_favorites')
@@ -90,7 +113,13 @@ class Recipe extends Model
         }
 
         $unit = $pivot->unit;
-        $unitValue = is_string($unit) ? $unit : ($unit?->value ?? null);
+        if ($unit instanceof MeasurementUnit) {
+            $unitValue = $unit->value;
+        } elseif (is_string($unit)) {
+            $unitValue = $unit;
+        } else {
+            $unitValue = null;
+        }
 
         return Measurement::from(
             amount: $pivot->amount,

@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $meal_plan_id
+ * @property int $day_number
+ */
 class MealPlanDay extends Model
 {
     use HasFactory;
@@ -25,7 +29,7 @@ class MealPlanDay extends Model
     /**
      * The accessors to append to the model's array form.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $appends = [
         'date',
@@ -33,6 +37,8 @@ class MealPlanDay extends Model
 
     /**
      * Get the meal plan that owns the day.
+     *
+     * @return BelongsTo<MealPlan, $this>
      */
     public function mealPlan(): BelongsTo
     {

@@ -196,7 +196,7 @@ EOT;
             ];
 
             // Ensure quantity is numeric or null
-            if (isset($validated['quantity']) && $validated['quantity'] !== null && !is_numeric($validated['quantity'])) {
+            if (isset($validated['quantity']) && !is_numeric($validated['quantity'])) {
                 $validated['quantity'] = null;
             }
 

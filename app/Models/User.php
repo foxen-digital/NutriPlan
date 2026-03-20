@@ -78,27 +78,42 @@ class User extends Authenticatable
         return 'slug';
     }
 
+    /**
+     * @return HasMany<Recipe, $this>
+     */
     public function recipes(): HasMany
     {
         return $this->hasMany(Recipe::class);
     }
 
+    /**
+     * @return HasMany<Collection, $this>
+     */
     public function collections(): HasMany
     {
         return $this->hasMany(Collection::class);
     }
 
+    /**
+     * @return BelongsToMany<Recipe, $this>
+     */
     public function favorites(): BelongsToMany
     {
         return $this->belongsToMany(Recipe::class, 'recipe_user_favorites')
             ->withTimestamps();
     }
 
+    /**
+     * @return HasMany<MealPlan, $this>
+     */
     public function mealPlans(): HasMany
     {
         return $this->hasMany(MealPlan::class);
     }
 
+    /**
+     * @return HasMany<ShoppingList, $this>
+     */
     public function shoppingLists(): HasMany
     {
         return $this->hasMany(ShoppingList::class);

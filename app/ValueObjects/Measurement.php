@@ -115,7 +115,7 @@ class Measurement implements JsonSerializable, \Stringable
     public function __toString(): string
     {
         if ($this->amount === null) {
-            return $this->unit?->value ?? '';
+            return $this->unit->value ?? '';
         }
 
         if (!$this->unit instanceof \App\Enums\MeasurementUnit) {
@@ -128,7 +128,7 @@ class Measurement implements JsonSerializable, \Stringable
     public function format(): string
     {
         if ($this->amount === null) {
-            return $this->unit?->value ?? '';
+            return $this->unit->value ?? '';
         }
 
         $amount = number_format($this->amount, 2);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\MealAssignment;
 use App\Models\MealPlan;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -73,6 +74,7 @@ class MealPlanCopyService
                     }
 
                     foreach ($day->mealAssignments as $assignment) {
+                        /** @var MealAssignment $assignment */
                         // Find the corresponding recipe in the new plan
                         $originalPlanRecipe = $assignment->mealPlanRecipe;
                         if (!$originalPlanRecipe) {

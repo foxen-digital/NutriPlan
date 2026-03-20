@@ -37,6 +37,7 @@ class NutritionParser
                     $mappedName = $this->mapPropertyName($propertyName);
 
                     if ($mappedName && !empty($propValues)) {
+                        // @phpstan-ignore-next-line - Safety check for array type
                         $value = is_array($propValues) ? $propValues[0] : $propValues;
                         $nutritionData[$mappedName] = $this->cleanNutritionValue($mappedName, html_entity_decode((string) $value));
                     }

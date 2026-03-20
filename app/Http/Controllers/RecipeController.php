@@ -13,7 +13,6 @@ use Illuminate\Support\Carbon;
 use App\Actions\DeleteRecipeAction;
 use App\Services\RecipeIndexService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\Recipe\CreateRecipeRequest;
 use App\Http\Requests\Recipe\UpdateRecipeRequest;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -93,7 +92,7 @@ class RecipeController extends Controller
         $user = request()->user();
         $recipe->load([
             'user:id,name,slug',
-            'categories' => function (Builder|BelongsToMany $query): void {
+            'categories' => function (BelongsToMany $query): void {
                 $query->select(['categories.id', 'categories.name', 'categories.slug']);
             },
             'nutritionInformation',
@@ -124,7 +123,7 @@ class RecipeController extends Controller
         $this->authorize('update', $recipe);
 
         $recipe->load([
-            'categories' => function (Builder|BelongsToMany $query): void {
+            'categories' => function (BelongsToMany $query): void {
                 $query->select(['categories.id', 'categories.name', 'categories.slug']);
             },
             'nutritionInformation',

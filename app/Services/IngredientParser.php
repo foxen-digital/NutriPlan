@@ -67,7 +67,7 @@ class IngredientParser
             // Convert fraction to decimal if necessary
             if (str_contains($matches[1], '/')) {
                 [$numerator, $denominator] = explode('/', $matches[1]);
-                $amount = $numerator / $denominator;
+                $amount = (float) $numerator / (float) $denominator;
             } else {
                 $amount = (float) $matches[1];
             }

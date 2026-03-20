@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\MeasurementUnit;
 use App\Enums\UnitSystem;
+use App\Models\MealAssignment;
 use App\Models\MealPlan;
 use App\Models\MealPlanDay;
 use App\Models\ShoppingList;
@@ -53,7 +54,7 @@ class ShoppingListService
                 $query->where('to_cook', true);
             })
             ->with([
-                'mealAssignments' => function (HasMany $query): void {
+                'mealAssignments' => function ($query): void {
                     $query->where('to_cook', true)
                         ->with(['mealPlanRecipe.recipe.ingredients']);
                 }
@@ -75,6 +76,7 @@ class ShoppingListService
             }
 
             foreach ($day->mealAssignments as $assignment) {
+                /** @var MealAssignment $assignment */
                 $recipe = $assignment->mealPlanRecipe->recipe;
                 $scale = $assignment->mealPlanRecipe->scale_factor;
 
@@ -316,9 +318,9 @@ class ShoppingListService
     /**
      * Consolidate same-dimension entries into a single entry in the preferred unit.
      *
-     * @param array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}> $entries
+     * @param array<string, array{ingredient_id: int, name: string, quantity: float|null, unit: string|null}> $entries
      * @param UnitSystem $unitSystem
-     * @return array<int, array{ingredient_id: int, name: string, quantity: float, unit: string|null}>
+     * @return array<int, array{ingredient_id: int, name: string, quantity: float|null, unit: string|null}>
      */
     private function consolidateSameDimension(array $entries, UnitSystem $unitSystem): array
     {
