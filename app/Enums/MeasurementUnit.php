@@ -16,6 +16,9 @@ enum MeasurementUnit: string
     case PIECE = 'pc';
     case PINCH = 'pinch';
     case CLOVE = 'clove';
+    case OUNCE = 'oz';
+    case POUND = 'lb';
+    case FLUID_OUNCE = 'fl oz';
 
     public function label(): string
     {
@@ -30,6 +33,9 @@ enum MeasurementUnit: string
             self::PIECE => 'Piece',
             self::PINCH => 'Pinch',
             self::CLOVE => 'Clove',
+            self::OUNCE => 'Ounce',
+            self::POUND => 'Pound',
+            self::FLUID_OUNCE => 'Fluid Ounce',
         };
     }
 
@@ -41,6 +47,7 @@ enum MeasurementUnit: string
             self::TEASPOON,
             self::TABLESPOON,
             self::CUP,
+            self::FLUID_OUNCE,
         ]);
     }
 
@@ -49,6 +56,8 @@ enum MeasurementUnit: string
         return in_array($this, [
             self::GRAM,
             self::KILOGRAM,
+            self::OUNCE,
+            self::POUND,
         ]);
     }
 
@@ -58,6 +67,15 @@ enum MeasurementUnit: string
             self::PIECE,
             self::PINCH,
             self::CLOVE,
+        ]);
+    }
+
+    public function isImperial(): bool
+    {
+        return in_array($this, [
+            self::OUNCE,
+            self::POUND,
+            self::FLUID_OUNCE,
         ]);
     }
 }
