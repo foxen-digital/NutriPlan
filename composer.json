@@ -91,6 +91,7 @@
         "test": [
             "@test:type-coverage",
             "@test:php",
+            "test:types",
             "npm run test:coverage",
             "@test:lint",
             "@test:refactor"
