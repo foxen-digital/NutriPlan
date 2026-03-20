@@ -54,7 +54,7 @@ class ShoppingListService
                 $query->where('to_cook', true);
             })
             ->with([
-                'mealAssignments' => function ($query): void {
+                'mealAssignments' => function (HasMany $query): void {
                     $query->where('to_cook', true)
                         ->with(['mealPlanRecipe.recipe.ingredients']);
                 }
