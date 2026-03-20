@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Enums\MeasurementUnit;
 use App\Events\ShoppingListUpdated;
 use App\Models\MealAssignment;
 use App\Models\ShoppingList;
 use App\Models\ShoppingListItem;
+use App\Services\UnitConversionService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -50,10 +52,13 @@ class UpdateShoppingListJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(UnitConversionService $conversionService): void
     {
         // Ensure relationships are loaded (defensive programming)
         $this->meal->loadMissing('mealPlanRecipe.recipe.ingredients');
+
+        // Eager-load shopping list owner for preference resolution (FR8a)
+        $this->shoppingList->loadMissing('user');
 
         // Get the recipe through the relationship chain
         $mealPlanRecipe = $this->meal->mealPlanRecipe;
@@ -81,6 +86,9 @@ class UpdateShoppingListJob implements ShouldQueue
             ->get(['id', 'ingredient_id', 'unit', 'quantity'])
             ->keyBy(fn (ShoppingListItem $item) => "{$item->ingredient_id}:{$item->unit}");
 
+        // Resolve user preference ONCE before the loop (never inside loop)
+        $unitSystem = $this->shoppingList->user->unitSystem();
+
         // Process each ingredient
         foreach ($ingredients as $ingredient) {
             $pivot = $ingredient->pivot;
@@ -90,18 +98,37 @@ class UpdateShoppingListJob implements ShouldQueue
                 continue;
             }
 
-            $lookupKey = "{$ingredient->id}:{$pivot->unit}";
+            // Attempt unit conversion to user's preferred unit
+            $resolvedUnit = $pivot->unit;
+            $resolvedAmount = $pivot->amount;
+
+            $sourceUnit = $pivot->unit !== null ? MeasurementUnit::tryFrom($pivot->unit) : null;
+
+            if ($sourceUnit !== null) {
+                $targetUnit = $conversionService->preferredUnit($sourceUnit, $unitSystem);
+
+                if ($targetUnit !== null && $targetUnit !== $sourceUnit) {
+                    $converted = $conversionService->convert($pivot->amount, $sourceUnit, $targetUnit);
+
+                    if ($converted !== null) {
+                        $resolvedAmount = $conversionService->applyCeilingRounding($converted, $targetUnit, $unitSystem);
+                        $resolvedUnit = $targetUnit->value;
+                    }
+                }
+            }
+
+            $lookupKey = "{$ingredient->id}:{$resolvedUnit}";
             $existingItem = $existingItems->get($lookupKey);
 
             if ($existingItem) {
                 // Increment quantity and touch timestamp
-                $existingItem->increment('quantity', $pivot->amount);
+                $existingItem->increment('quantity', $resolvedAmount);
                 $existingItem->touch();
             } else {
                 $this->shoppingList->items()->create([
                     'name' => $ingredient->name,
-                    'quantity' => $pivot->amount,
-                    'unit' => $pivot->unit,
+                    'quantity' => $resolvedAmount,
+                    'unit' => $resolvedUnit,
                     'category' => null,
                     'ingredient_id' => $ingredient->id,
                     'is_custom' => false,

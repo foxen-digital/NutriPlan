@@ -1,6 +1,6 @@
-import Create from '../Create.vue';
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import Create from '../Create.vue';
 
 const mockFormPost = vi.fn();
 const mockFormReset = vi.fn();

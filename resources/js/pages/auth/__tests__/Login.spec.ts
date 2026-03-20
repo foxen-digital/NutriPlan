@@ -1,6 +1,6 @@
-import Login from '../Login.vue';
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import Login from '../Login.vue';
 
 const mockFormPost = vi.fn();
 const mockFormReset = vi.fn();

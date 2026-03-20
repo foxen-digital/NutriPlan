@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services;
 
+use App\Enums\MeasurementUnit;
+use App\Enums\UnitSystem;
 use App\Models\MealPlan;
 use App\Services\ShoppingListService;
+use App\Services\UnitConversionService;
 use Illuminate\Support\Carbon;
 use ReflectionClass;
 use App\Models\User;
@@ -27,7 +30,7 @@ function invokePrivateMethod(object $object, string $methodName, array $paramete
 }
 
 beforeEach(function () {
-    $this->service = new ShoppingListService();
+    $this->service = app(ShoppingListService::class);
 });
 
 test('calculate period dates returns correct dates for full period', function () {
@@ -319,4 +322,261 @@ test('prepareForDisplay handles lists with only uncategorized items', function (
     expect($items)->toHaveCount(2);
     expect($items[0]['name'])->toBe('Juice'); // order 1
     expect($items[1]['name'])->toBe('Water'); // order 2
+});
+
+// =====================================================
+// Cross-Unit Consolidation Tests (Story 1.3)
+// =====================================================
+
+/**
+ * Helper to set user's unit system preference
+ */
+function setUserUnitSystem(User $user, UnitSystem $system): void
+{
+    $user->updateSetting(UnitConversionService::UNIT_SYSTEM_SETTING, $system->value);
+}
+
+/**
+ * Helper to create meal plan with multiple recipes using the same ingredient in different units
+ */
+function setupCrossUnitMealPlan(User $user, Ingredient $ingredient, array $recipeConfigs): MealPlan
+{
+    $mealPlan = MealPlan::factory()->create([
+        'user_id' => $user->id,
+        'start_date' => now(),
+        'duration' => 7,
+    ]);
+
+    $day = MealPlanDay::factory()->create([
+        'meal_plan_id' => $mealPlan->id,
+        'day_number' => 1,
+    ]);
+
+    foreach ($recipeConfigs as $config) {
+        $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+        $recipe->ingredients()->attach($ingredient, [
+            'amount' => $config['amount'],
+            'unit' => $config['unit'],
+        ]);
+
+        $mpRecipePivot = MealPlanRecipe::create([
+            'meal_plan_id' => $mealPlan->id,
+            'recipe_id' => $recipe->id,
+        ]);
+
+        MealAssignment::factory()->create([
+            'meal_plan_day_id' => $day->id,
+            'meal_plan_recipe_id' => $mpRecipePivot->id,
+            'to_cook' => true,
+        ]);
+    }
+
+    return $mealPlan;
+}
+
+// AC 1 & 2: Cross-unit consolidation (metric preference)
+test('consolidates cross-unit volume ingredients into single metric entry', function () {
+    $user = User::factory()->create();
+    setUserUnitSystem($user, UnitSystem::Metric);
+
+    $oliveOil = Ingredient::factory()->create(['name' => 'Olive Oil']);
+
+    // Recipe 1: 2 tbsp olive oil (2 * 15ml = 30ml)
+    // Recipe 2: 60ml olive oil
+    // Total: 90ml → ceiling to 90ml (already divisible by 5)
+    $mealPlan = setupCrossUnitMealPlan($user, $oliveOil, [
+        ['amount' => 2, 'unit' => MeasurementUnit::TABLESPOON->value],
+        ['amount' => 60, 'unit' => MeasurementUnit::MILLILITER->value],
+    ]);
+
+    $shoppingList = $this->service->generateFromMealPlan($mealPlan, 'Test List', 'full');
+
+    expect($shoppingList->items)->toHaveCount(1);
+    $item = $shoppingList->items->first();
+    expect($item->unit)->toBe(MeasurementUnit::MILLILITER->value);
+    expect((float) $item->quantity)->toBe(90.0);
+});
+
+// AC 3: Cross-unit consolidation (imperial preference)
+test('consolidates cross-unit volume ingredients into single imperial entry', function () {
+    $user = User::factory()->create();
+    setUserUnitSystem($user, UnitSystem::Imperial);
+
+    $oliveOil = Ingredient::factory()->create(['name' => 'Olive Oil']);
+
+    // Recipe 1: 2 tbsp olive oil (30ml = 1.014 fl oz)
+    // Recipe 2: 60ml olive oil (2.028 fl oz)
+    // Total: ~3.04 fl oz → ceiling to 5 fl oz
+    $mealPlan = setupCrossUnitMealPlan($user, $oliveOil, [
+        ['amount' => 2, 'unit' => MeasurementUnit::TABLESPOON->value],
+        ['amount' => 60, 'unit' => MeasurementUnit::MILLILITER->value],
+    ]);
+
+    $shoppingList = $this->service->generateFromMealPlan($mealPlan, 'Test List', 'full');
+
+    expect($shoppingList->items)->toHaveCount(1);
+    $item = $shoppingList->items->first();
+    expect($item->unit)->toBe(MeasurementUnit::FLUID_OUNCE->value);
+    expect((float) $item->quantity)->toBe(5.0); // ceiling to nearest 5 fl oz
+});
+
+// AC 6: Same-unit consolidation regression
+test('preserves existing same-unit consolidation behavior', function () {
+    $user = User::factory()->create();
+    setUserUnitSystem($user, UnitSystem::Metric);
+
+    $flour = Ingredient::factory()->create(['name' => 'Flour']);
+
+    // Recipe 1: 100g flour
+    // Recipe 2: 50g flour
+    // Total: 150g → ceiling to 150g
+    $mealPlan = setupCrossUnitMealPlan($user, $flour, [
+        ['amount' => 100, 'unit' => MeasurementUnit::GRAM->value],
+        ['amount' => 50, 'unit' => MeasurementUnit::GRAM->value],
+    ]);
+
+    $shoppingList = $this->service->generateFromMealPlan($mealPlan, 'Test List', 'full');
+
+    expect($shoppingList->items)->toHaveCount(1);
+    $item = $shoppingList->items->first();
+    expect($item->unit)->toBe(MeasurementUnit::GRAM->value);
+    expect((float) $item->quantity)->toBe(150.0);
+});
+
+// AC 4: Cross-dimension pass-through
+test('preserves cross-dimension entries as separate items', function () {
+    $user = User::factory()->create();
+    setUserUnitSystem($user, UnitSystem::Metric);
+
+    $flour = Ingredient::factory()->create(['name' => 'Flour']);
+
+    // Recipe 1: 1 cup flour (volume)
+    // Recipe 2: 100g flour (weight)
+    // Cross-dimension: cannot consolidate, should remain as 2 separate items
+    $mealPlan = setupCrossUnitMealPlan($user, $flour, [
+        ['amount' => 1, 'unit' => MeasurementUnit::CUP->value],
+        ['amount' => 100, 'unit' => MeasurementUnit::GRAM->value],
+    ]);
+
+    $shoppingList = $this->service->generateFromMealPlan($mealPlan, 'Test List', 'full');
+
+    // Cross-dimension entries should remain as separate items, neither modified (pass-through)
+    expect($shoppingList->items)->toHaveCount(2);
+
+    $units = $shoppingList->items->pluck('unit')->toArray();
+    expect($units)->toContain(MeasurementUnit::CUP->value)
+        ->and($units)->toContain(MeasurementUnit::GRAM->value);
+});
+
+// AC 5: Unknown unit pass-through
+test('preserves unknown unit entries unchanged', function () {
+    $user = User::factory()->create();
+    setUserUnitSystem($user, UnitSystem::Metric);
+
+    $herbs = Ingredient::factory()->create(['name' => 'Herbs']);
+
+    // Recipe: 1 handful herbs (unknown unit)
+    $mealPlan = setupCrossUnitMealPlan($user, $herbs, [
+        ['amount' => 1, 'unit' => 'handful'],
+    ]);
+
+    $shoppingList = $this->service->generateFromMealPlan($mealPlan, 'Test List', 'full');
+
+    expect($shoppingList->items)->toHaveCount(1);
+    $item = $shoppingList->items->first();
+    expect($item->unit)->toBe('handful');
+    expect((float) $item->quantity)->toBe(1.0);
+});
+
+// AC 5: Null unit pass-through
+test('preserves null unit entries unchanged', function () {
+    $user = User::factory()->create();
+    setUserUnitSystem($user, UnitSystem::Metric);
+
+    $ingredient = Ingredient::factory()->create(['name' => 'Fresh Basil']);
+
+    // Recipe: 2 fresh basil with null unit
+    $mealPlan = setupCrossUnitMealPlan($user, $ingredient, [
+        ['amount' => 2, 'unit' => null],
+    ]);
+
+    $shoppingList = $this->service->generateFromMealPlan($mealPlan, 'Test List', 'full');
+
+    expect($shoppingList->items)->toHaveCount(1);
+    $item = $shoppingList->items->first();
+    expect($item->unit)->toBeNull();
+    expect((float) $item->quantity)->toBe(2.0);
+});
+
+// AC 7: Ceiling rounding applied once to final total
+test('applies ceiling rounding once to final consolidated total', function () {
+    $user = User::factory()->create();
+    setUserUnitSystem($user, UnitSystem::Metric);
+
+    $ingredient = Ingredient::factory()->create(['name' => 'Milk']);
+
+    // Recipe 1: 1 tbsp milk (15ml)
+    // Recipe 2: 1 tsp milk (5ml)
+    // Recipe 3: 7ml milk
+    // Total: 27ml → ceiling to 30ml (not rounded per conversion)
+    $mealPlan = setupCrossUnitMealPlan($user, $ingredient, [
+        ['amount' => 1, 'unit' => MeasurementUnit::TABLESPOON->value],
+        ['amount' => 1, 'unit' => MeasurementUnit::TEASPOON->value],
+        ['amount' => 7, 'unit' => MeasurementUnit::MILLILITER->value],
+    ]);
+
+    $shoppingList = $this->service->generateFromMealPlan($mealPlan, 'Test List', 'full');
+
+    expect($shoppingList->items)->toHaveCount(1);
+    $item = $shoppingList->items->first();
+    expect($item->unit)->toBe(MeasurementUnit::MILLILITER->value);
+    expect((float) $item->quantity)->toBe(30.0); // 27 → ceiling to 30
+});
+
+// Mixed scenario: multiple units with some unconvertible
+test('handles mixed convertible and unconvertible units correctly', function () {
+    $user = User::factory()->create();
+    setUserUnitSystem($user, UnitSystem::Metric);
+
+    $ingredient = Ingredient::factory()->create(['name' => 'Mixed Item']);
+
+    // Recipe 1: 2 tbsp (single volume entry — no cross-unit consolidation, passes through)
+    // Recipe 2: 1 handful (unknown unit, passes through)
+    // Should result in 2 items: tbsp unchanged and handful unchanged
+    $mealPlan = setupCrossUnitMealPlan($user, $ingredient, [
+        ['amount' => 2, 'unit' => MeasurementUnit::TABLESPOON->value],
+        ['amount' => 1, 'unit' => 'handful'],
+    ]);
+
+    $shoppingList = $this->service->generateFromMealPlan($mealPlan, 'Test List', 'full');
+
+    expect($shoppingList->items)->toHaveCount(2);
+
+    $units = $shoppingList->items->pluck('unit')->toArray();
+    expect($units)->toContain(MeasurementUnit::TABLESPOON->value)
+        ->and($units)->toContain('handful');
+});
+
+// Weight cross-unit consolidation
+test('consolidates cross-unit weight ingredients correctly', function () {
+    $user = User::factory()->create();
+    setUserUnitSystem($user, UnitSystem::Imperial);
+
+    $ingredient = Ingredient::factory()->create(['name' => 'Cheese']);
+
+    // Recipe 1: 100g cheese
+    // Recipe 2: 2 oz cheese (56.7g)
+    // Total: ~156.7g → ~5.53 oz → ceiling to 5.6 oz
+    $mealPlan = setupCrossUnitMealPlan($user, $ingredient, [
+        ['amount' => 100, 'unit' => MeasurementUnit::GRAM->value],
+        ['amount' => 2, 'unit' => MeasurementUnit::OUNCE->value],
+    ]);
+
+    $shoppingList = $this->service->generateFromMealPlan($mealPlan, 'Test List', 'full');
+
+    expect($shoppingList->items)->toHaveCount(1);
+    $item = $shoppingList->items->first();
+    expect($item->unit)->toBe(MeasurementUnit::OUNCE->value);
+    // 100g = 3.527 oz, 2 oz = 2 oz → total 5.527 oz → ceiling to 5.6 oz
+    expect((float) $item->quantity)->toBe(5.6);
 });

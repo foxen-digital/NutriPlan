@@ -1,6 +1,6 @@
-import NavMain from '../NavMain.vue';
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import NavMain from '../NavMain.vue';
 
 vi.mock('@inertiajs/vue3', () => ({
     Link: {
@@ -20,7 +20,7 @@ vi.mock('@/components/ui/sidebar', () => ({
     SidebarMenu: { name: 'SidebarMenu', template: '<ul data-testid="sidebar-menu"><slot /></ul>' },
     SidebarMenuButton: {
         name: 'SidebarMenuButton',
-        template: '<button :data-active="isActive ? \'true\' : \'false\'"><slot /></button>',
+        template: "<button :data-active=\"isActive ? 'true' : 'false'\"><slot /></button>",
         props: ['isActive', 'asChild', 'tooltip'],
     },
     SidebarMenuItem: { name: 'SidebarMenuItem', template: '<li data-testid="sidebar-menu-item"><slot /></li>' },

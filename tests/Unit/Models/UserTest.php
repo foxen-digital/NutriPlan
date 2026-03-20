@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Enums\UnitSystem;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\UnitConversionService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -41,4 +43,25 @@ test('user can favorite and unfavorite recipes', function () {
     $user->favorites()->detach($recipe);
     $user->refresh();
     expect($user->favorites)->toHaveCount(0);
+});
+
+test('unitSystem returns Metric by default', function () {
+    $user = User::factory()->create();
+
+    expect($user->unitSystem())->toBe(UnitSystem::Metric);
+});
+
+test('unitSystem returns Imperial when preference is set', function () {
+    $user = User::factory()->create();
+    $user->addSetting(UnitConversionService::UNIT_SYSTEM_SETTING, UnitSystem::Imperial->value);
+
+    expect($user->unitSystem())->toBe(UnitSystem::Imperial);
+});
+
+test('unitSystem returns updated preference after change', function () {
+    $user = User::factory()->create();
+    $user->addSetting(UnitConversionService::UNIT_SYSTEM_SETTING, UnitSystem::Imperial->value);
+    $user->updateSetting(UnitConversionService::UNIT_SYSTEM_SETTING, UnitSystem::Metric->value);
+
+    expect($user->unitSystem())->toBe(UnitSystem::Metric);
 });

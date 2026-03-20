@@ -1,6 +1,6 @@
-import RecipeCard from '../RecipeCard.vue';
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import RecipeCard from '../RecipeCard.vue';
 
 vi.mock('@inertiajs/vue3', () => ({
     Link: { name: 'Link', template: '<a :href="href"><slot /></a>', props: ['href'] },
