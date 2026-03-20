@@ -228,9 +228,9 @@ class ShoppingListService
     /**
      * Consolidate ingredient entries with compatible units into single entries.
      *
-     * @param array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}> $ingredients
+     * @param array<string, array{ingredient_id: int, name: string, quantity: float|null, unit: string|null}> $ingredients
      * @param UnitSystem $unitSystem The user's preferred unit system
-     * @return array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}>
+     * @return array<string, array{ingredient_id: int, name: string, quantity: float|null, unit: string|null}>
      */
     private function applyUnitConsolidation(array $ingredients, UnitSystem $unitSystem): array
     {
