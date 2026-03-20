@@ -1,6 +1,6 @@
-import Register from '../Register.vue';
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import Register from '../Register.vue';
 
 const mockFormPost = vi.fn();
 const mockFormReset = vi.fn();

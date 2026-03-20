@@ -1,7 +1,7 @@
-import MealAssignmentCard from '../MealAssignmentCard.vue';
 import { mount } from '@vue/test-utils';
 import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import MealAssignmentCard from '../MealAssignmentCard.vue';
 
 vi.mock('@inertiajs/vue3', () => ({
     Link: { name: 'Link', template: '<a :href="href"><slot /></a>', props: ['href'] },

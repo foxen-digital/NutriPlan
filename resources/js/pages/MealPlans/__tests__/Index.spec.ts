@@ -1,6 +1,6 @@
-import Index from '../Index.vue';
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import Index from '../Index.vue';
 
 const mockFormDelete = vi.fn();
 const mockFormPost = vi.fn();

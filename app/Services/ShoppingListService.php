@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\MeasurementUnit;
+use App\Enums\UnitSystem;
 use App\Models\MealPlan;
 use App\Models\MealPlanDay;
 use App\Models\ShoppingList;
@@ -17,6 +18,10 @@ use Illuminate\Support\Carbon;
 
 class ShoppingListService
 {
+    public function __construct(
+        private UnitConversionService $unitConversionService,
+    ) {
+    }
     /**
      * Generate a Shopping List from a Meal Plan for a specific period.
      *
@@ -122,6 +127,12 @@ class ShoppingListService
             }
         }
 
+        // === CONVERSION PASS (Story 1.3) ===
+        $ingredients = $this->applyUnitConsolidation(
+            $ingredients,
+            $mealPlan->user->unitSystem()
+        );
+
         // 5. Create shopping list items
         foreach ($ingredients as $ingredient) {
             ShoppingListItem::create([
@@ -212,5 +223,174 @@ class ShoppingListService
         }
 
         return $shoppingListData;
+    }
+
+    /**
+     * Consolidate ingredient entries with compatible units into single entries.
+     *
+     * @param array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}> $ingredients
+     * @param UnitSystem $unitSystem The user's preferred unit system
+     * @return array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}>
+     */
+    private function applyUnitConsolidation(array $ingredients, UnitSystem $unitSystem): array
+    {
+        // Group by ingredient_id first
+        $byIngredient = [];
+        foreach ($ingredients as $key => $entry) {
+            $ingredientId = $entry['ingredient_id'];
+            $byIngredient[$ingredientId][$key] = $entry;
+        }
+
+        $result = [];
+
+        foreach ($byIngredient as $ingredientId => $entries) {
+            // Single entry = no consolidation needed
+            if (count($entries) === 1) {
+                $result += $entries;
+                continue;
+            }
+
+            // Group entries by dimension (volume, weight, unknown)
+            $byDimension = $this->groupEntriesByDimension($entries);
+
+            foreach ($byDimension as $dimension => $dimensionEntries) {
+                if ($dimension === 'unknown') {
+                    // Unknown/null units: pass through unchanged
+                    $result += $dimensionEntries;
+                    continue;
+                }
+
+                if (count($dimensionEntries) === 1) {
+                    // Only one entry in this dimension: pass through unchanged
+                    $result += $dimensionEntries;
+                    continue;
+                }
+
+                // Multiple same-dimension entries: consolidate
+                $consolidated = $this->consolidateSameDimension(
+                    $dimensionEntries,
+                    $dimension,
+                    $unitSystem
+                );
+
+                foreach ($consolidated as $entry) {
+                    $key = $entry['ingredient_id'] . '|' . ($entry['unit'] ?? 'null');
+                    $result[$key] = $entry;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Group ingredient entries by their measurement dimension.
+     *
+     * @param array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}> $entries
+     * @return array<string, array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}>>
+     */
+    private function groupEntriesByDimension(array $entries): array
+    {
+        $byDimension = ['volume' => [], 'weight' => [], 'unknown' => []];
+
+        foreach ($entries as $key => $entry) {
+            $unit = $entry['unit'] !== null
+                ? MeasurementUnit::tryFrom($entry['unit'])
+                : null;
+
+            if ($unit === null) {
+                $byDimension['unknown'][$key] = $entry;
+            } elseif ($unit->isVolume()) {
+                $byDimension['volume'][$key] = $entry;
+            } elseif ($unit->isWeight()) {
+                $byDimension['weight'][$key] = $entry;
+            } else {
+                // Dimensionless units (PIECE, PINCH, CLOVE) are unknown for consolidation
+                $byDimension['unknown'][$key] = $entry;
+            }
+        }
+
+        // Remove empty dimensions
+        return array_filter($byDimension);
+    }
+
+    /**
+     * Consolidate same-dimension entries into a single entry in the preferred unit.
+     *
+     * @param array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}> $entries
+     * @param string $dimension 'volume' or 'weight'
+     * @param UnitSystem $unitSystem
+     * @return array<int, array{ingredient_id: int, name: string, quantity: float, unit: string|null}>
+     */
+    private function consolidateSameDimension(array $entries, string $dimension, UnitSystem $unitSystem): array
+    {
+        // Get first entry for name/ingredient_id
+        $firstEntry = reset($entries);
+
+        // Determine target unit from first entry's unit
+        $firstUnit = MeasurementUnit::tryFrom($firstEntry['unit']);
+        if ($firstUnit === null) {
+            // Should not happen (already filtered), but pass through as safety
+            return array_values($entries);
+        }
+
+        $targetUnit = $this->unitConversionService->preferredUnit($firstUnit, $unitSystem);
+        if ($targetUnit === null) {
+            // No preferred unit (dimensionless): pass through unchanged
+            return array_values($entries);
+        }
+
+        // Accumulate all amounts converted to target unit
+        $totalAmount = 0.0;
+        $hasConvertible = false;
+        $preservedEntries = [];
+        foreach ($entries as $originalKey => $entry) {
+            if ($entry['quantity'] === null) {
+                // Null-quantity entries cannot be consolidated: preserve unchanged
+                $preservedEntries[$originalKey] = $entry;
+                continue;
+            }
+
+            $sourceUnit = MeasurementUnit::tryFrom($entry['unit']);
+            if ($sourceUnit === null) {
+                // Should not happen (already filtered), but preserve as safety
+                $preservedEntries[$originalKey] = $entry;
+                continue;
+            }
+
+            $converted = $this->unitConversionService->convert(
+                $entry['quantity'],
+                $sourceUnit,
+                $targetUnit
+            );
+
+            if ($converted !== null) {
+                $totalAmount += $converted;
+                $hasConvertible = true;
+            } else {
+                // Unconvertible: preserve as separate entry
+                $preservedEntries[$originalKey] = $entry;
+            }
+        }
+
+        $result = array_values($preservedEntries);
+
+        if ($hasConvertible) {
+            // Apply ceiling rounding ONCE to final total
+            $roundedAmount = $this->unitConversionService->applyCeilingRounding(
+                $totalAmount,
+                $targetUnit,
+                $unitSystem
+            );
+
+            $result[] = [
+                'ingredient_id' => $firstEntry['ingredient_id'],
+                'name' => $firstEntry['name'],
+                'quantity' => $roundedAmount,
+                'unit' => $targetUnit->value,
+            ];
+        }
+
+        return $result;
     }
 }
