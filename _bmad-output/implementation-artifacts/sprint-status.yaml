@@ -48,6 +48,6 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Mid-Week Plan Sync with Unit Conversion
-  epic-2: backlog
-  2-1-unit-conversion-at-shopping-list-sync: backlog
+  epic-2: in-progress
+  2-1-unit-conversion-at-shopping-list-sync: done
   epic-2-retrospective: optional
