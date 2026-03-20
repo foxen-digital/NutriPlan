@@ -269,7 +269,6 @@ class ShoppingListService
                 // Multiple same-dimension entries: consolidate
                 $consolidated = $this->consolidateSameDimension(
                     $dimensionEntries,
-                    $dimension,
                     $unitSystem
                 );
 
@@ -318,11 +317,10 @@ class ShoppingListService
      * Consolidate same-dimension entries into a single entry in the preferred unit.
      *
      * @param array<string, array{ingredient_id: int, name: string, quantity: float, unit: string|null}> $entries
-     * @param string $dimension 'volume' or 'weight'
      * @param UnitSystem $unitSystem
      * @return array<int, array{ingredient_id: int, name: string, quantity: float, unit: string|null}>
      */
-    private function consolidateSameDimension(array $entries, string $dimension, UnitSystem $unitSystem): array
+    private function consolidateSameDimension(array $entries, UnitSystem $unitSystem): array
     {
         // Get first entry for name/ingredient_id
         $firstEntry = reset($entries);
