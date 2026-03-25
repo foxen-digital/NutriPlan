@@ -4,7 +4,8 @@
       "Bash(npx vitest:*)",
       "Bash(npm run:*)",
       "Bash(composer:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm test:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
