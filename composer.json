@@ -13,6 +13,7 @@
         "brick/structured-data": "^0.1.1",
         "doctrine/dbal": "^4.2",
         "inertiajs/inertia-laravel": "^3.0",
+        "laravel/ai": "^0.4.0",
         "laravel/framework": "^13.0",
         "laravel/pulse": "^1.7",
         "laravel/sanctum": "^4.0",
