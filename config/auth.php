@@ -113,4 +113,6 @@ return [
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
     'admin_emails' => explode(',', env('NUTRIPLAN_ADMIN_EMAILS', '')),
+
+    'registration_enabled' => env('AUTH_REGISTRATION_ENABLED', false),
 ];
