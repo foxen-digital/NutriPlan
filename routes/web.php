@@ -20,8 +20,6 @@ use App\Http\Controllers\ShoppingList\ShoppingListItemController;
 use App\Http\Controllers\ShoppingList\ShoppingListItemOrderController;
 use App\Http\Controllers\ShoppingList\ShoppingListItemPurchaseController;
 use App\Http\Controllers\UserRecipeController;
-use App\Models\MealPlan;
-use App\Models\Recipe;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -73,44 +71,18 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // Meal Assignments
     Route::post('/meal-assignments', [MealAssignmentController::class, 'store'])->name('meal-assignments.store');
-    Route::put('/meal-assignments/{meal_assignment}', [MealAssignmentController::class, 'update'])->name('meal-assignments.update');
-    Route::delete('/meal-assignments/{meal_assignment}', [MealAssignmentController::class, 'destroy'])->name('meal-assignments.destroy');
-    Route::patch('/meal-plan-days/{meal_plan_day}/assignments/order', MealPlanDayAssignmentOrderController::class)
-        ->name('meal-plan-days.assignments.reorder');
-});
-
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/meal-assignments', [MealAssignmentController::class, 'store'])->name('meal-assignments.store');
     Route::put('/meal-assignments/{mealAssignment}', [MealAssignmentController::class, 'update'])->name('meal-assignments.update');
     Route::delete('/meal-assignments/{mealAssignment}', [MealAssignmentController::class, 'destroy'])->name('meal-assignments.destroy');
     Route::post('/meal-assignments/{mealAssignment}/toggle-cook', [MealAssignmentController::class, 'toggleToCook'])->name('meal-assignments.toggle-cook');
     Route::patch('/meal-assignments/{mealAssignment}/move', MealAssignmentMoveController::class)->name('meal-assignments.move');
+    Route::patch('/meal-plan-days/{mealPlanDay}/assignments/order', MealPlanDayAssignmentOrderController::class)
+        ->name('meal-plan-days.assignments.reorder');
 });
 
 // Demo Routes
 Route::get('/demo/toasts', function () {
     return Inertia::render('Demo/Toasts');
 })->middleware(['auth:sanctum'])->name('demo.toasts');
-
-// Add a debug route to check parameters
-Route::delete('/meal-plans/{mealPlan}/recipes/{recipe}/debug', function (MealPlan $mealPlan, Recipe $recipe) {
-    return [
-        'mealPlan' => $mealPlan->id,
-        'recipe' => $recipe->id,
-        'success' => true
-    ];
-})->name('meal-plans.remove-recipe.debug');
-
-// Add a temporary route to help with debugging
-Route::get('/test-route', function () {
-    $mealPlanId = 1;
-    $recipeId = 1;
-    $url = route('meal-plans.remove-recipe', [
-        'mealPlan' => $mealPlanId,
-        'recipe' => $recipeId,
-    ]);
-    return "Route URL: " . $url;
-})->name('test-route');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

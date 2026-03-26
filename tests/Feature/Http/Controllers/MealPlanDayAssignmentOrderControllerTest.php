@@ -10,7 +10,6 @@ use App\Models\MealPlanDay;
 use App\Models\MealPlanRecipe;
 use App\Models\Recipe;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 // Assuming RefreshDatabase is used globally via tests/Pest.php
 
@@ -48,7 +47,7 @@ beforeEach(function () {
     }
 
     // Define the route for convenience
-    $this->route = route('meal-plan-days.assignments.reorder', ['meal_plan_day' => $this->mealPlanDay->id]);
+    $this->route = route('meal-plan-days.assignments.reorder', ['mealPlanDay' => $this->mealPlanDay->id]);
 });
 
 test('authenticated owner can reorder meal assignments', function () {
@@ -255,17 +254,4 @@ test('validation fails if assignment_ids contains non-integer', function () {
 
     // Assert: Check for validation error ('integer' rule)
     $response->assertSessionHasErrors('assignment_ids.1'); // Pest can assert specific array index errors
-});
-
-test('debug: check meal plan day assignments', function () {
-    // Check what assignments are in the database for this day
-    $dbAssignments = DB::table('meal_assignments')
-        ->where('meal_plan_day_id', $this->mealPlanDay->id)
-        ->get();
-
-    dump('Assignments in DB:', $dbAssignments->toArray());
-    dump('Assignment IDs in beforeEach:', $this->assignments->pluck('id')->toArray());
-
-    // This test doesn't assert anything, it's for debugging only
-    expect(true)->toBeTrue();
 });
