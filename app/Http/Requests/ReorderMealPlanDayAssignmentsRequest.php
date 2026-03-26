@@ -16,7 +16,7 @@ class ReorderMealPlanDayAssignmentsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $mealPlanDay = $this->route('meal_plan_day');
+        $mealPlanDay = $this->route('mealPlanDay');
 
         // For unit tests, we might have the mealPlanDay set directly as a property
         if (!$mealPlanDay && (property_exists($this, 'mealPlanDay') && $this->mealPlanDay !== null)) {
@@ -65,7 +65,7 @@ class ReorderMealPlanDayAssignmentsRequest extends FormRequest
      */
     protected function validateAssignmentIds(): void
     {
-        $mealPlanDay = $this->route('meal_plan_day');
+        $mealPlanDay = $this->route('mealPlanDay');
 
         // For unit tests, we might have the mealPlanDay set directly as a property
         if (!$mealPlanDay && (property_exists($this, 'mealPlanDay') && $this->mealPlanDay !== null)) {
@@ -75,7 +75,7 @@ class ReorderMealPlanDayAssignmentsRequest extends FormRequest
         // If we can't get the meal plan day, fail validation
         if (!$mealPlanDay) {
             throw ValidationException::withMessages([
-                'meal_plan_day' => 'The meal plan day is required.',
+                'mealPlanDay' => 'The meal plan day is required.',
             ]);
         }
 
