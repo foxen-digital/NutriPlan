@@ -26,7 +26,7 @@ class IngredientNormalizationService
             Log::info('Normalized ingredients', ['data' => $data]);
             return $data;
         } catch (\Throwable $e) {
-            Log::error('Failed to normalize ingredients with LLM', [
+            Log::error('Failed to normalize ingredients with agent', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

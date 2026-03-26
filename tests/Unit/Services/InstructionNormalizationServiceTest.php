@@ -33,6 +33,21 @@ test('normalize returns formatted instructions when agent call succeeds', functi
     expect($result)->toBe($expectedOutput);
 });
 
+test('normalize uses fallback when agent returns empty response', function () {
+    $rawInstructions = "Cook until golden brown.";
+
+    InstructionFormattingAgent::fake(['']);
+
+    Log::shouldReceive('error')->once();
+    Log::shouldReceive('warning')
+        ->once()
+        ->with('Using fallback for instruction normalization');
+
+    $result = $this->service->normalize($rawInstructions);
+
+    expect($result)->toBe($rawInstructions);
+});
+
 test('normalize uses fallback when agent call fails', function () {
     $rawInstructions = "Cook until golden brown.";
 

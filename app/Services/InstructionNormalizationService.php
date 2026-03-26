@@ -21,7 +21,7 @@ class InstructionNormalizationService
             Log::info('Normalized instructions', ['length' => strlen($normalized)]);
             return $normalized;
         } catch (\Throwable $e) {
-            Log::error('Failed to normalize instructions with LLM', [
+            Log::error('Failed to normalize instructions with agent', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

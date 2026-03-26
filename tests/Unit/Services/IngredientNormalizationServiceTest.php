@@ -139,7 +139,7 @@ test('normalize falls back to IngredientParser on agent failure', function () {
     Log::shouldHaveReceived('error')
         ->once()
         ->withArgs(function ($message, $context) {
-            return $message === 'Failed to normalize ingredients with LLM' &&
+            return $message === 'Failed to normalize ingredients with agent' &&
                    isset($context['error']) &&
                    $context['error'] === 'API request failed';
         });
@@ -150,6 +150,40 @@ test('normalize falls back to IngredientParser on agent failure', function () {
             return $message === 'Using fallback ingredient parser' &&
                    isset($context['count']) &&
                    $context['count'] === 2;
+        });
+});
+
+test('normalize falls back to IngredientParser on invalid structured response', function () {
+    $ingredientStrings = ['2 red onions, peeled and quartered'];
+
+    // Agent returns a response with no `ingredients` key
+    IngredientNormalizationAgent::fake([[/* empty object, no ingredients key */]]);
+
+    $onion = new Ingredient(['name' => 'red onion']);
+
+    $this->ingredientParser->shouldReceive('parse')
+        ->with($ingredientStrings[0])
+        ->andReturn([
+            'ingredient' => $onion,
+            'amount' => 2,
+            'unit' => MeasurementUnit::PIECE,
+        ]);
+
+    $result = $this->service->normalize($ingredientStrings);
+
+    expect($result)->toBeArray()->toHaveCount(1);
+    expect($result[0])->toMatchArray([
+        'base_name' => 'red onion',
+        'quantity' => 2,
+        'original_string' => '2 red onions, peeled and quartered',
+    ]);
+
+    Log::shouldHaveReceived('error')
+        ->once()
+        ->withArgs(function ($message, $context) {
+            return $message === 'Failed to normalize ingredients with agent' &&
+                   isset($context['error']) &&
+                   $context['error'] === 'Invalid structured response from agent';
         });
 });
 
