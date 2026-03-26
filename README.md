@@ -55,7 +55,7 @@ Not intended for production use.
 - SQLite (or MySQL/PostgreSQL if preferred)
 - External Services:
    - A RapidApi account to access barcode lookups. See https://freewebapi.com/data-apis/barcode-lookup-api/
-   - An OpenAI account (or other API compatible LLM service), used for parsing ingredients in a standardized way
+   - An OpenAI account (or other compatible LLM service), used for parsing ingredients in a standardized way
 
 ## Local Development Setup
 
