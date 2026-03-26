@@ -11,7 +11,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('meal_plan_recipe', function (Blueprint $table): void {
-            $table->decimal('servings_available', 8, 2)->nullable()->after('servings');
+            $table->decimal('servings_available', 8, 2)->nullable()->after('scale_factor');
         });
     }
 
