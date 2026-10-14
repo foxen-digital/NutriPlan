@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Recipe;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,7 +21,7 @@ class FavoritesController extends Controller
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator<Recipe> $favorites */
         $favorites = $user->favorites()
-            ->with(['user:id,name,slug', 'categories' => function (BelongsToMany $query): void {
+            ->with(['user:id,name,slug', 'categories' => function (Relation $query): void {
                 $query->withCount('recipes')
                     ->orderBy('recipes_count', 'desc');
             }])
