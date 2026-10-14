@@ -12,6 +12,7 @@ use App\Http\Controllers\MealPlan\MealPlanController;
 use App\Http\Controllers\MealPlan\MealPlanCopyController;
 use App\Http\Controllers\MealPlan\MealPlanDayAssignmentOrderController;
 use App\Http\Controllers\MealPlan\MealPlanRecipeController;
+use App\Http\Controllers\NormalizeIngredientsController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\RecipeImportController;
 use App\Http\Controllers\ShoppingList\ShoppingListController;
@@ -43,6 +44,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // Ingredients
     Route::post('/ingredients', [IngredientController::class, 'store'])->name('ingredients.store');
+    Route::post('ingredients/normalize', NormalizeIngredientsController::class)->name('ingredients.normalize');
 
     Route::resource('collections', CollectionController::class);
     Route::post('collections/add-recipe', [CollectionRecipeController::class, 'store'])->name('collections.add-recipe');

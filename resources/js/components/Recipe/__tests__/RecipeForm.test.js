@@ -136,6 +136,10 @@ vi.mock('@inertiajs/vue3', () => ({
 }));
 
 vi.mock('lucide-vue-next', () => ({
+    ListPlusIcon: {
+        name: 'ListPlusIcon',
+        template: '<div class="list-plus-icon"></div>',
+    },
     PlusIcon: {
         name: 'PlusIcon',
         template: '<div class="plus-icon"></div>',

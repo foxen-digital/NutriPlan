@@ -18,6 +18,7 @@
                     submit-label="Create Recipe"
                     @submit="createRecipe"
                     @new-ingredient="addNewIngredient"
+                    @new-ingredients="addNewIngredients"
                     @new-category="addNewCategory"
                 />
             </div>
@@ -57,6 +58,12 @@ const createRecipe = (form: any) => {
 
 const addNewIngredient = (ingredient: { id: number; name: string }) => {
     ingredients.value.push(ingredient as Ingredient);
+};
+
+const addNewIngredients = (newIngredients: Array<{ id: number; name: string }>) => {
+    for (const ingredient of newIngredients) {
+        ingredients.value.push(ingredient as Ingredient);
+    }
 };
 
 const addNewCategory = (category: { id: number; name: string }) => {

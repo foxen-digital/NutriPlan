@@ -11,25 +11,28 @@ class IngredientParser
 {
     public function parse(string $ingredient_string): array
     {
-        // Common unit patterns
+        // Common unit patterns. Plural suffixes must be non-capturing so that
+        // the name captured at index 2 excludes the unit and its suffix.
         $unit_patterns = [
             'g' => MeasurementUnit::GRAM,
-            'gram(s)?' => MeasurementUnit::GRAM,
+            'gram(?:s)?' => MeasurementUnit::GRAM,
             'kg' => MeasurementUnit::KILOGRAM,
-            'kilo(s)?' => MeasurementUnit::KILOGRAM,
-            'kilogram(s)?' => MeasurementUnit::KILOGRAM,
+            'kilo(?:s)?' => MeasurementUnit::KILOGRAM,
+            'kilogram(?:s)?' => MeasurementUnit::KILOGRAM,
             'ml' => MeasurementUnit::MILLILITER,
-            'milliliter(s)?' => MeasurementUnit::MILLILITER,
+            'milliliter(?:s)?' => MeasurementUnit::MILLILITER,
             'l' => MeasurementUnit::LITER,
-            'liter(s)?' => MeasurementUnit::LITER,
+            'liter(?:s)?' => MeasurementUnit::LITER,
             'tsp' => MeasurementUnit::TEASPOON,
-            'teaspoon(s)?' => MeasurementUnit::TEASPOON,
+            'teaspoon(?:s)?' => MeasurementUnit::TEASPOON,
             'tbsp' => MeasurementUnit::TABLESPOON,
-            'tablespoon(s)?' => MeasurementUnit::TABLESPOON,
-            'cup(s)?' => MeasurementUnit::CUP,
-            'piece(s)?' => MeasurementUnit::PIECE,
-            'pc(s)?' => MeasurementUnit::PIECE,
-            'pinch(es)?' => MeasurementUnit::PINCH,
+            'tablespoon(?:s)?' => MeasurementUnit::TABLESPOON,
+            'cup(?:s)?' => MeasurementUnit::CUP,
+            'piece(?:s)?' => MeasurementUnit::PIECE,
+            'pc(?:s)?' => MeasurementUnit::PIECE,
+            'pinch(?:es)?' => MeasurementUnit::PINCH,
+            'can(?:s)?' => MeasurementUnit::CAN,
+            'tin(?:s)?' => MeasurementUnit::CAN,
         ];
 
         // Common fraction patterns
