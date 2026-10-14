@@ -11,7 +11,7 @@ use App\Models\MealPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Actions\DeleteRecipeAction;
-use App\Services\InstructionNormalizationService;
+use App\Jobs\NormalizeRecipeInstructionsJob;
 use App\Services\RecipeIndexService;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\Recipe\CreateRecipeRequest;
@@ -53,7 +53,7 @@ class RecipeController extends Controller
         ]);
     }
 
-    public function store(CreateRecipeRequest $request, InstructionNormalizationService $service): RedirectResponse
+    public function store(CreateRecipeRequest $request): RedirectResponse
     {
         $recipeData = $request->only([
             'title',
@@ -65,9 +65,10 @@ class RecipeController extends Controller
             'is_public',
         ]);
 
-        $recipeData['instructions'] = $service->normalize((string) $recipeData['instructions']);
-
         $recipe = $request->user()->recipes()->create($recipeData);
+
+        // Queue background formatting of the instructions; the user is notified when it completes.
+        NormalizeRecipeInstructionsJob::dispatch($recipe->id, $request->user()->id);
 
         if ($request->has('categories')) {
             $recipe->categories()->sync($request->input('categories'));
@@ -87,7 +88,7 @@ class RecipeController extends Controller
         }
 
         return redirect()->route('recipes.show', $recipe)
-            ->with('success', 'Recipe created successfully.');
+            ->with('success', "Recipe created successfully. Instructions are being formatted in the background - you'll be notified when it's ready.");
     }
 
     public function show(Recipe $recipe): Response
@@ -143,7 +144,7 @@ class RecipeController extends Controller
         ]);
     }
 
-    public function update(UpdateRecipeRequest $request, InstructionNormalizationService $service, Recipe $recipe): RedirectResponse
+    public function update(UpdateRecipeRequest $request, Recipe $recipe): RedirectResponse
     {
         $this->authorize('update', $recipe);
 
@@ -157,9 +158,15 @@ class RecipeController extends Controller
             'is_public',
         ]);
 
-        $recipeData['instructions'] = $service->normalize((string) $recipeData['instructions']);
-
         $recipe->update($recipeData);
+
+        // Only queue background formatting when the instructions actually changed;
+        // a title-only edit should not trigger an LLM call.
+        $instructionsChanged = $recipe->wasChanged('instructions');
+
+        if ($instructionsChanged) {
+            NormalizeRecipeInstructionsJob::dispatch($recipe->id, $request->user()->id);
+        }
 
         if ($request->has('categories')) {
             $recipe->categories()->sync($request->input('categories'));
@@ -178,8 +185,12 @@ class RecipeController extends Controller
             );
         }
 
+        $message = $instructionsChanged
+            ? "Recipe updated successfully. Instructions are being formatted in the background - you'll be notified when it's ready."
+            : 'Recipe updated successfully.';
+
         return redirect()->route('recipes.show', $recipe)
-            ->with('success', 'Recipe updated successfully.');
+            ->with('success', $message);
     }
 
     public function destroy(Recipe $recipe, DeleteRecipeAction $deleteRecipeAction): RedirectResponse
