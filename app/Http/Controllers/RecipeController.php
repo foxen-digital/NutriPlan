@@ -11,6 +11,7 @@ use App\Models\MealPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Actions\DeleteRecipeAction;
+use App\Services\InstructionNormalizationService;
 use App\Services\RecipeIndexService;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\Recipe\CreateRecipeRequest;
@@ -52,9 +53,9 @@ class RecipeController extends Controller
         ]);
     }
 
-    public function store(CreateRecipeRequest $request): RedirectResponse
+    public function store(CreateRecipeRequest $request, InstructionNormalizationService $service): RedirectResponse
     {
-        $recipe = $request->user()->recipes()->create($request->only([
+        $recipeData = $request->only([
             'title',
             'description',
             'instructions',
@@ -62,7 +63,11 @@ class RecipeController extends Controller
             'cooking_time',
             'servings',
             'is_public',
-        ]));
+        ]);
+
+        $recipeData['instructions'] = $service->normalize((string) $recipeData['instructions']);
+
+        $recipe = $request->user()->recipes()->create($recipeData);
 
         if ($request->has('categories')) {
             $recipe->categories()->sync($request->input('categories'));
@@ -138,11 +143,11 @@ class RecipeController extends Controller
         ]);
     }
 
-    public function update(UpdateRecipeRequest $request, Recipe $recipe): RedirectResponse
+    public function update(UpdateRecipeRequest $request, InstructionNormalizationService $service, Recipe $recipe): RedirectResponse
     {
         $this->authorize('update', $recipe);
 
-        $recipe->update($request->safe([
+        $recipeData = $request->safe([
             'title',
             'description',
             'instructions',
@@ -150,7 +155,11 @@ class RecipeController extends Controller
             'cooking_time',
             'servings',
             'is_public',
-        ]));
+        ]);
+
+        $recipeData['instructions'] = $service->normalize((string) $recipeData['instructions']);
+
+        $recipe->update($recipeData);
 
         if ($request->has('categories')) {
             $recipe->categories()->sync($request->input('categories'));
