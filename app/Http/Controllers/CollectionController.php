@@ -13,7 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Actions\CreateCollectionAction;
 use App\Http\Requests\CreateCollectionRequest;
 use App\Http\Requests\UpdateCollectionRequest;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class CollectionController extends Controller
 {
@@ -40,7 +40,7 @@ class CollectionController extends Controller
     {
         Gate::authorize('view', $collection);
 
-        $collection->load(['recipes.categories' => function (BelongsToMany $query): void {
+        $collection->load(['recipes.categories' => function (Relation $query): void {
             $query->latest();
         }, 'recipes.user']);
 

@@ -19,7 +19,7 @@ class FavoritesController extends Controller
     {
         $user = $request->user();
 
-        /** @var \Illuminate\Pagination\LengthAwarePaginator<Recipe> $favorites */
+        /** @var \Illuminate\Pagination\LengthAwarePaginator<int, Recipe> $favorites */
         $favorites = $user->favorites()
             ->with(['user:id,name,slug', 'categories' => function (Relation $query): void {
                 $query->withCount('recipes')
