@@ -1,16 +1,37 @@
 <?php
 
 use App\Actions\FetchRecipe;
+use App\Ai\Agents\IngredientNormalizationAgent;
+use App\Ai\Agents\InstructionFormattingAgent;
 use App\Exceptions\RecipeImport\ConnectionFailedException;
 use App\Exceptions\RecipeImport\NoStructuredDataException;
 use App\Models\Recipe;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 beforeEach(function () {
     $this->action = new FetchRecipe();
     $this->user = createUser();
     Auth::login($this->user);
+
+    // Keep these tests hermetic: never hit a real AI provider.
+    IngredientNormalizationAgent::fake(function (string $prompt): array {
+        preg_match('/\[.*\]/s', $prompt, $matches);
+
+        return array_map(fn (string $string): array => [
+            'base_name' => $string,
+            'quantity' => null,
+            'unit' => null,
+            'preparation_notes' => null,
+            'description' => $string,
+            'original_string' => $string,
+        ], json_decode($matches[0] ?? '[]', true));
+    });
+
+    InstructionFormattingAgent::fake(function (string $prompt): string {
+        return Str::after($prompt, "Markdown:\n\n");
+    });
 });
 
 it('fetches and parses a recipe from a URL', function () {
