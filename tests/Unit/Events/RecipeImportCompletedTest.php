@@ -51,6 +51,17 @@ it('broadcasts on the correct channel', function () {
     expect($channels[0]->name)->toBe("private-user.{$userId}");
 });
 
+it('excludes recipe data when recipe is null', function () {
+    // Arrange
+    $event = new RecipeImportCompleted(1, 'error', 'No recipe data found.', null);
+
+    // Act & Assert
+    expect($event->broadcastWith())->toBe([
+        'status' => 'error',
+        'message' => 'No recipe data found.',
+    ]);
+});
+
 it('has the correct broadcast name', function () {
     // Arrange
     $event = new RecipeImportCompleted(1, 'success', 'Recipe imported!', $this->recipe);

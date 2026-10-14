@@ -7,7 +7,7 @@ namespace App\Services;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class RecipeIndexService
@@ -17,6 +17,8 @@ class RecipeIndexService
      *
      * @param User $authenticatedUser The currently authenticated user viewing the recipes.
      * @param array $filters Filters to apply (category, show_mine, search_term, search_mode, target_user_id)
+     *
+     * @return LengthAwarePaginator<int, Recipe>
      */
     public function getRecipes(User $authenticatedUser, array $filters = []): LengthAwarePaginator
     {
@@ -24,6 +26,7 @@ class RecipeIndexService
 
         $this->applyFilters($query, $filters, $authenticatedUser);
 
+        /** @var LengthAwarePaginator<int, Recipe> $recipes */
         $recipes = $query->paginate(12);
 
         $this->addIsFavoritedFlag($recipes, $authenticatedUser);
@@ -37,7 +40,7 @@ class RecipeIndexService
     private function buildBaseQuery(): Builder
     {
         return Recipe::query()
-            ->with(['user:id,name,slug', 'categories' => function (BelongsToMany $query): void {
+            ->with(['user:id,name,slug', 'categories' => function (Relation $query): void {
                 $query->withCount('recipes');
             }])
             ->latest();
@@ -97,6 +100,8 @@ class RecipeIndexService
 
     /**
      * Add is_favorited flag to recipes.
+     *
+     * @param LengthAwarePaginator<int, Recipe> $recipes
      */
     private function addIsFavoritedFlag(LengthAwarePaginator $recipes, User $authenticatedUser): void
     {

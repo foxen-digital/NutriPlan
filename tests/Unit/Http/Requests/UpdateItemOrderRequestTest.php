@@ -54,20 +54,5 @@ test('authorize returns false when shopping list is null', function () {
     expect($request->authorize())->toBeFalse();
 });
 
-test('authorize returns false when user is null', function () {
-    // Although user is unlikely null due to auth middleware, test edge case
-    $shoppingList = ShoppingList::factory()->make(['id' => 10, 'user_id' => 1]);
-
-    $request = createUpdateItemOrderRequest(null, $shoppingList);
-
-    // Need to handle potential null user in authorize if this scenario is possible
-    // Based on current logic, it relies on $this->user()->id, so this would error.
-    // Let's assume auth middleware prevents null user, making this test less critical
-    // or requiring adjustment to authorize method if null user needs handling.
-    // For now, assuming $this->user() is never null in authorize().
-    // If it could be null, the authorize method would need a null check for $this->user().
-    $this->markTestSkipped('Skipping test for null user as auth middleware should prevent this.');
-});
-
 // Validation rules tests can be added here later if needed
 // We focus on the authorize method as per the refactoring plan

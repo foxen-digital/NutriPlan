@@ -45,23 +45,58 @@ class RecipeParser
         }
     }
 
+    /** @var array<int, string> */
+    private const RECIPE_PROPERTY_HINTS = [
+        'recipeIngredient',
+        'recipeInstructions',
+        'recipeCuisine',
+        'recipeCategory',
+        'recipeYield',
+        'cookTime',
+        'prepTime',
+    ];
+
     /**
      * @param array<int, Item>|Item $items
      */
     public static function fromItems(array|Item $items, string $url): ?Recipe
     {
+        $items = is_array($items) ? $items : [$items];
+
+        // First pass: look for an item explicitly typed as a Recipe
         foreach ($items as $item) {
             if (Str::contains(Str::lower(implode(',', $item->getTypes())), 'recipe')) {
+                info('RecipeParser: matched by type');
                 return (new self(url: $url))->parse($item);
             }
         }
 
-        // The whole thing might be a recipe
-        if (count($items) == 1) {
-            return (new self(url: $url))->parse(is_array($items) ? $items[0] : $items);
+        // Second pass: look for any item that has recipe-like properties
+        foreach ($items as $item) {
+            if (self::itemHasRecipeProperties($item)) {
+                info('RecipeParser: matched by properties');
+                return (new self(url: $url))->parse($item);
+            }
         }
 
+        info('RecipeParser: no recipe found');
         return null;
+    }
+
+    private static function itemHasRecipeProperties(Item $item): bool
+    {
+        $propertyKeys = array_keys($item->getProperties());
+
+        foreach ($propertyKeys as $key) {
+            $normalizedKey = Str::replace(['http://schema.org/', 'https://schema.org/'], '', $key);
+            foreach (self::RECIPE_PROPERTY_HINTS as $hint) {
+                if (Str::lower($normalizedKey) === Str::lower($hint)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 

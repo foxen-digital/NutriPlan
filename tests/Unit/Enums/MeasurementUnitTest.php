@@ -8,6 +8,7 @@ test('it provides human readable labels', function () {
     expect(MeasurementUnit::GRAM->label())->toBe('Gram');
     expect(MeasurementUnit::MILLILITER->label())->toBe('Milliliter');
     expect(MeasurementUnit::CUP->label())->toBe('Cup');
+    expect(MeasurementUnit::CAN->label())->toBe('Can');
 });
 
 test('it identifies volume units', function () {
@@ -32,6 +33,7 @@ test('it identifies weight units', function () {
 test('it identifies unit measurements', function () {
     expect(MeasurementUnit::PIECE->isUnit())->toBeTrue();
     expect(MeasurementUnit::PINCH->isUnit())->toBeTrue();
+    expect(MeasurementUnit::CAN->isUnit())->toBeTrue();
 
     expect(MeasurementUnit::GRAM->isUnit())->toBeFalse();
     expect(MeasurementUnit::MILLILITER->isUnit())->toBeFalse();

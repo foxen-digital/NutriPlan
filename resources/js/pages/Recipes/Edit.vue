@@ -27,6 +27,12 @@ const addNewIngredient = (ingredient: { id: number; name: string }) => {
     ingredients.value.push(ingredient as Ingredient);
 };
 
+const addNewIngredients = (newIngredients: Array<{ id: number; name: string }>) => {
+    for (const ingredient of newIngredients) {
+        ingredients.value.push(ingredient as Ingredient);
+    }
+};
+
 const addNewCategory = (category: { id: number; name: string }) => {
     categories.value.push(category as Category);
 };
@@ -59,6 +65,7 @@ const addNewCategory = (category: { id: number; name: string }) => {
                     method="put"
                     @submit="(form) => form.put(route('recipes.update', recipe.slug))"
                     @new-ingredient="addNewIngredient"
+                    @new-ingredients="addNewIngredients"
                     @new-category="addNewCategory"
                 />
             </div>

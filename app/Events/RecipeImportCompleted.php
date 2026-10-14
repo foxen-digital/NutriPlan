@@ -63,8 +63,10 @@ class RecipeImportCompleted implements ShouldBroadcast
         return [
             'status' => $this->status,
             'message' => $this->message,
-            'recipeId' => $this->recipe->id,
-            'recipeUrl' => route('recipes.show', $this->recipe->slug),
+            ...($this->recipe !== null ? [
+                'recipeId' => $this->recipe->id,
+                'recipeUrl' => route('recipes.show', $this->recipe->slug),
+            ] : []),
         ];
     }
 }

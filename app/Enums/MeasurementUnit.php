@@ -16,6 +16,7 @@ enum MeasurementUnit: string
     case PIECE = 'pc';
     case PINCH = 'pinch';
     case CLOVE = 'clove';
+    case CAN = 'can';
     case OUNCE = 'oz';
     case POUND = 'lb';
     case FLUID_OUNCE = 'fl oz';
@@ -33,6 +34,7 @@ enum MeasurementUnit: string
             self::PIECE => 'Piece',
             self::PINCH => 'Pinch',
             self::CLOVE => 'Clove',
+            self::CAN => 'Can',
             self::OUNCE => 'Ounce',
             self::POUND => 'Pound',
             self::FLUID_OUNCE => 'Fluid Ounce',
@@ -67,6 +69,7 @@ enum MeasurementUnit: string
             self::PIECE,
             self::PINCH,
             self::CLOVE,
+            self::CAN,
         ]);
     }
 

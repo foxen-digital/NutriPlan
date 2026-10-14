@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { ToastProvider, ToastRegistry, ToastViewport } from '@/components/ui/toast';
+import { useInstructionNormalization } from '@/composables/useInstructionNormalization';
 import { useRecipeImport } from '@/composables/useRecipeImport';
 import { useShoppingListSync } from '@/composables/useShoppingListSync';
 import { onMounted, ref } from 'vue';
@@ -23,6 +24,10 @@ onMounted(() => {
     // Initialize Echo listeners for shopping list update notifications
     const { initializeListeners: initializeShoppingListSync } = useShoppingListSync();
     initializeShoppingListSync();
+
+    // Initialize Echo listeners for instruction normalization notifications
+    const { initializeListeners: initializeInstructionNormalization } = useInstructionNormalization();
+    initializeInstructionNormalization();
 });
 
 const handleSidebarChange = (open: boolean) => {

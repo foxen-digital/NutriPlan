@@ -26,6 +26,7 @@ return [
         ['value' => 'lb', 'label' => 'Pounds'],
         ['value' => 'slice', 'label' => 'Slices'],
         ['value' => 'clove', 'label' => 'Cloves'],
+        ['value' => 'can', 'label' => 'Cans'],
         ['value' => 'whole', 'label' => 'Whole'],
     ],
 ];

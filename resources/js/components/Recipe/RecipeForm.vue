@@ -118,10 +118,16 @@
                         </Button>
                     </div>
 
-                    <Button type="button" variant="outline" @click="addIngredient">
-                        <PlusIcon class="mr-2 h-4 w-4" />
-                        Add Ingredient
-                    </Button>
+                    <div class="flex gap-2">
+                        <Button type="button" variant="outline" @click="addIngredient">
+                            <PlusIcon class="mr-2 h-4 w-4" />
+                            Add Ingredient
+                        </Button>
+                        <Button type="button" variant="outline" @click="showBulkAddModal = true">
+                            <ListPlusIcon class="mr-2 h-4 w-4" />
+                            Bulk Add
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -145,6 +151,8 @@
             <NutritionForm v-model="form.nutrition_information" />
         </div>
 
+        <BulkAddIngredientsModal v-model:open="showBulkAddModal" @ingredients-added="handleBulkAdd" />
+
         <div class="flex justify-end gap-4">
             <Button type="button" variant="outline" @click="() => form.get(route('recipes.index'))">Cancel</Button>
             <Button type="submit" :disabled="form.processing">{{ submitLabel }}</Button>
@@ -153,6 +161,7 @@
 </template>
 
 <script setup lang="ts">
+import BulkAddIngredientsModal from '@/components/Recipe/BulkAddIngredientsModal.vue';
 import NutritionForm from '@/components/Recipe/NutritionForm.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -164,11 +173,12 @@ import { InputError } from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import type { NormalizedIngredient } from '@/types/ingredient';
 import type { MeasurementUnit, Recipe } from '@/types/recipe';
 import type { FormDataConvertible } from '@inertiajs/core';
 import { useForm } from '@inertiajs/vue3';
-import { PlusIcon, TrashIcon, XIcon } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { ListPlusIcon, PlusIcon, TrashIcon, XIcon } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 const props = withDefaults(
     defineProps<{
@@ -236,6 +246,8 @@ const form = useForm<FormData>({
 
 const hasSourceUrl = computed(() => props.recipe?.url);
 
+const showBulkAddModal = ref(false);
+
 const toggleCategory = (id: number) => {
     const index = form.categories.indexOf(id);
     if (index !== -1) {
@@ -265,12 +277,31 @@ const removeIngredient = (index: number) => {
 const emit = defineEmits<{
     (e: 'submit', form: ReturnType<typeof useForm<FormData>>): void;
     (e: 'new-ingredient', ingredient: { id: number; name: string }): void;
+    (e: 'new-ingredients', ingredients: Array<{ id: number; name: string }>): void;
     (e: 'new-category', category: { id: number; name: string }): void;
 }>();
 
 const handleNewIngredient = (newIngredient: { id: number; name: string }) => {
     // Emit event to add the new ingredient to the ingredients list
     emit('new-ingredient', newIngredient);
+};
+
+const handleBulkAdd = (rows: NormalizedIngredient[]) => {
+    for (const row of rows) {
+        form.ingredients.push({
+            ingredient_id: row.ingredient_id,
+            amount: row.amount ?? 1,
+            unit: row.unit ?? '',
+        });
+    }
+
+    const newOptions = rows
+        .map((row) => ({ id: row.ingredient_id, name: row.name }))
+        .filter((option) => !props.ingredients.some((ingredient) => ingredient.id === option.id));
+
+    if (newOptions.length > 0) {
+        emit('new-ingredients', newOptions);
+    }
 };
 
 const handleNewCategory = (newCategory: { id: number; name: string }) => {

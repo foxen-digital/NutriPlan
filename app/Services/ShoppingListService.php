@@ -15,6 +15,7 @@ use App\Http\Resources\ShoppingListResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Carbon;
 
 class ShoppingListService
@@ -54,7 +55,7 @@ class ShoppingListService
                 $query->where('to_cook', true);
             })
             ->with([
-                'mealAssignments' => function (HasMany $query): void {
+                'mealAssignments' => function (Relation $query): void {
                     $query->where('to_cook', true)
                         ->with(['mealPlanRecipe.recipe.ingredients']);
                 }

@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 use App\Enums\MeasurementUnit;
+use App\Jobs\NormalizeRecipeInstructionsJob;
 use App\Models\Category;
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -162,6 +164,8 @@ test('user can create recipe', function () {
 });
 
 test('user can store recipe', function () {
+    Queue::fake();
+
     $categories = Category::factory(2)->create();
     $ingredients = Ingredient::factory(3)->create();
 
@@ -187,8 +191,14 @@ test('user can store recipe', function () {
     expect(Recipe::where('title', 'Test Recipe')->exists())->toBeTrue();
 
     $recipe = Recipe::where('title', 'Test Recipe')->first();
+    expect($recipe->instructions)->toBe('Test Instructions');
     expect($recipe->categories)->toHaveCount(2);
     expect($recipe->ingredients)->toHaveCount(3);
+
+    Queue::assertPushed(NormalizeRecipeInstructionsJob::class, function (NormalizeRecipeInstructionsJob $job) use ($recipe) {
+        return $job->recipeId === $recipe->id &&
+               $job->userId === $this->user->id;
+    });
 });
 
 test('guest cannot view recipe', function () {
@@ -284,6 +294,8 @@ test('user cannot edit others recipe', function () {
 });
 
 test('user can update own recipe', function () {
+    Queue::fake();
+
     $recipe = Recipe::factory()
         ->for($this->user)
         ->create();
@@ -331,6 +343,11 @@ test('user can update own recipe', function () {
     expect($recipe->servings)->toBe(6);
     expect($recipe->categories)->toHaveCount(2);
     expect($recipe->ingredients)->toHaveCount(3);
+
+    Queue::assertPushed(NormalizeRecipeInstructionsJob::class, function (NormalizeRecipeInstructionsJob $job) use ($recipe) {
+        return $job->recipeId === $recipe->id &&
+               $job->userId === $this->user->id;
+    });
 });
 
 test('user cannot update others recipe', function () {
