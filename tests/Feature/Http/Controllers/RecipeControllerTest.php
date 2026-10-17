@@ -6,6 +6,7 @@ use App\Enums\MeasurementUnit;
 use App\Jobs\NormalizeRecipeInstructionsJob;
 use App\Models\Category;
 use App\Models\Ingredient;
+use App\Models\NutritionInformation;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -240,6 +241,59 @@ test('user can store recipe with images', function () {
         Str::after($recipe->images[0], '/storage/'),
         Str::after($recipe->images[1], '/storage/'),
     ]);
+});
+
+test('user can store recipe with nutrition information', function () {
+    Queue::fake();
+
+    $response = actingAs($this->user)
+        ->post(route('recipes.store'), [
+            'title' => 'Recipe With Nutrition',
+            'instructions' => 'Test Instructions',
+            'prep_time' => 30,
+            'cooking_time' => 45,
+            'servings' => 4,
+            'ingredients' => [
+                ['ingredient_id' => Ingredient::factory()->create()->id, 'amount' => 2.5, 'unit' => MeasurementUnit::CUP->value],
+            ],
+            'nutrition_information' => [
+                'calories' => '240 calories',
+                'protein_content' => '4g',
+                'sodium_content' => '200mg',
+                'hacker_field' => 'should be ignored',
+            ],
+        ]);
+
+    $response->assertRedirect();
+
+    $recipe = Recipe::where('title', 'Recipe With Nutrition')->first();
+
+    expect($recipe->nutritionInformation)->not->toBeNull();
+    expect($recipe->nutritionInformation->calories)->toBe('240 calories');
+    expect($recipe->nutritionInformation->protein_content)->toBe('4g');
+    expect($recipe->nutritionInformation->sodium_content)->toBe('200mg');
+});
+
+test('storing recipe without nutrition information creates no record', function () {
+    Queue::fake();
+
+    $response = actingAs($this->user)
+        ->post(route('recipes.store'), [
+            'title' => 'Recipe Without Nutrition',
+            'instructions' => 'Test Instructions',
+            'prep_time' => 30,
+            'cooking_time' => 45,
+            'servings' => 4,
+            'ingredients' => [
+                ['ingredient_id' => Ingredient::factory()->create()->id, 'amount' => 2.5, 'unit' => MeasurementUnit::CUP->value],
+            ],
+        ]);
+
+    $response->assertRedirect();
+
+    $recipe = Recipe::where('title', 'Recipe Without Nutrition')->first();
+
+    expect($recipe->nutritionInformation)->toBeNull();
 });
 
 test('guest cannot view recipe', function () {
@@ -495,6 +549,102 @@ test('updating recipe ignores existing image urls not attached to the recipe', f
     $recipe->refresh();
 
     expect($recipe->images)->toBe(['/storage/recipes/existing.png']);
+});
+
+test('updating recipe replaces nutrition information and clears emptied fields', function () {
+    Queue::fake();
+
+    $recipe = Recipe::factory()
+        ->for($this->user)
+        ->has(NutritionInformation::factory()->state([
+            'calories' => '100 calories',
+            'fat_content' => '2g',
+        ]))
+        ->create();
+
+    $response = actingAs($this->user)
+        ->put(route('recipes.update', $recipe), [
+            'title' => 'Updated Recipe',
+            'instructions' => $recipe->instructions,
+            'prep_time' => 45,
+            'cooking_time' => 60,
+            'servings' => 6,
+            'ingredients' => [
+                ['ingredient_id' => Ingredient::factory()->create()->id, 'amount' => 1, 'unit' => MeasurementUnit::CUP->value],
+            ],
+            'nutrition_information' => [
+                'calories' => '300 calories',
+                'fat_content' => '',
+            ],
+        ]);
+
+    $response->assertRedirect();
+
+    $recipe->refresh();
+
+    expect($recipe->nutritionInformation->calories)->toBe('300 calories');
+    expect($recipe->nutritionInformation->fat_content)->toBeNull();
+});
+
+test('updating recipe creates nutrition information when missing', function () {
+    Queue::fake();
+
+    $recipe = Recipe::factory()
+        ->for($this->user)
+        ->create();
+
+    $response = actingAs($this->user)
+        ->put(route('recipes.update', $recipe), [
+            'title' => 'Updated Recipe',
+            'instructions' => $recipe->instructions,
+            'prep_time' => 45,
+            'cooking_time' => 60,
+            'servings' => 6,
+            'ingredients' => [
+                ['ingredient_id' => Ingredient::factory()->create()->id, 'amount' => 1, 'unit' => MeasurementUnit::CUP->value],
+            ],
+            'nutrition_information' => ['fiber_content' => '3g'],
+        ]);
+
+    $response->assertRedirect();
+
+    $recipe->refresh();
+
+    expect($recipe->nutritionInformation)->not->toBeNull();
+    expect($recipe->nutritionInformation->fiber_content)->toBe('3g');
+});
+
+test('updating recipe with empty nutrition information removes it', function () {
+    Queue::fake();
+
+    $recipe = Recipe::factory()
+        ->for($this->user)
+        ->has(NutritionInformation::factory()->state([
+            'calories' => '100 calories',
+        ]))
+        ->create();
+
+    $response = actingAs($this->user)
+        ->put(route('recipes.update', $recipe), [
+            'title' => 'Updated Recipe',
+            'instructions' => $recipe->instructions,
+            'prep_time' => 45,
+            'cooking_time' => 60,
+            'servings' => 6,
+            'ingredients' => [
+                ['ingredient_id' => Ingredient::factory()->create()->id, 'amount' => 1, 'unit' => MeasurementUnit::CUP->value],
+            ],
+            'nutrition_information' => [
+                'calories' => '',
+                'protein_content' => '   ',
+            ],
+        ]);
+
+    $response->assertRedirect();
+
+    $recipe->refresh();
+
+    expect($recipe->nutritionInformation)->toBeNull();
 });
 
 test('user cannot update others recipe', function () {

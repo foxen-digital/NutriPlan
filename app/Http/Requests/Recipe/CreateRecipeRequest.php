@@ -31,6 +31,8 @@ class CreateRecipeRequest extends FormRequest
             'ingredients.*.unit' => ['nullable', 'string'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'max:5120'], // 5MB max per image
+            'nutrition_information' => ['nullable', 'array'],
+            'nutrition_information.*' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

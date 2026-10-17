@@ -26,6 +26,26 @@ class RecipeController extends Controller
 {
     use AuthorizesRequests;
 
+    /**
+     * Nutrition fields accepted from the recipe form; columns on nutrition_information.
+     *
+     * @var list<string>
+     */
+    private const NUTRITION_INFORMATION_FIELDS = [
+        'calories',
+        'carbohydrate_content',
+        'cholesterol_content',
+        'fat_content',
+        'fiber_content',
+        'protein_content',
+        'saturated_fat_content',
+        'serving_size',
+        'sodium_content',
+        'sugar_content',
+        'trans_fat_content',
+        'unsaturated_fat_content',
+    ];
+
     public function index(Request $request, RecipeIndexService $recipeService): Response
     {
         $user = $request->user();
@@ -76,6 +96,8 @@ class RecipeController extends Controller
 
         // Queue background formatting of the instructions; the user is notified when it completes.
         NormalizeRecipeInstructionsJob::dispatch($recipe->id, $request->user()->id);
+
+        $this->syncNutritionInformation($recipe, $request->input('nutrition_information'));
 
         if ($request->has('categories')) {
             $recipe->categories()->sync($request->input('categories'));
@@ -187,6 +209,8 @@ class RecipeController extends Controller
         $recipe->images = [...$keptImages, ...$newImages];
         $recipe->save();
 
+        $this->syncNutritionInformation($recipe, $request->input('nutrition_information'));
+
         // Only queue background formatting when the instructions actually changed;
         // a title-only edit should not trigger an LLM call.
         if ($instructionsChanged) {
@@ -226,6 +250,36 @@ class RecipeController extends Controller
 
         return redirect()->route('recipes.index')
             ->with('success', 'Recipe deleted successfully.');
+    }
+
+    /**
+     * Sync the recipe's nutrition information with the submitted form data.
+     * Cleared fields are nulled, and an entirely empty payload removes the record.
+     *
+     * @param  array<string, mixed>|null  $nutrition
+     */
+    private function syncNutritionInformation(Recipe $recipe, ?array $nutrition): void
+    {
+        $values = collect($nutrition ?? [])
+            ->only(self::NUTRITION_INFORMATION_FIELDS)
+            ->map(fn (mixed $value): ?string => is_string($value) && trim($value) !== '' ? $value : null)
+            ->all();
+
+        $filled = array_filter($values, fn (?string $value): bool => $value !== null);
+
+        if ($recipe->nutritionInformation) {
+            if ($filled === []) {
+                $recipe->nutritionInformation->delete();
+            } else {
+                $recipe->nutritionInformation->update($values);
+            }
+
+            return;
+        }
+
+        if ($filled !== []) {
+            $recipe->nutritionInformation()->create($filled);
+        }
     }
 
     /**
