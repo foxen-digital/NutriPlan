@@ -14,6 +14,9 @@ use App\Actions\DeleteRecipeAction;
 use App\Jobs\NormalizeRecipeInstructionsJob;
 use App\Services\RecipeIndexService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use App\Http\Requests\Recipe\CreateRecipeRequest;
 use App\Http\Requests\Recipe\UpdateRecipeRequest;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -22,6 +25,26 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class RecipeController extends Controller
 {
     use AuthorizesRequests;
+
+    /**
+     * Nutrition fields accepted from the recipe form; columns on nutrition_information.
+     *
+     * @var list<string>
+     */
+    private const NUTRITION_INFORMATION_FIELDS = [
+        'calories',
+        'carbohydrate_content',
+        'cholesterol_content',
+        'fat_content',
+        'fiber_content',
+        'protein_content',
+        'saturated_fat_content',
+        'serving_size',
+        'sodium_content',
+        'sugar_content',
+        'trans_fat_content',
+        'unsaturated_fat_content',
+    ];
 
     public function index(Request $request, RecipeIndexService $recipeService): Response
     {
@@ -65,10 +88,16 @@ class RecipeController extends Controller
             'is_public',
         ]);
 
+        if ($request->hasFile('images')) {
+            $recipeData['images'] = $this->storeRecipeImages($request->file('images'));
+        }
+
         $recipe = $request->user()->recipes()->create($recipeData);
 
         // Queue background formatting of the instructions; the user is notified when it completes.
         NormalizeRecipeInstructionsJob::dispatch($recipe->id, $request->user()->id);
+
+        $this->syncNutritionInformation($recipe, $request->input('nutrition_information'));
 
         if ($request->has('categories')) {
             $recipe->categories()->sync($request->input('categories'));
@@ -160,10 +189,30 @@ class RecipeController extends Controller
 
         $recipe->update($recipeData);
 
-        // Only queue background formatting when the instructions actually changed;
-        // a title-only edit should not trigger an LLM call.
+        // Capture this before syncing images below; wasChanged only reflects the most recent save.
         $instructionsChanged = $recipe->wasChanged('instructions');
 
+        // Replace the recipe's images with the form's final list: URLs the user kept
+        // plus newly uploaded files. Kept URLs must already be attached to the recipe
+        // so a tampered request cannot inject arbitrary values.
+        $keptImages = collect($request->input('existing_images', []))
+            ->intersect($recipe->images ?? [])
+            ->values()
+            ->all();
+
+        $newImages = $request->hasFile('images')
+            ? $this->storeRecipeImages($request->file('images'))
+            : [];
+
+        $this->deleteRecipeImages(collect($recipe->images ?? [])->diff($keptImages));
+
+        $recipe->images = [...$keptImages, ...$newImages];
+        $recipe->save();
+
+        $this->syncNutritionInformation($recipe, $request->input('nutrition_information'));
+
+        // Only queue background formatting when the instructions actually changed;
+        // a title-only edit should not trigger an LLM call.
         if ($instructionsChanged) {
             NormalizeRecipeInstructionsJob::dispatch($recipe->id, $request->user()->id);
         }
@@ -201,5 +250,63 @@ class RecipeController extends Controller
 
         return redirect()->route('recipes.index')
             ->with('success', 'Recipe deleted successfully.');
+    }
+
+    /**
+     * Sync the recipe's nutrition information with the submitted form data.
+     * Cleared fields are nulled, and an entirely empty payload removes the record.
+     *
+     * @param  array<string, mixed>|null  $nutrition
+     */
+    private function syncNutritionInformation(Recipe $recipe, ?array $nutrition): void
+    {
+        $values = collect($nutrition ?? [])
+            ->only(self::NUTRITION_INFORMATION_FIELDS)
+            ->map(fn (mixed $value): ?string => is_string($value) && trim($value) !== '' ? $value : null)
+            ->all();
+
+        $filled = array_filter($values, fn (?string $value): bool => $value !== null);
+
+        if ($recipe->nutritionInformation) {
+            if ($filled === []) {
+                $recipe->nutritionInformation->delete();
+            } else {
+                $recipe->nutritionInformation->update($values);
+            }
+
+            return;
+        }
+
+        if ($filled !== []) {
+            $recipe->nutritionInformation()->create($filled);
+        }
+    }
+
+    /**
+     * Store uploaded images on the public disk and return their relative URLs.
+     *
+     * @param  array<int, UploadedFile>  $images
+     * @return list<string>
+     */
+    private function storeRecipeImages(array $images): array
+    {
+        return collect($images)
+            ->map(fn (UploadedFile $image): string => '/storage/'.$image->storePublicly('recipes', 'public'))
+            ->all();
+    }
+
+    /**
+     * Delete the local files behind images that are no longer attached to the recipe.
+     * External URLs (e.g. from imports) are left untouched.
+     *
+     * @param  iterable<int, mixed>  $images
+     */
+    private function deleteRecipeImages(iterable $images): void
+    {
+        foreach ($images as $image) {
+            if (is_string($image) && str_starts_with($image, '/storage/')) {
+                Storage::disk('public')->delete(Str::after($image, '/storage/'));
+            }
+        }
     }
 }

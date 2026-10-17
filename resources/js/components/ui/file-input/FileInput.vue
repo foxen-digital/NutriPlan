@@ -56,6 +56,9 @@ const handleFileChange = (event: Event) => {
   if (!target.files?.length) return
 
   emit('update:modelValue', props.multiple ? Array.from(target.files) : target.files[0])
+
+  // Clear the selection so picking the same file again fires another change event.
+  target.value = ''
 }
 
 const handleDrop = (event: DragEvent) => {
