@@ -122,6 +122,7 @@ const formMock = {
     categories: [],
     ingredients: [],
     images: [],
+    existing_images: [],
     nutrition_information: {},
     errors: {},
     processing: false,
@@ -192,6 +193,7 @@ describe('RecipeForm.vue', () => {
         formMock.categories = [];
         formMock.ingredients = [];
         formMock.images = [];
+        formMock.existing_images = [];
         formMock.nutrition_information = {};
         formMock.errors = {};
         formMock.processing = false;
@@ -357,5 +359,57 @@ describe('RecipeForm.vue', () => {
         expect(errorElements.length).toBeGreaterThan(0);
         expect(wrapper.html()).toContain('Title is required');
         expect(wrapper.html()).toContain('Prep time must be a number');
+    });
+
+    it('renders thumbnails for existing recipe images', () => {
+        const wrapper = mount(RecipeForm, {
+            props: {
+                recipe: {
+                    title: 'Pasta Carbonara',
+                    images: ['/storage/recipes/a.png', '/storage/recipes/b.png'],
+                },
+                categories: mockCategories,
+                ingredients: mockIngredients,
+                measurementUnits: mockUnits,
+            },
+            global: {
+                mocks: {
+                    route,
+                },
+            },
+        });
+
+        const thumbnails = wrapper.findAll('img');
+        expect(thumbnails.length).toBe(2);
+        expect(thumbnails[0].attributes('src')).toBe('/storage/recipes/a.png');
+        expect(thumbnails[1].attributes('src')).toBe('/storage/recipes/b.png');
+    });
+
+    it('removes an existing image from the form when its delete button is clicked', async () => {
+        const wrapper = mount(RecipeForm, {
+            props: {
+                recipe: {
+                    title: 'Pasta Carbonara',
+                    images: ['/storage/recipes/a.png', '/storage/recipes/b.png'],
+                },
+                categories: mockCategories,
+                ingredients: mockIngredients,
+                measurementUnits: mockUnits,
+            },
+            global: {
+                mocks: {
+                    route,
+                },
+            },
+        });
+
+        await wrapper.find('button[aria-label="Remove image 1"]').trigger('click');
+
+        const thumbnails = wrapper.findAll('img');
+        expect(thumbnails.length).toBe(1);
+        expect(thumbnails[0].attributes('src')).toBe('/storage/recipes/b.png');
+
+        await wrapper.find('form').trigger('submit');
+        expect(formMock.existing_images).toEqual(['/storage/recipes/b.png']);
     });
 });

@@ -9,7 +9,10 @@ use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -201,6 +204,44 @@ test('user can store recipe', function () {
     });
 });
 
+test('user can store recipe with images', function () {
+    Queue::fake();
+    Storage::fake('public');
+
+    // A 1x1 transparent PNG; UploadedFile::fake()->image() needs GD, which is not installed.
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+
+    $response = actingAs($this->user)
+        ->post(route('recipes.store'), [
+            'title' => 'Recipe With Images',
+            'instructions' => 'Test Instructions',
+            'prep_time' => 30,
+            'cooking_time' => 45,
+            'servings' => 4,
+            'ingredients' => [
+                ['ingredient_id' => Ingredient::factory()->create()->id, 'amount' => 2.5, 'unit' => MeasurementUnit::CUP->value],
+            ],
+            'images' => [
+                UploadedFile::fake()->createWithContent('one.png', $png),
+                UploadedFile::fake()->createWithContent('two.png', $png),
+            ],
+        ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $recipe = Recipe::where('title', 'Recipe With Images')->first();
+
+    expect($recipe->images)->toHaveCount(2);
+    expect($recipe->images[0])->toStartWith('/storage/recipes/');
+    expect($recipe->images[1])->toStartWith('/storage/recipes/');
+
+    Storage::disk('public')->assertExists([
+        Str::after($recipe->images[0], '/storage/'),
+        Str::after($recipe->images[1], '/storage/'),
+    ]);
+});
+
 test('guest cannot view recipe', function () {
     $recipe = Recipe::factory()->create();
 
@@ -348,6 +389,112 @@ test('user can update own recipe', function () {
         return $job->recipeId === $recipe->id &&
                $job->userId === $this->user->id;
     });
+});
+
+test('updating recipe replaces images with kept and newly uploaded images', function () {
+    Queue::fake();
+    Storage::fake('public');
+
+    // A 1x1 transparent PNG; UploadedFile::fake()->image() needs GD, which is not installed.
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+
+    $recipe = Recipe::factory()
+        ->for($this->user)
+        ->create(['images' => ['/storage/recipes/existing.png', '/storage/recipes/removed.png']]);
+
+    Storage::disk('public')->put('recipes/existing.png', 'existing');
+    Storage::disk('public')->put('recipes/removed.png', 'removed');
+
+    $response = actingAs($this->user)
+        ->put(route('recipes.update', $recipe), [
+            'title' => 'Updated Recipe',
+            'instructions' => 'Updated Instructions',
+            'prep_time' => 45,
+            'cooking_time' => 60,
+            'servings' => 6,
+            'ingredients' => [
+                ['ingredient_id' => Ingredient::factory()->create()->id, 'amount' => 1, 'unit' => MeasurementUnit::CUP->value],
+            ],
+            'existing_images' => ['/storage/recipes/existing.png'],
+            'images' => [UploadedFile::fake()->createWithContent('new.png', $png)],
+        ]);
+
+    $response->assertRedirect();
+
+    $recipe->refresh();
+
+    expect($recipe->images)->toHaveCount(2);
+    expect($recipe->images[0])->toBe('/storage/recipes/existing.png');
+    expect($recipe->images[1])->toStartWith('/storage/recipes/');
+
+    Storage::disk('public')->assertExists('recipes/existing.png');
+    Storage::disk('public')->assertMissing('recipes/removed.png');
+    Storage::disk('public')->assertExists(Str::after($recipe->images[1], '/storage/'));
+
+    // Instructions changed in the same edit as the image sync, so the job must still be queued.
+    Queue::assertPushed(NormalizeRecipeInstructionsJob::class, function (NormalizeRecipeInstructionsJob $job) use ($recipe) {
+        return $job->recipeId === $recipe->id &&
+               $job->userId === $this->user->id;
+    });
+});
+
+test('updating recipe with unchanged existing images keeps them', function () {
+    Queue::fake();
+
+    $recipe = Recipe::factory()
+        ->for($this->user)
+        ->create(['images' => ['/storage/recipes/existing.png']]);
+
+    $response = actingAs($this->user)
+        ->put(route('recipes.update', $recipe), [
+            'title' => 'Updated Recipe',
+            'instructions' => $recipe->instructions,
+            'prep_time' => 45,
+            'cooking_time' => 60,
+            'servings' => 6,
+            'ingredients' => [
+                ['ingredient_id' => Ingredient::factory()->create()->id, 'amount' => 1, 'unit' => MeasurementUnit::CUP->value],
+            ],
+            'existing_images' => ['/storage/recipes/existing.png'],
+        ]);
+
+    $response->assertRedirect();
+
+    $recipe->refresh();
+
+    expect($recipe->images)->toBe(['/storage/recipes/existing.png']);
+    Queue::assertNothingPushed();
+});
+
+test('updating recipe ignores existing image urls not attached to the recipe', function () {
+    Queue::fake();
+
+    $recipe = Recipe::factory()
+        ->for($this->user)
+        ->create(['images' => ['/storage/recipes/existing.png']]);
+
+    $response = actingAs($this->user)
+        ->put(route('recipes.update', $recipe), [
+            'title' => 'Updated Recipe',
+            'instructions' => $recipe->instructions,
+            'prep_time' => 45,
+            'cooking_time' => 60,
+            'servings' => 6,
+            'ingredients' => [
+                ['ingredient_id' => Ingredient::factory()->create()->id, 'amount' => 1, 'unit' => MeasurementUnit::CUP->value],
+            ],
+            'existing_images' => [
+                '/storage/recipes/existing.png',
+                '/storage/recipes/someone-elses-image.png',
+                'https://evil.example/image.png',
+            ],
+        ]);
+
+    $response->assertRedirect();
+
+    $recipe->refresh();
+
+    expect($recipe->images)->toBe(['/storage/recipes/existing.png']);
 });
 
 test('user cannot update others recipe', function () {

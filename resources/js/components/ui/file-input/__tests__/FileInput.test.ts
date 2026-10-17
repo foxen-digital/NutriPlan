@@ -79,6 +79,20 @@ describe('FileInput', () => {
         expect(wrapper.emitted('update:modelValue')![0][0]).toEqual([file1, file2]);
     });
 
+    it('clears the input value after emitting so the same file can be re-selected', async () => {
+        const wrapper = mount(FileInput, { props: defaultProps });
+        const file = new File(['content'], 'test.jpg', { type: 'image/jpeg' });
+
+        const input = wrapper.find('input[type="file"]');
+        Object.defineProperty(input.element, 'files', {
+            value: [file],
+            configurable: true,
+        });
+
+        await input.trigger('change');
+        expect(input.element.value).toBe('');
+    });
+
     it('handles drop event with a single file', async () => {
         const wrapper = mount(FileInput, { props: defaultProps });
         const file = new File(['content'], 'dropped.jpg', { type: 'image/jpeg' });

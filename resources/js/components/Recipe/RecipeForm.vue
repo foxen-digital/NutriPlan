@@ -141,10 +141,47 @@
             <!-- Images -->
             <div>
                 <Label>Images</Label>
+                <div
+                    v-if="existingImages.length > 0 || newImagePreviews.length > 0"
+                    class="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6"
+                >
+                    <div
+                        v-for="(image, index) in existingImages"
+                        :key="image"
+                        class="relative aspect-square overflow-hidden rounded-md border border-gray-200 dark:border-gray-700"
+                    >
+                        <img :src="image" :alt="`Recipe image ${index + 1}`" class="h-full w-full object-cover" />
+                        <button
+                            type="button"
+                            class="absolute right-1 top-1 rounded-full bg-white/90 p-1 text-gray-700 hover:bg-white dark:bg-gray-900/90 dark:text-gray-200 dark:hover:bg-gray-900"
+                            :aria-label="`Remove image ${index + 1}`"
+                            @click="removeExistingImage(index)"
+                        >
+                            <XIcon class="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    <div
+                        v-for="(preview, index) in newImagePreviews"
+                        :key="preview"
+                        class="relative aspect-square overflow-hidden rounded-md border border-gray-200 dark:border-gray-700"
+                    >
+                        <img :src="preview" :alt="`New image ${index + 1}`" class="h-full w-full object-cover" />
+                        <button
+                            type="button"
+                            class="absolute right-1 top-1 rounded-full bg-white/90 p-1 text-gray-700 hover:bg-white dark:bg-gray-900/90 dark:text-gray-200 dark:hover:bg-gray-900"
+                            :aria-label="`Remove new image ${index + 1}`"
+                            @click="removeStagedImage(index)"
+                        >
+                            <XIcon class="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
                 <div class="mt-1">
-                    <FileInput v-model="form.images" multiple accept="image/*" />
+                    <FileInput :model-value="form.images" multiple accept="image/*" @update:model-value="stageImages" />
                 </div>
                 <InputError :message="form.errors.images" />
+                <InputError :message="form.errors.existing_images" />
             </div>
 
             <!-- Nutrition Information -->
@@ -178,7 +215,7 @@ import type { MeasurementUnit, Recipe } from '@/types/recipe';
 import type { FormDataConvertible } from '@inertiajs/core';
 import { useForm } from '@inertiajs/vue3';
 import { ListPlusIcon, PlusIcon, TrashIcon, XIcon } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 
 const props = withDefaults(
     defineProps<{
@@ -208,6 +245,7 @@ interface FormData {
         unit: string | null;
     }>;
     images: File[];
+    existing_images: string[];
     nutrition_information: {
         calories?: string;
         carbohydrate_content?: string;
@@ -241,12 +279,47 @@ const form = useForm<FormData>({
             unit: i.pivot.unit,
         })) ?? [],
     images: [] as File[],
+    existing_images: [],
     nutrition_information: props.recipe?.nutrition_information ?? {},
 });
 
 const hasSourceUrl = computed(() => props.recipe?.url);
 
 const showBulkAddModal = ref(false);
+
+// URLs of images already attached to the recipe; removed ones are simply dropped from the list.
+const existingImages = ref<string[]>([...(props.recipe?.images ?? [])]);
+
+// Object URLs for previewing files staged for upload; revoked whenever the selection changes.
+const newImagePreviews = ref<string[]>([]);
+
+watch(
+    () => [...form.images],
+    (files) => {
+        for (const preview of newImagePreviews.value) {
+            URL.revokeObjectURL(preview);
+        }
+        newImagePreviews.value = files.map((file) => URL.createObjectURL(file));
+    },
+);
+
+onUnmounted(() => {
+    for (const preview of newImagePreviews.value) {
+        URL.revokeObjectURL(preview);
+    }
+});
+
+const stageImages = (files: File[] | File) => {
+    form.images.push(...(Array.isArray(files) ? files : [files]));
+};
+
+const removeStagedImage = (index: number) => {
+    form.images.splice(index, 1);
+};
+
+const removeExistingImage = (index: number) => {
+    existingImages.value.splice(index, 1);
+};
 
 const toggleCategory = (id: number) => {
     const index = form.categories.indexOf(id);
@@ -310,6 +383,7 @@ const handleNewCategory = (newCategory: { id: number; name: string }) => {
 };
 
 const submit = () => {
+    form.existing_images = [...existingImages.value];
     emit('submit', form);
 };
 
